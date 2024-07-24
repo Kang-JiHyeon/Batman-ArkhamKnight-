@@ -7,7 +7,10 @@
 		{
 			"Name": "Batman_ArkhamKnight",
 			"Type": "Runtime",
-			"LoadingPhase": "Default"
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine"
+			]
 		}
 	],
 	"Plugins": [
