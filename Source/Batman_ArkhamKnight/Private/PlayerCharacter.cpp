@@ -81,6 +81,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	Input->BindAction(IA_Move, ETriggerEvent::Completed, this, &APlayerCharacter::OnActionMoveCompleted);
 	Input->BindAction(IA_Look, ETriggerEvent::Triggered, this, &APlayerCharacter::OnActionLook);
 	Input->BindAction(IA_Dodge, ETriggerEvent::Started, this, &APlayerCharacter::OnActionDodge);
+	Input->BindAction(IA_Attack, ETriggerEvent::Started, this, &APlayerCharacter::OnActionAttack);
 	//Input->BindAction(IA_Dodge, ETriggerEvent::Completed, this, &APlayerCharacter::OnActionDodgeCompleted);
 
 }
@@ -124,7 +125,6 @@ void APlayerCharacter::OnActionDodge(const FInputActionValue& Value)
 {
 	if(bMove == false) return;
 
-
 	float currtime = GetWorld()->GetTimeSeconds();
 
 	if (currtime - LastDodgeKeyPressTime <= DoublePressInterval)
@@ -141,14 +141,7 @@ void APlayerCharacter::OnActionDodge(const FInputActionValue& Value)
 	LastDodgeKeyPressTime = currtime;
 }
 
-void APlayerCharacter::OnChangedDodgeSpeed(bool bDodge)
+void APlayerCharacter::OnActionAttack(const FInputActionValue& Value)
 {
-	//float speed = bDodge ? MaxDodgeSpeed : DefaultSpeed;
-
-	////GetCharacterMovement()->MaxWalkSpeed = speed;
-	//if(bDodge)
-	//	GetCharacterMovement()->Velocity = MaxDodgeSpeed * GetActorForwardVector();
-
+	
 }
-
-

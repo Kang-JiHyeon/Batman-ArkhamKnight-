@@ -61,6 +61,9 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	class UInputAction* IA_Dodge;
 
+	UPROPERTY(EditDefaultsOnly)
+	class UInputAction* IA_Attack;
+
 	// 애니메이션
 	UPROPERTY(EditDefaultsOnly)
 	class UPlayerAnim* PlayerAnim;
@@ -87,7 +90,7 @@ private:
 	void OnActionMoveCompleted(const FInputActionValue& Value);
 	void OnActionLook(const FInputActionValue& Value);
 	void OnActionDodge(const FInputActionValue& Value);
-	void OnActionDodgeCompleted(const FInputActionValue& Value);
+	void OnActionAttack(const FInputActionValue& Value);
 
 public:
 	void OnChangedDodgeSpeed(bool bDefault);

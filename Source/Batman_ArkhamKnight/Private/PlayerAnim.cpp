@@ -20,8 +20,6 @@ void UPlayerAnim::NativeUpdateAnimation(float DeltaTime)
 
         auto movement = player->GetCharacterMovement();
         bDodge = movement->IsFalling();
-
-        player->OnChangedDodgeSpeed(false);
     }
 }
 
