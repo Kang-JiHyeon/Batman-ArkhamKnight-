@@ -8,6 +8,8 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "InputActionValue.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 ABaseWheeledVehiclePawn::ABaseWheeledVehiclePawn()
 {
@@ -15,12 +17,17 @@ ABaseWheeledVehiclePawn::ABaseWheeledVehiclePawn()
 
 	BackSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("BackSpringArm"));
 	BackSpringArm->SetupAttachment(RootComponent);
+	BackSpringArm->SetRelativeLocation(FVector(0.f, 0.f, 75.f));
+	BackSpringArm->TargetArmLength = 650.f;
+	BackSpringArm->SocketOffset = FVector(0.f, 0.f, 150.f);
 
 	BackCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("BackCamera"));
 	BackCamera->SetupAttachment(BackSpringArm);
 
 	FrontSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("FrontSpringArm"));
 	FrontSpringArm->SetupAttachment(RootComponent);
+	FrontSpringArm->SetRelativeLocation(FVector(30.f, 0.f, 120.f));
+	FrontSpringArm->TargetArmLength = 0.f;
 
 	FrontCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FrontCamera"));
 	FrontCamera->SetupAttachment(FrontSpringArm);
