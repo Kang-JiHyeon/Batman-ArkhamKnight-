@@ -73,10 +73,14 @@ public:
 	// 움직임 여부
 	bool bMove;
 
-	// 점프 관련 변수
-	bool bIsDodgeKeyPressed = false;
-	float LastDodgeKeyPressTime = 0;
+	// 회피 관련 변수
+	UPROPERTY(EditDefaultsOnly)
 	float DoublePressInterval = 0.5f;
+    float LastDodgeKeyPressTime = 0;
+    bool bIsDodgeKeyPressed = false;
+
+	UPROPERTY(EditDefaultsOnly)
+	float DodgeSpeed = 1000;
 
 private:
 	void OnActionMove(const FInputActionValue& Value);
@@ -84,4 +88,7 @@ private:
 	void OnActionLook(const FInputActionValue& Value);
 	void OnActionDodge(const FInputActionValue& Value);
 	void OnActionDodgeCompleted(const FInputActionValue& Value);
+
+public:
+	void OnChangedDodgeSpeed(bool bDefault);
 };

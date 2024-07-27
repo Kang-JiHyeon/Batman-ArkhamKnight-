@@ -3,11 +3,12 @@
 #include "PlayerCharacter.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
-#include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputComponent.h"
-#include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputSubsystems.h"
+#include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "PlayerAnim.h"
+#include "Components/BoxComponent.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -27,7 +28,7 @@ APlayerCharacter::APlayerCharacter()
 	// 회전 설정
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	bUseControllerRotationYaw = false;
-
+	
 }
 
 // Called when the game starts or when spawned
@@ -128,15 +129,26 @@ void APlayerCharacter::OnActionDodge(const FInputActionValue& Value)
 
 	if (currtime - LastDodgeKeyPressTime <= DoublePressInterval)
 	{
-        Jump();
-
-		// todo : 회피 애니메이션 3단계로 분리
         if (PlayerAnim != nullptr)
         {
             PlayerAnim->SetDodge(true);
         }
+
+		GetCharacterMovement()->Velocity = DodgeSpeed * GetActorForwardVector();
+        Jump();
 	}
+	
 	LastDodgeKeyPressTime = currtime;
+}
+
+void APlayerCharacter::OnChangedDodgeSpeed(bool bDodge)
+{
+	//float speed = bDodge ? MaxDodgeSpeed : DefaultSpeed;
+
+	////GetCharacterMovement()->MaxWalkSpeed = speed;
+	//if(bDodge)
+	//	GetCharacterMovement()->Velocity = MaxDodgeSpeed * GetActorForwardVector();
+
 }
 
 
