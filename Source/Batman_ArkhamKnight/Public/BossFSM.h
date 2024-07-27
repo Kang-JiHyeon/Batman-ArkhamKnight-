@@ -11,12 +11,13 @@ enum class EBossState :uint8
 {
 	Idle,
 	Move,
-	Attack,
+	RightAttack,
+	LeftAttack,
 	DoubleAttack,
 	//Damage,
 	//Die,
 	//SaveEnemy,
-	//FastMove,
+	FastMove,
 
 };
 
@@ -46,17 +47,19 @@ public:
 	// 이동상태
 	void MoveState();
 	// 공격상태(단타)
-	void AttackState();
+	void RightAttackState();
+	// 공격상태(단타)
+	void LeftAttackState();
 	// 공격상태(연타)
 	void DoubleAttackState();
-	//// 피격상태
-	//void DamageState();
+	// 피격상태
+	void DamageState();
 	//// 죽음상태
 	//void DieState();
-	//// 죄수줍기상태
+	// 죄수줍기상태
 	//void SavePrisonerState();
-	//// 구르기상태
-	//void FastMoveState();
+	// 기어가기 상태
+	void FastMoveState();
 
 	// 대기시간
 	UPROPERTY(EditAnywhere,Category=FSM)
@@ -68,6 +71,10 @@ public:
 	UPROPERTY(EditAnywhere,Category=FSM)
 	class AEnemyPlayer* Ptarget;
 
+	// 타깃 위치
+	UPROPERTY(EditAnywhere)
+	FVector direction;
+
 	// 나의 위치 기억
 	UPROPERTY(EditAnywhere)
 	class ABoss* me;
@@ -76,6 +83,18 @@ public:
 	float attackRange = 250.f;
 
 	UPROPERTY(EditAnywhere)
-	float attackDelayTime = 2.0f;
+	float attackDelayTime = 1.0f;
+
+	// move or idle
+	UPROPERTY(EditAnywhere,Category=FSM)
+	float moveDelayTime = 2;
+
+	// fastmove
+	UPROPERTY(EditAnywhere,Category=FSM)
+	float fastDelayTime =2;
+
+	// animation
+	UPROPERTY()
+	class UBossAnim* anim;
 		
 };

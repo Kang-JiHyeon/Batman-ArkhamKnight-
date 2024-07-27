@@ -5,6 +5,7 @@
 #include "EnemyPlayer.h"
 #include "Kismet/GameplayStatics.h"
 #include "Boss.h"
+#include "BossAnim.h"
 
 // Sets default values for this component's properties
 UBossFSM::UBossFSM()
@@ -25,6 +26,9 @@ void UBossFSM::BeginPlay()
 	auto actor = UGameplayStatics::GetActorOfClass(GetWorld(), AEnemyPlayer::StaticClass());
 	Ptarget = Cast<AEnemyPlayer>(actor);
 	me = Cast<ABoss>(GetOwner());
+
+	// animation
+	anim = Cast<UBossAnim>(me->GetMesh()->GetAnimInstance());
 }
 
 
@@ -41,8 +45,11 @@ void UBossFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	case EBossState::Move:
 		MoveState();
 		break;
-	case EBossState::Attack:
-		AttackState();
+	case EBossState::RightAttack:
+		RightAttackState();
+		break;
+	case EBossState::LeftAttack:
+		RightAttackState();
 		break;
 	case EBossState::DoubleAttack:
 		DoubleAttackState();
@@ -56,9 +63,9 @@ void UBossFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	//case EBossState::SavePrisoner:
 	//	SavePrisonerState();
 	//	break;
-	//case EBossState::FastMove:
-	//	FastMoveState();
-	//	break;
+	case EBossState::FastMove:
+		FastMoveState();
+		break;
 	}
 	
 	FString logMsg = UEnum::GetValueAsString(mState);
@@ -67,90 +74,128 @@ void UBossFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 
 void UBossFSM::IdleState()
 {
+	
 	currentTime += GetWorld()->DeltaTimeSeconds;
 	if (currentTime > idleDelayTime)
 	{
 
-		// 랜덤으로 일정시간이 지나면 이동하거나 죄수를 세우고 싶다.
-		int32 statevalue = FMath::RandRange(0, 1);
-		if (statevalue == 0)
-		{
-			mState = EBossState::Move;
-		}
-		else
-		{
-			/*mState = EBossState::SaveEnemy;*/
-		}
-
+		mState = EBossState::Move;
 		currentTime = 0;
+		anim->animState = mState;
 	}
 }
 
-void UBossFSM::MoveState() // 보스가 플레이어로 이동하는 상태
+void UBossFSM::MoveState() // boss move to player or idle
 {
-	// 타깃의 목적지
-	FVector destination = Ptarget->GetActorLocation();
-	// 방향
-	FVector dir = destination - me->GetActorLocation();
-	// 방향으로 이동
-	me->AddMovementInput(dir.GetSafeNormal(),0.2f);
 
-	if (dir.Size() < attackRange)
-	{
-		mState = EBossState::Attack;
-	}
-	else
-	{
-		// 플레이어가 멀리 있으면 기어서 돌진
-	}
+		//타깃의 목적지
+		FVector destination = Ptarget->GetActorLocation();
+		//방향
+		FVector dir = destination - me->GetActorLocation();
+		//방향으로 이동
+		me->AddMovementInput(dir.GetSafeNormal(), 0.2f);
+
+		if (dir.Size() < attackRange)
+		{
+			int32 attackstatevalue = FMath::RandRange(0, 5);
+			if (attackstatevalue == 0)
+			{
+				mState = EBossState::DoubleAttack;
+				anim->animState = mState;
+			}
+			else if (attackstatevalue==1 || attackstatevalue ==2)
+			{
+				mState = EBossState::LeftAttack;
+				anim->animState = mState;
+			}
+			else
+			{
+				mState = EBossState::RightAttack;
+				anim->animState = mState;
+			}
+		}
+
+		currentTime += GetWorld()->DeltaTimeSeconds;
+		if (currentTime > moveDelayTime)
+		{
+			int32 statevalue = FMath::RandRange(0, 9);
+			if (statevalue < 8)
+			{
+				direction = Ptarget->GetActorLocation();
+				mState = EBossState::FastMove;
+		
+			}
+			else if(statevalue == 8)
+			{
+				mState = EBossState::Move;
+	
+			}
+			else {
+				mState = EBossState::Idle;
+			}
+			currentTime = 0;
+			anim->animState = mState;
+		}
+
+	
+
 	// prisoner가 player보다 가깝고 기절상태일 때 줍는 상태도 필요
 
 }
 
-void UBossFSM::AttackState() // 단타
+void UBossFSM::RightAttackState() // smash
 {
-	currentTime += GetWorld()->DeltaTimeSeconds;
 
-	if (currentTime > attackDelayTime)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("attack"));
-		currentTime = 0;
-	}
 
 	float distance = FVector::Distance(Ptarget->GetActorLocation(), me->GetActorLocation());
 
-	if (distance > attackRange)
+	currentTime += GetWorld()->DeltaTimeSeconds;
+	if (currentTime > attackDelayTime)
 	{
+
 		mState = EBossState::Move;
+		currentTime = 0;
+		anim->animState = mState;
 	}
 
-	if (distance < attackRange / 2)
-	{
-		mState = EBossState::DoubleAttack;
-	}
 }
 
-void UBossFSM::DoubleAttackState() // 연타
-{
-	currentTime += GetWorld()->DeltaTimeSeconds;
 
-	if (currentTime > attackDelayTime)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("doubleattack"));
-		currentTime = 0;
-	}
+void UBossFSM::LeftAttackState() // smash
+{
 	float distance = FVector::Distance(Ptarget->GetActorLocation(), me->GetActorLocation());
 
-	if (distance > attackRange/2)
+	currentTime += GetWorld()->DeltaTimeSeconds;
+	if (currentTime > attackDelayTime)
+	{
+
+		mState = EBossState::Move;
+		currentTime = 0;
+		anim->animState = mState;
+	}
+
+	
+}
+
+void UBossFSM::DoubleAttackState() // double smash
+{
+	UE_LOG(LogTemp, Warning, TEXT("doubleattack"));
+	currentTime += GetWorld()->DeltaTimeSeconds;
+
+
+	// double attack 2 type
+	if (currentTime > attackDelayTime)
 	{
 		mState = EBossState::Move;
+		anim->animState = mState;
+		currentTime = 0;
 	}
 }
 
 //void UBossFSM::DamageState()
 //{
 //}
-//
+
 //void UBossFSM::DieState()
 //{
 //}
@@ -158,8 +203,23 @@ void UBossFSM::DoubleAttackState() // 연타
 //void UBossFSM::SavePrisoner() // 보스가 죄수(잡몹)에게로 이동하여 일으켜 세우는 상태
 //{
 //}
-//
-//void UBossFSM::FastMoveState()
-//{
-//}
+
+
+
+void UBossFSM::FastMoveState()
+{
+// player first position remember and go to there
+// if player is there in boss root -> damage
+
+	//방향으로 이동
+	me->AddMovementInput(direction.GetSafeNormal(), 1.0f);
+	
+	currentTime += GetWorld()->DeltaTimeSeconds;
+	if (currentTime > fastDelayTime)
+	{
+		mState = EBossState::Move;
+		currentTime = 0;
+		anim->animState = mState;
+	}
+}
 
