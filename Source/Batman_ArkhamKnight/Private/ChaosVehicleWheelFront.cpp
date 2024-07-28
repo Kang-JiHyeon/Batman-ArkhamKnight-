@@ -3,6 +3,11 @@
 
 #include "ChaosVehicleWheelFront.h"
 
+/**
+ *	Writer : Lee Dong Geun
+ *	Last Modified : 2024-07-28
+ */
+
 UChaosVehicleWheelFront::UChaosVehicleWheelFront()
 {	
 	WheelRadius = 39.f;

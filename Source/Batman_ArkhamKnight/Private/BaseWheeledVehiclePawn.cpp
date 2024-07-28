@@ -5,11 +5,17 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "ChaosVehicleMovementComponent.h"
+#include "ChaosWheeledVehicleMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "InputActionValue.h"
 #include "Kismet/KismetSystemLibrary.h"
+
+/**
+ *	Writer : Lee Dong Geun
+ *	Last Modified : 2024-07-28
+ */
 
 ABaseWheeledVehiclePawn::ABaseWheeledVehiclePawn()
 {
@@ -44,7 +50,7 @@ void ABaseWheeledVehiclePawn::BeginPlay()
 			SubSystem->AddMappingContext(BatMobileMappingContext, 0);
 	}
 
-	ChaosVehicleMovementComponent = Cast<UChaosVehicleMovementComponent>(GetVehicleMovementComponent());
+	ChaosVehicleMovementComponent = Cast<UChaosWheeledVehicleMovementComponent>(GetVehicleMovementComponent());
 }
 
 void ABaseWheeledVehiclePawn::Tick(float DeltaTime)
@@ -52,6 +58,18 @@ void ABaseWheeledVehiclePawn::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	GetMesh() -> SetAngularDamping(UKismetMathLibrary::SelectFloat(0, 3, ChaosVehicleMovementComponent -> IsMovingOnGround()));
+
+	if(TargetActor)
+	{
+		TargetLocation = TargetActor -> GetActorLocation();
+		TargetDistance = UKismetMathLibrary::Vector_Distance(TargetLocation, GetActorLocation());
+	}
+
+	if(TargetDistance >= 10000.f)
+	{
+		bIsLockOn = false;
+		TargetActor = nullptr;
+	}
 }
 
 void ABaseWheeledVehiclePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -72,9 +90,12 @@ void ABaseWheeledVehiclePawn::SetupPlayerInputComponent(UInputComponent* PlayerI
 		EnhancedInputComponent->BindAction(IA_Steering, ETriggerEvent::Triggered, this, &ABaseWheeledVehiclePawn::SteeringTrigger);
 		EnhancedInputComponent->BindAction(IA_Steering, ETriggerEvent::Completed, this, &ABaseWheeledVehiclePawn::SteeringComplete);
 
+		EnhancedInputComponent->BindAction(IA_Boost, ETriggerEvent::Triggered, this, &ABaseWheeledVehiclePawn::BoostTrigger);
+		EnhancedInputComponent->BindAction(IA_Boost, ETriggerEvent::Completed, this, &ABaseWheeledVehiclePawn::BoostComplete);
+
 		EnhancedInputComponent->BindAction(IA_ToggleCamera, ETriggerEvent::Triggered, this, &ABaseWheeledVehiclePawn::ToggleCamera);
 
-		EnhancedInputComponent->BindAction(IA_LockOn, ETriggerEvent::Triggered, this, &ABaseWheeledVehiclePawn::LockOn);
+		EnhancedInputComponent->BindAction(IA_LockOn, ETriggerEvent::Started, this, &ABaseWheeledVehiclePawn::LockOn);
 		EnhancedInputComponent->BindAction(IA_Missile, ETriggerEvent::Triggered, this, &ABaseWheeledVehiclePawn::Shot);
 	}
 }
@@ -82,6 +103,7 @@ void ABaseWheeledVehiclePawn::SetupPlayerInputComponent(UInputComponent* PlayerI
 void ABaseWheeledVehiclePawn::ThrottleTrigger(const FInputActionValue& Value)
 {
 	ChaosVehicleMovementComponent->SetThrottleInput(Value.Get<float>());
+	UKismetSystemLibrary::PrintString(GetWorld(), FString::Format(TEXT("Speed : {0}"), {ChaosVehicleMovementComponent -> GetForwardSpeed()}));
 }
 
 void ABaseWheeledVehiclePawn::ThrottleComplete(const FInputActionValue& Value)
@@ -126,6 +148,17 @@ void ABaseWheeledVehiclePawn::SteeringComplete(const FInputActionValue& Value)
 	ChaosVehicleMovementComponent->SetSteeringInput(Value.Get<float>());
 }
 
+void ABaseWheeledVehiclePawn::BoostTrigger(const FInputActionValue& Value)
+{
+	ChaosVehicleMovementComponent-> SetMaxEngineTorque(10000.f);
+	//ChaosVehicleMovementComponent-> SetMaxEngineTorque(ChaosVehicleMovementComponent-> GetEngineMaxRotationSpeed());
+}
+
+void ABaseWheeledVehiclePawn::BoostComplete(const FInputActionValue& Value)
+{
+	ChaosVehicleMovementComponent-> SetMaxEngineTorque(5000.f);
+}
+
 void ABaseWheeledVehiclePawn::ToggleCamera()
 {
 	bCameraState = !bCameraState;
@@ -144,10 +177,24 @@ void ABaseWheeledVehiclePawn::ToggleCamera()
 
 void ABaseWheeledVehiclePawn::LockOn(const FInputActionValue& Value)
 {
-	
+	FHitResult HitResult;
+	FVector Start = GetActorLocation() + FVector(700.f, 0.f, 200.f);
+	FVector End = Start + GetActorForwardVector() * 10000;
+	bool bHit = UKismetSystemLibrary::SphereTraceSingleForObjects(GetWorld(), Start, End, 100.f, TArray<TEnumAsByte<EObjectTypeQuery>>{UEngineTypes::ConvertToObjectType(ECC_Pawn)}, false, TArray<AActor*>{this}, EDrawDebugTrace::ForDuration, HitResult, true, FLinearColor::Red, FLinearColor::Green, 1.f);
+
+	if(bHit)
+	{
+		TargetActor = HitResult.GetActor();
+		bIsLockOn = true;
+	}
 }
 
 void ABaseWheeledVehiclePawn::Shot(const FInputActionValue& Value)
 {
-	
+	if(bIsLockOn)
+	{
+		FireMissile();
+		TargetActor = nullptr;
+		bIsLockOn = false;
+	}
 }

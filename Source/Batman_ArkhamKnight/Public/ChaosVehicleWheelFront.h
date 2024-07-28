@@ -7,8 +7,10 @@
 #include "ChaosVehicleWheelFront.generated.h"
 
 /**
- * 
+ *	Writer : Lee Dong Geun
+ *	Last Modified : 2024-07-28
  */
+
 UCLASS()
 class BATMAN_ARKHAMKNIGHT_API UChaosVehicleWheelFront : public UChaosVehicleWheel
 {

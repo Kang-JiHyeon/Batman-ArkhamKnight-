@@ -9,7 +9,7 @@
 
 /**
  *	Writer : Lee Dong Geun
- *	Last Modified : 2024-07-26
+ *	Last Modified : 2024-07-28
  */
 UCLASS()
 class BATMAN_ARKHAMKNIGHT_API ABaseWheeledVehiclePawn : public AWheeledVehiclePawn
@@ -48,6 +48,9 @@ class BATMAN_ARKHAMKNIGHT_API ABaseWheeledVehiclePawn : public AWheeledVehiclePa
 	class UInputAction * IA_Steering;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	class UInputAction * IA_Boost;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	class UInputAction * IA_ToggleCamera;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
@@ -59,11 +62,23 @@ class BATMAN_ARKHAMKNIGHT_API ABaseWheeledVehiclePawn : public AWheeledVehiclePa
 	/** Chaos Vehicle Movement Component */
 	
 	UPROPERTY()
-	class UChaosVehicleMovementComponent* ChaosVehicleMovementComponent;
+	class UChaosWheeledVehicleMovementComponent* ChaosVehicleMovementComponent;
+
+	//* Missile Class */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Missile", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<class AMissile> MissileClass;
 
 	//* Camera State*/
 
-	bool bCameraState = false; // false => BackCamera, true => FrontCamera
+	bool bCameraState; // false => BackCamera, true => FrontCamera
+
+	//* Target Info*/
+	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	class AActor* TargetActor;
+	
+	FVector TargetLocation;
+	float TargetDistance;
+	bool bIsLockOn;
 
 public:
 	ABaseWheeledVehiclePawn();
@@ -83,7 +98,12 @@ public:
 	void Look(const FInputActionValue& Value);
 	void SteeringTrigger(const FInputActionValue& Value);
 	void SteeringComplete(const FInputActionValue& Value);
+	void BoostTrigger(const FInputActionValue& Value);
+	void BoostComplete(const FInputActionValue& Value);
 	void ToggleCamera();
 	void LockOn(const FInputActionValue& Value);
 	void Shot(const FInputActionValue& Value);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void FireMissile();
 };
