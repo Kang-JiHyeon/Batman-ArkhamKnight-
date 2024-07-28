@@ -21,4 +21,8 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category=FSM)
 	bool bAttackPlay = false;
 
+	// attack animation end
+	UFUNCTION(BlueprintCallable,Category=FSMEvent)
+	void OnEndAttackAnim();
+
 };

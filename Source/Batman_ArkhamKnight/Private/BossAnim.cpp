@@ -3,3 +3,7 @@
 
 #include "BossAnim.h"
 
+void UBossAnim::OnEndAttackAnim()
+{
+	bAttackPlay = false;
+}

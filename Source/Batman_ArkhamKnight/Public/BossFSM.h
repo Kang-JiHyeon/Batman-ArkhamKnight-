@@ -13,9 +13,10 @@ enum class EBossState :uint8
 	Move,
 	RightAttack,
 	LeftAttack,
-	DoubleAttack,
-	//Damage,
-	//Die,
+	DoubleRightAttack,
+	DoubleLeftAttack,
+	Damage,
+	Die,
 	//SaveEnemy,
 	FastMove,
 
@@ -51,11 +52,13 @@ public:
 	// 공격상태(단타)
 	void LeftAttackState();
 	// 공격상태(연타)
-	void DoubleAttackState();
+	void DoubleRightAttackState();
+	// 공격상태(연타)
+	void DoubleLeftAttackState();
 	// 피격상태
 	void DamageState();
-	//// 죽음상태
-	//void DieState();
+	// 죽음상태
+	void DieState();
 	// 죄수줍기상태
 	//void SavePrisonerState();
 	// 기어가기 상태
@@ -83,11 +86,11 @@ public:
 	float attackRange = 250.f;
 
 	UPROPERTY(EditAnywhere)
-	float attackDelayTime = 1.0f;
+	float attackDelayTime = 2.0f;
 
 	// move or idle
 	UPROPERTY(EditAnywhere,Category=FSM)
-	float moveDelayTime = 2;
+	float moveDelayTime = 4;
 
 	// fastmove
 	UPROPERTY(EditAnywhere,Category=FSM)
@@ -96,5 +99,15 @@ public:
 	// animation
 	UPROPERTY()
 	class UBossAnim* anim;
+
+	// damage
+	void OnDamageProcess();
+
+	UPROPERTY(EditAnywhere,Category=FSM)
+	float damageDelayTime = 2;
+
+	// hp
+	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite,Category=FSM)
+	int32 BossHp = 10;
 		
 };
