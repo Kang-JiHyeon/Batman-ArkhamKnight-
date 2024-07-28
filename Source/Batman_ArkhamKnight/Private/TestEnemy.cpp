@@ -25,3 +25,8 @@ void ATestEnemy::Tick(float DeltaTime)
 
 }
 
+bool ATestEnemy::GetValided()
+{
+	return bValid;
+}
+

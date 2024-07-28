@@ -27,3 +27,8 @@ void UPlayerAnim::SetDodge(bool bValue)
 {
     bDodge = bValue;
 }
+
+void UPlayerAnim::SetAttack(bool bValue)
+{
+    bAttack = bValue;
+}

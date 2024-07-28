@@ -18,13 +18,18 @@ class BATMAN_ARKHAMKNIGHT_API UPlayerAnim : public UAnimInstance
 public:
 	virtual void NativeUpdateAnimation(float DeltaTime) override;
 
+
+public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float Speed = 0;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	bool bDodge = false;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	bool bAttack = false;
+
 public:
 	void SetDodge(bool bValue);
-
+	void SetAttack(bool bValue);
 };

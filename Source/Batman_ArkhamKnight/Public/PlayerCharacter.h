@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/InputActionValue.h"
+#include "InputActionValue.h"
 #include "PlayerCharacter.generated.h"
 
 UENUM()
@@ -68,22 +68,37 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	class UPlayerAnim* PlayerAnim;
 
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<class AActor> EnemyFactory;
+
+
 	// 방향
 	FVector Direction;
 
 	EPlayerState PlayerState = EPlayerState::Idle;
 
 	// 움직임 여부
-	bool bMove;
+	bool bMoveInputPressed;
 
-	// 회피 관련 변수
-	UPROPERTY(EditDefaultsOnly)
-	float DoublePressInterval = 0.5f;
-    float LastDodgeKeyPressTime = 0;
-    bool bIsDodgeKeyPressed = false;
-
+	// 회피
 	UPROPERTY(EditDefaultsOnly)
 	float DodgeSpeed = 1000;
+
+	UPROPERTY(EditDefaultsOnly)
+	float DoublePressInterval = 0.5f;
+    float LastDodgeInputPressTime = 0;
+    bool bDodgeInputPressed = false;
+
+	// 공격 
+	UPROPERTY(EditDefaultsOnly)
+	float AttackRange = 1000;
+
+	UPROPERTY()
+	class ATestEnemy* TargetEnemy;
+	bool bMovingToTarget;
+	
+
+
 
 private:
 	void OnActionMove(const FInputActionValue& Value);
@@ -91,6 +106,11 @@ private:
 	void OnActionLook(const FInputActionValue& Value);
 	void OnActionDodge(const FInputActionValue& Value);
 	void OnActionAttack(const FInputActionValue& Value);
+
+	void MoveToTarget(AActor* Target);
+	void RotateToTarget(AActor* Target);
+
+	bool IsLockedMove() const;
 
 public:
 	void OnChangedDodgeSpeed(bool bDefault);
