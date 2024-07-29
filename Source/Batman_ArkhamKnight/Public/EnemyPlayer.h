@@ -39,6 +39,7 @@ public:
 	void OnMyAxisHorizontal(float value);
 	void OnMyAxisVertical(float value);
 
+	UPROPERTY(EditAnywhere,Category = player)
 	float speed = 400;
 
 	void OnMyLookHorizontal(float Value);
