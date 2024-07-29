@@ -97,6 +97,8 @@ public:
 	class APrisoner* TargetEnemy;
 	bool bMovingToTarget;
 	
+	UPROPERTY(EditAnywhere)
+	class UAnimMontage* AttackMontage;
 
 private:
 	void OnActionMove(const FInputActionValue& Value);

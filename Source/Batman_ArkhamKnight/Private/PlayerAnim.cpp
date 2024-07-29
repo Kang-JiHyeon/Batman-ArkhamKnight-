@@ -32,3 +32,8 @@ void UPlayerAnim::SetAttack(bool bValue)
 {
     bAttack = bValue;
 }
+
+void UPlayerAnim::OnEndAttackPunchingRight()
+{
+    
+}

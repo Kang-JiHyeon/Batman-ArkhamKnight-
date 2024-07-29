@@ -215,7 +215,9 @@ void APlayerCharacter::OnActionAttack(const FInputActionValue& Value)
 	if (TargetEnemy != nullptr)
 	{
 		bMovingToTarget = true;
-		PlayerAnim->SetAttack(true);
+		//PlayerAnim->SetAttack(true);
+		PlayAnimMontage(AttackMontage, 1, TEXT("2"));
+
 	}
 	// 공격할 수 있는 대상이 없다면, 앞방향으로 일정거리만큼 이동
 	else
@@ -259,3 +261,12 @@ bool APlayerCharacter::IsLockedMove() const
 {
 	return bMovingToTarget || PlayerAnim->bDodge;
 }
+
+
+
+// 콤보 구현
+// 애니메이션 실행되도록
+// 몽타주 플레이 > 공격 1, 2, 3 나누기
+// 
+
+// 콤보 카운

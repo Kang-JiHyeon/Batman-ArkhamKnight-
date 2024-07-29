@@ -6,9 +6,14 @@
 #include "Animation/AnimInstance.h"
 #include "PlayerAnim.generated.h"
 
-/**
- * 
- */
+UENUM(BlueprintType)
+enum class EComboAttackState : uint8
+{
+	Punching_Right,
+	Punching_Left,
+	Hook_Right
+};
+
 UCLASS()
 class BATMAN_ARKHAMKNIGHT_API UPlayerAnim : public UAnimInstance
 {
@@ -29,7 +34,13 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	bool bAttack = false;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	EComboAttackState ComboAttackState;
+
 public:
 	void SetDodge(bool bValue);
 	void SetAttack(bool bValue);
+
+	UFUNCTION(BlueprintCallable)
+	void OnEndAttackPunchingRight();
 };
