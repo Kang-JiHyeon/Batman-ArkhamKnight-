@@ -198,7 +198,7 @@ void APlayerCharacter::OnActionAttack(const FInputActionValue& Value)
 		}
 
 
-		//  Enemy와 나의 위치의 거리가 현재 탐색된 적과의 최소 거리보다 작다면, Target 대상 변경
+		// Enemy와 나의 위치의 거리가 현재 탐색된 적과의 최소 거리보다 작다면, Target 대상 변경
 		float distance = FVector::Dist(enemy->GetActorLocation(), GetActorLocation());
 		if (distance < minDistance)
 		{
@@ -220,7 +220,6 @@ void APlayerCharacter::OnActionAttack(const FInputActionValue& Value)
 	{
 		GetCharacterMovement()->Velocity = GetActorForwardVector() * 2000;
 		UE_LOG(LogTemp, Warning, TEXT("적 발견 실패, 앞방향으로 이동합니다."));
-
 	}
 }
 
@@ -237,7 +236,7 @@ void APlayerCharacter::MoveToTarget(AActor* target)
 	if (FVector::Dist(GetActorLocation(), targetLocation) < 50)
 	{
 		bMovingToTarget = false;
-		
+		PlayerAnim->SetAttack(false);
 	}
 }
 

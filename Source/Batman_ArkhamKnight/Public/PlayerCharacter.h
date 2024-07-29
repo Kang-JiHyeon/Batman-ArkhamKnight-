@@ -98,8 +98,6 @@ public:
 	bool bMovingToTarget;
 	
 
-
-
 private:
 	void OnActionMove(const FInputActionValue& Value);
 	void OnActionMoveCompleted(const FInputActionValue& Value);
