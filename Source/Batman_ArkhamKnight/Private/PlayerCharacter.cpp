@@ -257,7 +257,5 @@ void APlayerCharacter::RotateToTarget(AActor* Target)
 
 bool APlayerCharacter::IsLockedMove() const
 {
-
-
 	return bMovingToTarget || PlayerAnim->bDodge;
 }
