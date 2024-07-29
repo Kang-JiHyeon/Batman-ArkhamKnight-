@@ -10,6 +10,8 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "InputActionValue.h"
+#include "Missile.h"
+#include "Components/ArrowComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 /**
@@ -37,6 +39,23 @@ ABaseWheeledVehiclePawn::ABaseWheeledVehiclePawn()
 
 	FrontCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FrontCamera"));
 	FrontCamera->SetupAttachment(FrontSpringArm);
+
+	MissileSpawnLocationLeft = CreateDefaultSubobject<UArrowComponent>(TEXT("MissileSpawnLocationLeft"));
+	MissileSpawnLocationLeft->SetupAttachment(RootComponent);
+	MissileSpawnLocationLeft->SetRelativeLocation(FVector(0.f, -140.f, 100.f));
+	MissileSpawnLocationLeft->SetRelativeRotation(FRotator(30.f, -90.f, 0.f));
+
+	MissileSpawnLocationUp = CreateDefaultSubobject<UArrowComponent>(TEXT("MissileSpawnLocationUp"));
+	MissileSpawnLocationUp->SetupAttachment(RootComponent);
+	MissileSpawnLocationUp->SetRelativeLocation(FVector(0.f, 0.f, 150.f));
+	MissileSpawnLocationUp->SetRelativeRotation(FRotator(40.f, 0.f, 0.f));
+	
+
+	MissileSpawnLocationRight = CreateDefaultSubobject<UArrowComponent>(TEXT("MissileSpawnLocationRight"));
+	MissileSpawnLocationRight->SetupAttachment(RootComponent);
+	MissileSpawnLocationRight->SetRelativeLocation(FVector(0.f, 140.f, 100.f));
+	MissileSpawnLocationRight->SetRelativeRotation(FRotator(30.f, 90.f, 0.f));
+	
 }
 
 void ABaseWheeledVehiclePawn::BeginPlay()
@@ -65,7 +84,7 @@ void ABaseWheeledVehiclePawn::Tick(float DeltaTime)
 		TargetDistance = UKismetMathLibrary::Vector_Distance(TargetLocation, GetActorLocation());
 	}
 
-	if(TargetDistance >= 10000.f)
+	if(TargetDistance >= 20000.f)
 	{
 		bIsLockOn = false;
 		TargetActor = nullptr;
@@ -103,7 +122,7 @@ void ABaseWheeledVehiclePawn::SetupPlayerInputComponent(UInputComponent* PlayerI
 void ABaseWheeledVehiclePawn::ThrottleTrigger(const FInputActionValue& Value)
 {
 	ChaosVehicleMovementComponent->SetThrottleInput(Value.Get<float>());
-	UKismetSystemLibrary::PrintString(GetWorld(), FString::Format(TEXT("Speed : {0}"), {ChaosVehicleMovementComponent -> GetForwardSpeed()}));
+	//UKismetSystemLibrary::PrintString(GetWorld(), FString::Format(TEXT("Speed : {0}"), {ChaosVehicleMovementComponent -> GetForwardSpeed()}));
 }
 
 void ABaseWheeledVehiclePawn::ThrottleComplete(const FInputActionValue& Value)
@@ -180,7 +199,7 @@ void ABaseWheeledVehiclePawn::LockOn(const FInputActionValue& Value)
 	FHitResult HitResult;
 	FVector Start = GetActorLocation() + FVector(700.f, 0.f, 200.f);
 	FVector End = Start + GetActorForwardVector() * 10000;
-	bool bHit = UKismetSystemLibrary::SphereTraceSingleForObjects(GetWorld(), Start, End, 100.f, TArray<TEnumAsByte<EObjectTypeQuery>>{UEngineTypes::ConvertToObjectType(ECC_Pawn)}, false, TArray<AActor*>{this}, EDrawDebugTrace::ForDuration, HitResult, true, FLinearColor::Red, FLinearColor::Green, 1.f);
+	bool bHit = UKismetSystemLibrary::SphereTraceSingleForObjects(GetWorld(), Start, End, 400.f, TArray<TEnumAsByte<EObjectTypeQuery>>{UEngineTypes::ConvertToObjectType(ECC_Pawn)}, false, TArray<AActor*>{this}, EDrawDebugTrace::ForDuration, HitResult, true, FLinearColor::Red, FLinearColor::Green, 1.f);
 
 	if(bHit)
 	{
@@ -197,4 +216,12 @@ void ABaseWheeledVehiclePawn::Shot(const FInputActionValue& Value)
 		TargetActor = nullptr;
 		bIsLockOn = false;
 	}
+}
+
+void ABaseWheeledVehiclePawn::FireMissile()
+{
+	FVector SpawnLocation = MissileSpawnLocationRight -> GetComponentLocation();
+	FRotator SpawnRotation = MissileSpawnLocationRight -> GetComponentRotation();
+	GetWorld() -> SpawnActor<AMissile>(MissileClass, SpawnLocation, SpawnRotation) -> SetTargetLocation(TargetLocation);
+	
 }

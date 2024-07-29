@@ -19,8 +19,11 @@ class BATMAN_ARKHAMKNIGHT_API AMissile : public AActor
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "MissileMesh", meta = (AllowPrivateAccess = "true"))
 	class USkeletalMeshComponent* MissileMesh;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ProjectileMovement", meta = (AllowPrivateAccess = "true"))
-	class UProjectileMovementComponent* ProjectileMovement;
+	FTimerHandle MissileTimerHandle;
+
+	FVector TargetLocation;
+	FVector Direction = GetActorForwardVector();
+	float MissileSpeed = 2000.f;
 	
 public:	
 	// Sets default values for this actor's properties
@@ -34,4 +37,8 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	void SetTargetLocation(FVector Location) { TargetLocation = Location; }
+
+	void Translate(float Time, const FVector& direction, float Speed);
+	void TurnToTarget();
 };

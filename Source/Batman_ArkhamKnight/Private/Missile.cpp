@@ -3,7 +3,9 @@
 
 #include "Missile.h"
 
-#include "GameFramework/ProjectileMovementComponent.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "TimerManager.h"
+
 
 /**
  *	Writer : Lee Dong Geun
@@ -18,22 +20,21 @@ AMissile::AMissile()
 
 	MissileMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MissileMesh"));
 	SetRootComponent(MissileMesh);
-
-	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
-	ProjectileMovement -> SetUpdatedComponent(RootComponent);
-
-	ProjectileMovement -> InitialSpeed = 200.f;
-	ProjectileMovement -> MaxSpeed = 10000.f;
-	ProjectileMovement -> bRotationFollowsVelocity = true;
-
-	ProjectileMovement -> bIsHomingProjectile = true;
-	ProjectileMovement -> HomingAccelerationMagnitude = 10000.f;
 }
 
 // Called when the game starts or when spawned
 void AMissile::BeginPlay()
 {
 	Super::BeginPlay();
+
+	
+
+	GetWorld()->GetTimerManager().SetTimer(MissileTimerHandle,
+		this,
+		&AMissile::TurnToTarget,
+		.1f,
+		false,
+		1.f);
 }
 
 // Called every frame
@@ -41,5 +42,20 @@ void AMissile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	Translate(DeltaTime, Direction, MissileSpeed);
 }
 
+void AMissile::Translate(float Time, const FVector& direction, float Speed)
+{
+	FVector NewLocation = GetActorLocation() + direction * Speed * Time;
+	SetActorLocation(NewLocation);
+}
+
+void AMissile::TurnToTarget()
+{
+	FRotator TargetRotation = UKismetMathLibrary::FindLookAtRotation(TargetLocation, GetActorLocation());
+	SetActorRotation(TargetRotation);
+	Direction = TargetLocation - GetActorLocation();
+	Direction.Normalize();
+	MissileSpeed = 40000.f;
+}

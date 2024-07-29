@@ -30,6 +30,15 @@ class BATMAN_ARKHAMKNIGHT_API ABaseWheeledVehiclePawn : public AWheeledVehiclePa
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FrontCamera", meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FrontCamera;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "MissileSpawnLocation", meta = (AllowPrivateAccess = "true"))
+	class UArrowComponent* MissileSpawnLocationLeft;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "MissileSpawnLocation", meta = (AllowPrivateAccess = "true"))
+	class UArrowComponent* MissileSpawnLocationUp;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "MissileSpawnLocation", meta = (AllowPrivateAccess = "true"))
+	class UArrowComponent* MissileSpawnLocationRight;
+
 	/** Input Actions */
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
@@ -103,7 +112,5 @@ public:
 	void ToggleCamera();
 	void LockOn(const FInputActionValue& Value);
 	void Shot(const FInputActionValue& Value);
-
-	UFUNCTION(BlueprintImplementableEvent)
 	void FireMissile();
 };
