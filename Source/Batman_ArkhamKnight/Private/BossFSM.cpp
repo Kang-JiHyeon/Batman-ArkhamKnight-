@@ -2,10 +2,11 @@
 
 
 #include "BossFSM.h"
-#include "EnemyPlayer.h"
+//#include "EnemyPlayer.h"
 #include "Kismet/GameplayStatics.h"
 #include "Boss.h"
 #include "BossAnim.h"
+#include "PlayerCharacter.h"
 
 // Sets default values for this component's properties
 UBossFSM::UBossFSM()
@@ -23,8 +24,8 @@ void UBossFSM::BeginPlay()
 {
 	Super::BeginPlay();
 
-	auto actor = UGameplayStatics::GetActorOfClass(GetWorld(), AEnemyPlayer::StaticClass());
-	Ptarget = Cast<AEnemyPlayer>(actor);
+	auto actor = UGameplayStatics::GetActorOfClass(GetWorld(), APlayerCharacter::StaticClass());
+	Ptarget = Cast<APlayerCharacter>(actor);
 	me = Cast<ABoss>(GetOwner());
 
 	// animation
@@ -159,6 +160,7 @@ void UBossFSM::RightAttackState() // smash
 
 	currentTime += GetWorld()->DeltaTimeSeconds;
 	anim->bAttackPlay = true;
+
 	if (currentTime > attackDelayTime)
 	{
 		currentTime = 0;

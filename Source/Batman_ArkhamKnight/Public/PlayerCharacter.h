@@ -94,7 +94,7 @@ public:
 	float AttackRange = 1000;
 
 	UPROPERTY()
-	class ATestEnemy* TargetEnemy;
+	class APrisoner* TargetEnemy;
 	bool bMovingToTarget;
 	
 

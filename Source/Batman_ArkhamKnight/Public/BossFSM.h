@@ -72,7 +72,7 @@ public:
 
 	// 타깃 플레이어
 	UPROPERTY(EditAnywhere,Category=FSM)
-	class AEnemyPlayer* Ptarget;
+	class APlayerCharacter* Ptarget;
 
 	// 타깃 위치
 	UPROPERTY(EditAnywhere)
