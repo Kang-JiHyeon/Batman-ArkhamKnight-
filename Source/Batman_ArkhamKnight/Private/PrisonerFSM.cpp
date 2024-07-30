@@ -58,7 +58,7 @@ void UPrisonerFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 void UPrisonerFSM::IdleState(float& DeltaSeconds)
 {
 
-	currentTime += GetWorld()->DeltaTimeSeconds;
+	currentTime += DeltaSeconds;
 	if (currentTime > idleDelayTime)
 	{
 
@@ -70,12 +70,25 @@ void UPrisonerFSM::IdleState(float& DeltaSeconds)
 
 void UPrisonerFSM::MoveState(float& DeltaSeconds)
 {
-	//타깃의 목적지
+	// 타깃의 목적지
 	FVector destination = Ptarget->GetActorLocation();
-	//방향
+	// 
 	FVector dir = destination - me->GetActorLocation();
-	//방향으로 이동
-	me->AddMovementInput(dir.GetSafeNormal(), 0.05f);
+	// 모두 다 플레이어를 향하지 않고 몇몇은 뒷걸음질 치고 싶다.
+	//if (FMath::RandBool())
+	//{
+		//방향으로 이동
+		me->AddMovementInput(dir.GetSafeNormal(), 0.01f);
+	//}
+	//else
+	//{
+	//	// 뒷걸음질 치고 싶다
+
+	//	me->AddMovementInput(dir.GetSafeNormal(), 1.0f);
+
+	//}
+	
+
 
 	// 공격범위내에 플레이어가 들어오면 공격하고 싶다. 
 	float distance = dir.Size();
