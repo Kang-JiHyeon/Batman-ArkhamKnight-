@@ -11,6 +11,7 @@ enum class EPrisonerState :uint8
 {
 	Idle,
 	Move,
+	BackMove,
 	RightAttack,
 	LeftAttack,
 	Damage,
@@ -40,6 +41,8 @@ public:
 	void IdleState(float& DeltaSeconds);
 	// 이동상태
 	void MoveState(float& DeltaSeconds);
+	// 뒷걸음상태
+	void BackMoveState(float& DeltaSeconds);
 	// 공격상태
 	void RightAttackState(float& DeltaSeconds);
 	// 공격상태
@@ -52,6 +55,7 @@ public:
 	// 대기시간
 	UPROPERTY(EditAnywhere,Category=PFSM)
 	float idleDelayTime = 2;
+
 	// 경과시간(추가되어 대기시간을 초과할 시간)
 	float currentTime = 0;
 	// 타깃 플레이어
@@ -68,17 +72,22 @@ public:
 	UPROPERTY(EditAnywhere,Category= PFSM)
 	float moveDelayTime = 2;
 
+	UPROPERTY(EditAnywhere,Category= PFSM)
+	float backmoveDelayTime = 4;
+
 	// attack
 	UPROPERTY(EditAnywhere,Category= PFSM)
 	float attackDelayTime = 1;
 
 	UPROPERTY(EditAnywhere,Category= PFSM)
-	float attackDistance = 200.0f;
+	float attackDistance = 50.0f;
 
 	// damage
 	void OnMyTakeDamage(int32 damage);
 
 	// HP
+	
+	UPROPERTY(EditAnywhere,Category= PFSM)
 	int32 MaxHp = 2;
 	int32 HP = MaxHp;
 

@@ -9,6 +9,7 @@
 #include "PlayerCharacter.h"
 #include "EnemyPlayer.h"
 #include "Prisoner.h"
+#include "Kismet/KismetMathLibrary.h"
 
 // Sets default values for this component's properties
 UBossFSM::UBossFSM()
@@ -97,7 +98,7 @@ void UBossFSM::MoveState() // boss move to player or idle
 	//방향
 	FVector dir = destination - me->GetActorLocation();
 	//방향으로 이동
-	me->AddMovementInput(dir.GetSafeNormal(), 0.05f);
+	me->AddMovementInput(dir.GetSafeNormal(), 0.1f);
 	currentTime += GetWorld()->DeltaTimeSeconds;
 	if (currentTime > moveDelayTime)
 	{
@@ -128,7 +129,7 @@ void UBossFSM::MoveState() // boss move to player or idle
 						anim->BanimState = mState;
 					}
 				}
-				else if (attackstatevalue == 1 || attackstatevalue == 2)
+				if (attackstatevalue == 1 || attackstatevalue == 2)
 				{
 					anim->bAttackPlay = true;
 					mState = EBossState::LeftAttack;
@@ -164,9 +165,6 @@ void UBossFSM::RightAttackState() // smash
 	if (currentTime > attackDelayTime)
 	{
 		currentTime = 0;
-	}
-	if (distance > attackRange)
-	{
 		mState = EBossState::Move;
 		anim->BanimState = mState;
 	}
@@ -181,15 +179,11 @@ void UBossFSM::LeftAttackState() // smash
 	anim->bAttackPlay = true;
 	if (currentTime > attackDelayTime)
 	{
-
 		currentTime = 0;
-	}
-	if (distance > attackRange)
-	{
 		mState = EBossState::Move;
 		anim->BanimState = mState;
-
 	}
+	
 }
 
 void UBossFSM::DoubleRightAttackState() // double smash
@@ -203,9 +197,6 @@ void UBossFSM::DoubleRightAttackState() // double smash
 	if (currentTime > attackDelayTime)
 	{
 		currentTime = 0;
-	}
-	if (distance > attackRange)
-	{
 		mState = EBossState::Move;
 		anim->BanimState = mState;
 	}
@@ -222,9 +213,6 @@ void UBossFSM::DoubleLeftAttackState() // double smash
 	if (currentTime > attackDelayTime)
 	{
 		currentTime = 0;
-	}
-	if (distance > attackRange)
-	{
 		mState = EBossState::Move;
 		anim->BanimState = mState;
 	}
@@ -258,6 +246,8 @@ void UBossFSM::FastMoveState()
 {
 // player first position remember and go to there
 // if player is there in boss root -> damage
+
+	
 
 	me->AddMovementInput(direction.GetSafeNormal(), 1.0f);
 	float distance = FVector::Distance(Ptarget->GetActorLocation(), me->GetActorLocation());

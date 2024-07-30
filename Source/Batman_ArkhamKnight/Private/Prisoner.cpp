@@ -26,6 +26,8 @@ APrisoner::APrisoner()
 void APrisoner::BeginPlay()
 {
 	Super::BeginPlay();
+
+	
 	
 }
 
