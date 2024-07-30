@@ -53,10 +53,10 @@ void UPrisonerFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 		LeftAttackState(DeltaTime);
 		break;
 	case EPrisonerState::Damage:
-		DamageState();
+		DamageState(DeltaTime);
 		break;
 	case EPrisonerState::Die:
-		DieState();
+		DieState(DeltaTime);
 		break;
 	}
 }
