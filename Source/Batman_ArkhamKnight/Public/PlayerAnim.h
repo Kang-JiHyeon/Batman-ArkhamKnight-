@@ -41,34 +41,14 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	EComboAttackState ComboAttackState;
 
-
-	bool bIsAttack = false;
-
-
 public:
-	bool bIgnoreAttack = false;
-	
-	
+	bool bIgnoreInputAttack = false;
 	
 	void SetDodge(bool bValue);
-	void SetAttack(bool bValue);
 
-	bool GetIsAttack();
-	bool GetEnableCombo();
-	void SetIsAttack(bool bValue);
-
-	UFUNCTION(BlueprintCallable)
-	void OnEnableCombo();
-	
-	UFUNCTION(BlueprintCallable)
-	void OnDisableCombo();
 	UFUNCTION(BlueprintCallable)
 	void OnResetCombo();
 
 	UFUNCTION(BlueprintCallable)
 	void SetIgnoreAttack(bool bValue);
-
-
-
-
 };
