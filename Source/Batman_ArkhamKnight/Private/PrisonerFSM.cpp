@@ -52,6 +52,12 @@ void UPrisonerFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 	case EPrisonerState::LeftAttack:
 		LeftAttackState(DeltaTime);
 		break;
+	case EPrisonerState::Damage:
+		DamageState();
+		break;
+	case EPrisonerState::Die:
+		DieState();
+		break;
 	}
 }
 
@@ -78,7 +84,7 @@ void UPrisonerFSM::MoveState(float& DeltaSeconds)
 	//if (FMath::RandBool())
 	//{
 		//방향으로 이동
-		me->AddMovementInput(dir.GetSafeNormal(), 0.01f);
+		me->AddMovementInput(dir.GetSafeNormal(), 0.05f);
 	//}
 	//else
 	//{
@@ -150,5 +156,28 @@ void UPrisonerFSM::LeftAttackState(float& DeltaSeconds)
 			mState = EPrisonerState::Move;
 			anim->PanimState = mState;
 		}
+	}
+}
+
+void UPrisonerFSM::DamageState(float& DeltaSeconds)
+{
+
+}
+
+void UPrisonerFSM::DieState(float& DeltaSeconds)
+{
+	me->Destroy();
+}
+
+void UPrisonerFSM::OnMyTakeDamage(int32 damage)
+{
+	HP -= damage;
+	if (HP > 0)
+	{
+		mState = EPrisonerState::Damage;
+	}
+	else
+	{
+		mState = EPrisonerState::Die;
 	}
 }

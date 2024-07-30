@@ -13,6 +13,8 @@ enum class EPrisonerState :uint8
 	Move,
 	RightAttack,
 	LeftAttack,
+	Damage,
+	Die,
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -42,6 +44,10 @@ public:
 	void RightAttackState(float& DeltaSeconds);
 	// 공격상태
 	void LeftAttackState(float& DeltaSeconds);
+	// 피격상태
+	void DamageState(float& DeltaSeconds);
+	// 죽음상태
+	void DieState(float& DeltaSeconds);
 
 	// 대기시간
 	UPROPERTY(EditAnywhere,Category=PFSM)
@@ -68,6 +74,13 @@ public:
 
 	UPROPERTY(EditAnywhere,Category= PFSM)
 	float attackDistance = 200.0f;
+
+	// damage
+	void OnMyTakeDamage(int32 damage);
+
+	// HP
+	int32 MaxHp = 2;
+	int32 HP = MaxHp;
 
 		
 };
