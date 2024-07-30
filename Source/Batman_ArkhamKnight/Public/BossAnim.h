@@ -15,10 +15,10 @@ class BATMAN_ARKHAMKNIGHT_API UBossAnim : public UAnimInstance
 {
 	GENERATED_BODY()
 public:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category=FSM)
-	EBossState animState;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category=BossFSM)
+	EBossState BanimState;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category=FSM)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category= BossFSM)
 	bool bAttackPlay = false;
 
 	// attack animation end

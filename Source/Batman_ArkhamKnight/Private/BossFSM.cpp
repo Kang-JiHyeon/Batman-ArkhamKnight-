@@ -7,6 +7,8 @@
 #include "Boss.h"
 #include "BossAnim.h"
 #include "PlayerCharacter.h"
+#include "EnemyPlayer.h"
+#include "Prisoner.h"
 
 // Sets default values for this component's properties
 UBossFSM::UBossFSM()
@@ -14,7 +16,6 @@ UBossFSM::UBossFSM()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
 	// ...
 }
 
@@ -64,16 +65,14 @@ void UBossFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	case EBossState::Die:
 		DieState();
 		break;
-	//case EBossState::SavePrisoner:
-	//	SavePrisonerState();
-	//	break;
+	case EBossState::SavePrisoner:
+		SavePrisonerState();
+		break;
 	case EBossState::FastMove:
 		FastMoveState();
 		break;
 	}
 	
-	FString logMsg = UEnum::GetValueAsString(mState);
-	GEngine->AddOnScreenDebugMessage(0, 1, FColor::Cyan, logMsg);
 }
 
 void UBossFSM::IdleState()
@@ -85,68 +84,67 @@ void UBossFSM::IdleState()
 
 		mState = EBossState::Move;
 		currentTime = 0;
-		anim->animState = mState;
+		anim->BanimState = mState;
 	}
 }
 
 void UBossFSM::MoveState() // boss move to player or idle
 {
-
+	//타깃의 목적지
+	FVector destination = Ptarget->GetActorLocation();
+	//방향
+	FVector dir = destination - me->GetActorLocation();
+	//방향으로 이동
+	me->AddMovementInput(dir.GetSafeNormal(), 0.05f);
 	currentTime += GetWorld()->DeltaTimeSeconds;
 	if (currentTime > moveDelayTime)
 	{
 		int32 statevalue = FMath::RandRange(0, 9);
-		if (statevalue < 8)
+		if (statevalue == 0)
+		{
+			mState = EBossState::Move;
+
+		}
+		else if (statevalue > 0 && statevalue <1)
 		{
 			direction = Ptarget->GetActorLocation() - me->GetActorLocation();
 			mState = EBossState::FastMove;
 		}
-		else if (statevalue == 8)
-		{
-			mState = EBossState::Move;
-		}
 		else {
-			mState = EBossState::Idle;
+
+			if (dir.Size() < attackRange)
+			{
+				int32 attackstatevalue = FMath::RandRange(0, 4);
+				if (attackstatevalue == 0)
+				{
+					if (FMath::RandBool()) {
+						mState = EBossState::DoubleRightAttack;
+						anim->BanimState = mState;
+					}
+					else {
+						mState = EBossState::DoubleLeftAttack;
+						anim->BanimState = mState;
+					}
+				}
+				else if (attackstatevalue == 1 || attackstatevalue == 2)
+				{
+					anim->bAttackPlay = true;
+					mState = EBossState::LeftAttack;
+					anim->BanimState = mState;
+					currentTime = attackDelayTime;
+				}
+				else
+				{
+					anim->bAttackPlay = true;
+					mState = EBossState::RightAttack;
+					anim->BanimState = mState;
+					currentTime = attackDelayTime;
+				}
+			}
 
 		}
 		currentTime = 0;
-		anim->animState = mState;
-	}
-		//타깃의 목적지
-	FVector destination = Ptarget->GetActorLocation();
-		//방향
-	FVector dir = destination - me->GetActorLocation();
-		//방향으로 이동
-	me->AddMovementInput(dir.GetSafeNormal(), 0.2f);
-
-	if (dir.Size() < attackRange)
-	{
-		int32 attackstatevalue = FMath::RandRange(0, 5);
-		if (attackstatevalue == 0)
-		{
-			if (FMath::RandBool()) {
-				mState = EBossState::DoubleRightAttack;
-				anim->animState = mState;
-			}
-			else {
-				mState = EBossState::DoubleLeftAttack;
-				anim->animState = mState;
-			}
-		}
-		else if (attackstatevalue == 1 || attackstatevalue == 2)
-		{
-			anim->bAttackPlay = true;
-			mState = EBossState::LeftAttack;
-			anim->animState = mState;
-			currentTime = attackDelayTime;
-		}
-		else
-		{
-			anim->bAttackPlay = true;
-			mState = EBossState::RightAttack;
-			anim->animState = mState;
-			currentTime = attackDelayTime;
-		}
+		anim->BanimState = mState;
 	}
 
 
@@ -165,10 +163,10 @@ void UBossFSM::RightAttackState() // smash
 	{
 		currentTime = 0;
 	}
-	if (distance > 2 * attackRange)
+	if (distance > attackRange)
 	{
 		mState = EBossState::Move;
-		anim->animState = mState;
+		anim->BanimState = mState;
 	}
 }
 
@@ -184,10 +182,10 @@ void UBossFSM::LeftAttackState() // smash
 
 		currentTime = 0;
 	}
-	if (distance > 2 *attackRange)
+	if (distance > attackRange)
 	{
 		mState = EBossState::Move;
-		anim->animState = mState;
+		anim->BanimState = mState;
 
 	}
 }
@@ -197,13 +195,17 @@ void UBossFSM::DoubleRightAttackState() // double smash
 	UE_LOG(LogTemp, Warning, TEXT("DoubleRightAttack"));
 	currentTime += GetWorld()->DeltaTimeSeconds;
 
+	float distance = FVector::Distance(Ptarget->GetActorLocation(), me->GetActorLocation());
 
 	// double attack 2 type
 	if (currentTime > attackDelayTime)
 	{
-		mState = EBossState::Move;
-		anim->animState = mState;
 		currentTime = 0;
+	}
+	if (distance > attackRange)
+	{
+		mState = EBossState::Move;
+		anim->BanimState = mState;
 	}
 }
 
@@ -212,13 +214,17 @@ void UBossFSM::DoubleLeftAttackState() // double smash
 	UE_LOG(LogTemp, Warning, TEXT("DoubleRightAttack"));
 	currentTime += GetWorld()->DeltaTimeSeconds;
 
+	float distance = FVector::Distance(Ptarget->GetActorLocation(), me->GetActorLocation());
 
 	// double attack 2 type
 	if (currentTime > attackDelayTime)
 	{
-		mState = EBossState::Move;
-		anim->animState = mState;
 		currentTime = 0;
+	}
+	if (distance > attackRange)
+	{
+		mState = EBossState::Move;
+		anim->BanimState = mState;
 	}
 }
 
@@ -228,7 +234,7 @@ void UBossFSM::DamageState()
 	if (currentTime > damageDelayTime)
 	{
 		mState = EBossState::Idle;
-		anim->animState = mState;
+		anim->BanimState = mState;
 		currentTime = 0;
 	}
 }
@@ -238,9 +244,11 @@ void UBossFSM::DieState()
 	me->Destroy();
 }
 
-//void UBossFSM::SavePrisoner() // boss hold prisoner
-//{
-//}
+void UBossFSM::SavePrisonerState()
+{
+
+}
+
 
 
 
@@ -250,15 +258,23 @@ void UBossFSM::FastMoveState()
 // if player is there in boss root -> damage
 
 	me->AddMovementInput(direction.GetSafeNormal(), 1.0f);
-	
-	currentTime += GetWorld()->DeltaTimeSeconds;
-	if (currentTime > fastDelayTime)
+	float distance = FVector::Distance(Ptarget->GetActorLocation(), me->GetActorLocation());
+
+	currentTime += GetWorld()->GetDeltaSeconds();
+
+	if (currentTime >= fastDelayTime)
 	{
 		mState = EBossState::Move;
+		anim->BanimState = mState;
 		currentTime = 0;
-		anim->animState = mState;
+	}
+	if (distance < fastRange) {
+	
+		mState = EBossState::Move;
+		anim->BanimState = mState;
 	}
 }
+
 
 void UBossFSM::OnDamageProcess()
 {

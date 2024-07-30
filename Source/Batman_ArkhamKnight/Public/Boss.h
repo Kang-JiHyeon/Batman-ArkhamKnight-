@@ -30,4 +30,6 @@ public:
 	UPROPERTY(EditAnywhere,Category = FSMComponent)
 	class UBossFSM* fsm;
 
+	UPROPERTY(EditAnywhere)
+	class ABoss* me;
 };

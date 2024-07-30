@@ -3,6 +3,8 @@
 
 #include "Boss.h"
 #include "BossFSM.h"
+#include "EnemyPlayer.h"
+#include "Prisoner.h"
 
 
 // Sets default values
@@ -25,6 +27,7 @@ ABoss::ABoss()
 void ABoss::BeginPlay()
 {
 	Super::BeginPlay();
+
 	
 }
 
@@ -41,4 +44,5 @@ void ABoss::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 }
+
 
