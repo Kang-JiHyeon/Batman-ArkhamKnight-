@@ -9,8 +9,17 @@
 
 /**
  *	Writer : Lee Dong Geun
- *	Last Modified : 2024-07-28
+ *	Last Modified : 2024-07-30
  */
+
+class USpringArmComponent;
+class UCameraComponent;
+class UArrowComponent;
+class UInputMappingContext;
+class UInputAction;
+class UChaosWheeledVehicleMovementComponent;
+class AMissile;
+
 UCLASS()
 class BATMAN_ARKHAMKNIGHT_API ABaseWheeledVehiclePawn : public AWheeledVehiclePawn
 {
@@ -19,63 +28,65 @@ class BATMAN_ARKHAMKNIGHT_API ABaseWheeledVehiclePawn : public AWheeledVehiclePa
 	/** Components */
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BackCamera", meta = (AllowPrivateAccess = "true"))
-	class USpringArmComponent* BackSpringArm;
+	USpringArmComponent* BackSpringArm;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BackCamera", meta = (AllowPrivateAccess = "true"))
-	class UCameraComponent* BackCamera;
+	UCameraComponent* BackCamera;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FrontCamera", meta = (AllowPrivateAccess = "true"))
-	class USpringArmComponent* FrontSpringArm;
+	USpringArmComponent* FrontSpringArm;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FrontCamera", meta = (AllowPrivateAccess = "true"))
-	class UCameraComponent* FrontCamera;
+	UCameraComponent* FrontCamera;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "MissileSpawnLocation", meta = (AllowPrivateAccess = "true"))
-	class UArrowComponent* MissileSpawnLocationLeft;
+	UArrowComponent* MissileSpawnLocationLeft;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "MissileSpawnLocation", meta = (AllowPrivateAccess = "true"))
-	class UArrowComponent* MissileSpawnLocationUp;
+	UArrowComponent* MissileSpawnLocationUp;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "MissileSpawnLocation", meta = (AllowPrivateAccess = "true"))
-	class UArrowComponent* MissileSpawnLocationRight;
+	UArrowComponent* MissileSpawnLocationRight;
+
+	TArray<UArrowComponent*> MissileSpawnLocations;
 
 	/** Input Actions */
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
-	class UInputMappingContext* BatMobileMappingContext;
+	UInputMappingContext* BatMobileMappingContext;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
-	class UInputAction * IA_Throttle;
+	UInputAction * IA_Throttle;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
-	class UInputAction * IA_Brake;
+	UInputAction * IA_Brake;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
-	class UInputAction * IA_Look;
+	UInputAction * IA_Look;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
-	class UInputAction * IA_Steering;
+	UInputAction * IA_Steering;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
-	class UInputAction * IA_Boost;
+	UInputAction * IA_Boost;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
-	class UInputAction * IA_ToggleCamera;
+	UInputAction * IA_ToggleCamera;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
-	class UInputAction * IA_LockOn;
+	UInputAction * IA_LockOn;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
-	class UInputAction * IA_Missile;
+	UInputAction * IA_Missile;
 
 	/** Chaos Vehicle Movement Component */
 	
 	UPROPERTY()
-	class UChaosWheeledVehicleMovementComponent* ChaosVehicleMovementComponent;
+	UChaosWheeledVehicleMovementComponent* ChaosVehicleMovementComponent;
 
 	//* Missile Class */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Missile", meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<class AMissile> MissileClass;
+	TSubclassOf<AMissile> MissileClass;
 
 	//* Camera State*/
 
@@ -83,7 +94,7 @@ class BATMAN_ARKHAMKNIGHT_API ABaseWheeledVehiclePawn : public AWheeledVehiclePa
 
 	//* Target Info*/
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	class AActor* TargetActor;
+	AActor* TargetActor;
 	
 	FVector TargetLocation;
 	float TargetDistance;

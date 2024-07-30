@@ -2,14 +2,13 @@
 
 
 #include "Missile.h"
-
 #include "Kismet/KismetMathLibrary.h"
 #include "TimerManager.h"
 
 
 /**
  *	Writer : Lee Dong Geun
- *	Last Modified : 2024-07-28
+ *	Last Modified : 2024-07-30
  */
 
 // Sets default values
@@ -26,8 +25,8 @@ AMissile::AMissile()
 void AMissile::BeginPlay()
 {
 	Super::BeginPlay();
-
 	
+	SetActorRelativeRotation(Direction.Rotation());
 
 	GetWorld()->GetTimerManager().SetTimer(MissileTimerHandle,
 		this,
@@ -57,5 +56,5 @@ void AMissile::TurnToTarget()
 	SetActorRotation(TargetRotation);
 	Direction = TargetLocation - GetActorLocation();
 	Direction.Normalize();
-	MissileSpeed = 40000.f;
+	MissileSpeed = 30000.f;
 }

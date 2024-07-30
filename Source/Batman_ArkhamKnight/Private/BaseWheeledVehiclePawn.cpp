@@ -16,7 +16,7 @@
 
 /**
  *	Writer : Lee Dong Geun
- *	Last Modified : 2024-07-28
+ *	Last Modified : 2024-07-30
  */
 
 ABaseWheeledVehiclePawn::ABaseWheeledVehiclePawn()
@@ -55,7 +55,10 @@ ABaseWheeledVehiclePawn::ABaseWheeledVehiclePawn()
 	MissileSpawnLocationRight->SetupAttachment(RootComponent);
 	MissileSpawnLocationRight->SetRelativeLocation(FVector(0.f, 140.f, 100.f));
 	MissileSpawnLocationRight->SetRelativeRotation(FRotator(30.f, 90.f, 0.f));
-	
+
+	MissileSpawnLocations.Add(MissileSpawnLocationLeft);
+	MissileSpawnLocations.Add(MissileSpawnLocationUp);
+	MissileSpawnLocations.Add(MissileSpawnLocationRight);
 }
 
 void ABaseWheeledVehiclePawn::BeginPlay()
@@ -170,7 +173,6 @@ void ABaseWheeledVehiclePawn::SteeringComplete(const FInputActionValue& Value)
 void ABaseWheeledVehiclePawn::BoostTrigger(const FInputActionValue& Value)
 {
 	ChaosVehicleMovementComponent-> SetMaxEngineTorque(10000.f);
-	//ChaosVehicleMovementComponent-> SetMaxEngineTorque(ChaosVehicleMovementComponent-> GetEngineMaxRotationSpeed());
 }
 
 void ABaseWheeledVehiclePawn::BoostComplete(const FInputActionValue& Value)
@@ -220,8 +222,8 @@ void ABaseWheeledVehiclePawn::Shot(const FInputActionValue& Value)
 
 void ABaseWheeledVehiclePawn::FireMissile()
 {
-	FVector SpawnLocation = MissileSpawnLocationRight -> GetComponentLocation();
-	FRotator SpawnRotation = MissileSpawnLocationRight -> GetComponentRotation();
+	int rand = UKismetMathLibrary::RandomIntegerInRange(0, 2);
+	FVector SpawnLocation = MissileSpawnLocations[rand] -> GetComponentLocation();
+	FRotator SpawnRotation = MissileSpawnLocations[rand] -> GetForwardVector().Rotation();
 	GetWorld() -> SpawnActor<AMissile>(MissileClass, SpawnLocation, SpawnRotation) -> SetTargetLocation(TargetLocation);
-	
 }

@@ -8,8 +8,12 @@
 
 /**
  *	Writer : Lee Dong Geun
- *	Last Modified : 2024-07-28
+ *	Last Modified : 2024-07-30
  */
+
+class USkeletalMeshComponent;
+
+struct FTimerHandle;
 
 UCLASS()
 class BATMAN_ARKHAMKNIGHT_API AMissile : public AActor
@@ -17,7 +21,7 @@ class BATMAN_ARKHAMKNIGHT_API AMissile : public AActor
 	GENERATED_BODY()
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "MissileMesh", meta = (AllowPrivateAccess = "true"))
-	class USkeletalMeshComponent* MissileMesh;
+	USkeletalMeshComponent* MissileMesh;
 
 	FTimerHandle MissileTimerHandle;
 
