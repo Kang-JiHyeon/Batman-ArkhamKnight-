@@ -73,6 +73,8 @@ void UBossFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 		break;
 	}
 	
+	FString logMsg = UEnum::GetValueAsString(mState);
+	GEngine->AddOnScreenDebugMessage(0, 1, FColor::Cyan,logMsg);
 }
 
 void UBossFSM::IdleState()
