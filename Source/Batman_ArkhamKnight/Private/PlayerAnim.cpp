@@ -10,15 +10,15 @@ void UPlayerAnim::NativeUpdateAnimation(float DeltaTime)
     Super::NativeUpdateAnimation(DeltaTime);
 
     auto ownerPawn = TryGetPawnOwner();
-    auto player = Cast<APlayerCharacter>(ownerPawn);
+    Player = Cast<APlayerCharacter>(ownerPawn);
 
-    if (player != nullptr)
+    if (Player != nullptr)
     {
-        FVector velocity = player->GetVelocity();
-        FVector forwordVector = player->GetActorForwardVector();
+        FVector velocity = Player->GetVelocity();
+        FVector forwordVector = Player->GetActorForwardVector();
         Speed = FVector::DotProduct(forwordVector, velocity);
 
-        auto movement = player->GetCharacterMovement();
+        auto movement = Player->GetCharacterMovement();
         bDodge = movement->IsFalling();
     }
 }
@@ -31,4 +31,41 @@ void UPlayerAnim::SetDodge(bool bValue)
 void UPlayerAnim::SetAttack(bool bValue)
 {
     bAttack = bValue;
+}
+
+bool UPlayerAnim::GetIsAttack()
+{
+    return bIsAttack;
+}
+
+bool UPlayerAnim::GetEnableCombo()
+{
+    return bIgnoreAttack;
+}
+
+void UPlayerAnim::SetIsAttack(bool bValue)
+{
+    bIsAttack = bValue;
+}
+
+void UPlayerAnim::OnEnableCombo()
+{
+    bIgnoreAttack = true;
+}
+
+void UPlayerAnim::OnDisableCombo()
+{   
+    bIgnoreAttack = false;
+    bIsAttack = false;
+}
+
+void UPlayerAnim::OnResetCombo()
+{
+    Player->ResetCombo();
+}
+
+
+void UPlayerAnim::SetIgnoreAttack(bool bValue)
+{
+    bIgnoreAttack = bValue;
 }

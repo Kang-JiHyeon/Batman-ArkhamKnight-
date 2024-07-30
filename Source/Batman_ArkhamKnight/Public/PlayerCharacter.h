@@ -97,6 +97,12 @@ public:
 	class APrisoner* TargetEnemy;
 	bool bMovingToTarget;
 	
+	UPROPERTY(EditAnywhere)
+	class UAnimMontage* AttackMontage;
+
+
+	int ComboCount = 0;
+
 
 private:
 	void OnActionMove(const FInputActionValue& Value);
@@ -112,4 +118,6 @@ private:
 
 public:
 	void OnChangedDodgeSpeed(bool bDefault);
+
+	void ResetCombo();
 };
