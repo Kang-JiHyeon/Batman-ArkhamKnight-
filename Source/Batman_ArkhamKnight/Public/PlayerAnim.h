@@ -25,6 +25,10 @@ public:
 
 
 public:
+
+	UPROPERTY()
+	class APlayerCharacter* Player;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float Speed = 0;
 
@@ -37,10 +41,34 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	EComboAttackState ComboAttackState;
 
+
+	bool bIsAttack = false;
+
+
 public:
+	bool bIgnoreAttack = false;
+	
+	
+	
 	void SetDodge(bool bValue);
 	void SetAttack(bool bValue);
 
+	bool GetIsAttack();
+	bool GetEnableCombo();
+	void SetIsAttack(bool bValue);
+
 	UFUNCTION(BlueprintCallable)
-	void OnEndAttackPunchingRight();
+	void OnEnableCombo();
+	
+	UFUNCTION(BlueprintCallable)
+	void OnDisableCombo();
+	UFUNCTION(BlueprintCallable)
+	void OnResetCombo();
+
+	UFUNCTION(BlueprintCallable)
+	void SetIgnoreAttack(bool bValue);
+
+
+
+
 };

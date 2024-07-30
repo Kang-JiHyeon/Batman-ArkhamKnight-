@@ -164,6 +164,13 @@ void APlayerCharacter::OnActionAttack(const FInputActionValue& Value)
 		return;
 	}
 
+
+	if (PlayerAnim->bIgnoreAttack)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Attack을 할 수 없는 상태입니다."));
+		return;
+	}
+
 	TArray<AActor*> targetActors;
 	float minDistance = AttackRange;
 
@@ -192,8 +199,8 @@ void APlayerCharacter::OnActionAttack(const FInputActionValue& Value)
 		APrisoner* enemy = Cast<APrisoner>(targetActor);
 
 		// TODO : 적이 무력화 상태라면, 다음으로 최단 거리에 있는 적을 향해 이동하고 싶다.
-		if (enemy == nullptr)
 		//if (enemy == nullptr || enemy->GetValided())
+		if (enemy == nullptr)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("적이 기절 상태입니다. 다음 적을 탐색합니다."));
 			continue;
@@ -201,7 +208,7 @@ void APlayerCharacter::OnActionAttack(const FInputActionValue& Value)
 
 
 		// Enemy와 나의 위치의 거리가 현재 탐색된 적과의 최소 거리보다 작다면, Target 대상 변경
-		float distance = FVector::Dist(enemy->GetActorLocation(), GetActorLocation());
+		float distance = FVector::Distance(enemy->GetActorLocation(), GetActorLocation());
 		if (distance < minDistance)
 		{
 			TargetEnemy = enemy;
@@ -211,12 +218,13 @@ void APlayerCharacter::OnActionAttack(const FInputActionValue& Value)
 		}
 	}
 
-	// 공격할 대상이 있다면, 그 위치로 이동
+	// 공격할 대상이 있다면
 	if (TargetEnemy != nullptr)
 	{
+		// 대상 위치로 이동
 		bMovingToTarget = true;
+
 		//PlayerAnim->SetAttack(true);
-		PlayAnimMontage(AttackMontage, 1, TEXT("2"));
 
 	}
 	// 공격할 수 있는 대상이 없다면, 앞방향으로 일정거리만큼 이동
@@ -225,6 +233,13 @@ void APlayerCharacter::OnActionAttack(const FInputActionValue& Value)
 		GetCharacterMovement()->Velocity = GetActorForwardVector() * 2000;
 		UE_LOG(LogTemp, Warning, TEXT("적 발견 실패, 앞방향으로 이동합니다."));
 	}
+
+	// 콤보 카운트 증가
+	FString section = FString::FromInt((ComboCount % 3));
+	ComboCount++;
+	// 애니메이션 실행
+	PlayAnimMontage(AttackMontage, 1, FName(section));
+
 }
 
 void APlayerCharacter::MoveToTarget(AActor* target)
@@ -262,11 +277,7 @@ bool APlayerCharacter::IsLockedMove() const
 	return bMovingToTarget || PlayerAnim->bDodge;
 }
 
-
-
-// 콤보 구현
-// 애니메이션 실행되도록
-// 몽타주 플레이 > 공격 1, 2, 3 나누기
-// 
-
-// 콤보 카운
+void APlayerCharacter::ResetCombo()
+{
+	ComboCount = 0;
+}

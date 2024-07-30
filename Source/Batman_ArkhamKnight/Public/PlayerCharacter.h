@@ -100,6 +100,10 @@ public:
 	UPROPERTY(EditAnywhere)
 	class UAnimMontage* AttackMontage;
 
+
+	int ComboCount = 0;
+
+
 private:
 	void OnActionMove(const FInputActionValue& Value);
 	void OnActionMoveCompleted(const FInputActionValue& Value);
@@ -114,4 +118,6 @@ private:
 
 public:
 	void OnChangedDodgeSpeed(bool bDefault);
+
+	void ResetCombo();
 };
