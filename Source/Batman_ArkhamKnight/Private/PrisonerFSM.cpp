@@ -6,6 +6,8 @@
 #include "PlayerCharacter.h"
 #include "Prisoner.h"
 #include "PrisonerAnim.h"
+#include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values for this component's properties
 UPrisonerFSM::UPrisonerFSM()
@@ -31,7 +33,7 @@ void UPrisonerFSM::BeginPlay()
 	anim = Cast<UPrisonerAnim>(me->GetMesh()->GetAnimInstance());
 
 	// HP
-	HP = MaxHp;
+	anim->HP = MaxHp;
 	
 }
 
@@ -48,6 +50,9 @@ void UPrisonerFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 		break;
 	case EPrisonerState::Move:
 		MoveState(DeltaTime);
+		break;
+	case EPrisonerState::Run:
+		RunState(DeltaTime);
 		break;
 	case EPrisonerState::BackMove:
 		BackMoveState(DeltaTime);
@@ -78,6 +83,8 @@ void UPrisonerFSM::SetState(EPrisonerState NextState)
 		break;
 	case EPrisonerState::Move:
 		break;
+	case EPrisonerState::Run:
+		break;
 	case EPrisonerState::BackMove:
 		break;
 	case EPrisonerState::RightAttack:
@@ -87,6 +94,8 @@ void UPrisonerFSM::SetState(EPrisonerState NextState)
 	case EPrisonerState::Damage:
 		break;
 	case EPrisonerState::Die:
+		break;
+	default:
 		break;
 	}
 }
@@ -117,35 +126,46 @@ void UPrisonerFSM::MoveState(float& DeltaSeconds){
 	FVector destination = Ptarget->GetActorLocation();
 	FVector dir = destination - me->GetActorLocation();
 	// 플레이어 방향으로 이동
-	me->AddMovementInput(dir.GetSafeNormal(), 0.1f);
+	me->AddMovementInput(dir.GetSafeNormal(), 0.05f);
 
+	currentTime += DeltaSeconds;
 	// 공격범위내에 플레이어가 들어오면 공격하고 싶다. 
 	if (currentTime > moveDelayTime)
 	{
-
-		if (FMath::RandBool())
+		int32 value = FMath::RandRange(0, 5);
+		if (value<5)
 		{
 			SetState(EPrisonerState::Move);
 			anim->PanimState = mState;
 		}
 		else
 		{
-			SetState(EPrisonerState::BackMove);
+			SetState(EPrisonerState::Run);
 			anim->PanimState = mState;
 		}
 	}
 
-	float distance = dir.Size();
-	if (distance < attackDistance)
-	{
-		// 오른쪽 공격과 왼쪽 공격을 랜덤하게 나오게 하고 싶다.
-		
-		if (FMath::RandBool()) SetState(EPrisonerState::LeftAttack);
-		else SetState(EPrisonerState::RightAttack);
-		
-		anim->PanimState = mState;
-	}
+}
 
+void UPrisonerFSM::RunState(float& DeltaSeconds)
+{
+	// 플레이어를 향해 달리고 싶다.
+	FVector destination = Ptarget->GetActorLocation();
+	FVector dir = destination - me->GetActorLocation();
+	float dist = me->GetDistanceTo(Ptarget);
+	me->AddMovementInput(dir.GetSafeNormal(), 0.7f);
+
+	currentTime += DeltaSeconds;
+	if (currentTime > 1.3) {
+		if (dist < 100)
+		{
+			// 오른쪽 공격과 왼쪽 공격을 랜덤하게 나오게 하고 싶다.
+
+			if (FMath::RandBool()) SetState(EPrisonerState::LeftAttack);
+			else SetState(EPrisonerState::RightAttack);
+			anim->PanimState = mState;
+		}
+	}
 }
 
 void UPrisonerFSM::BackMoveState(float& DeltaSeconds)
@@ -235,12 +255,44 @@ void UPrisonerFSM::LeftAttackState(float& DeltaSeconds)
 
 void UPrisonerFSM::DamageState(float& DeltaSeconds)
 {
+
+	FVector dir = me->GetActorLocation() - Ptarget->GetActorLocation();
+	float dis = dir.Size();
+	dir.Normalize();
+
+
+	if (dis < 150) {
+		me->GetCharacterMovement()->Velocity = dir * 1500;
+	}
+
 	currentTime += DeltaSeconds;
 	if (currentTime > damageDelayTime)
 	{
+		if (anim->HP > 0 && anim->HP < 2)
+		{
+			SetState(EPrisonerState::Faint);
+			anim->PanimState = mState;
+		}
+		else
+		{
+			SetState(EPrisonerState::Move);
+			anim->PanimState = mState;
+		}
+	}
+
+}
+
+void UPrisonerFSM::FaintState(float& DeltaSeconds)
+{
+
+	currentTime += DeltaSeconds;
+	if (currentTime > FaintDelayTime)
+	{
 		SetState(EPrisonerState::Move);
+		anim->PanimState = mState;
 	}
 }
+
 
 void UPrisonerFSM::DieState(float& DeltaSeconds)
 {
@@ -248,14 +300,19 @@ void UPrisonerFSM::DieState(float& DeltaSeconds)
 }
 
 void UPrisonerFSM::OnMyTakeDamage(int32 damage)
+
+// 데미지를 입다가 일정 HP 이하가 되면 기절상태에 들어가고 싶다.
+// 기절상태에 들어가고 나서 일정 시간이후에 다시 이동 상태로 전이하고 싶다.
 {
-	HP -= damage;
-	if (HP > 0)
+	anim->HP -= damage;
+	if (anim->HP > 0)
 	{
-		mState = EPrisonerState::Damage;
+		SetState(EPrisonerState::Damage);
+		anim->PanimState = mState;
 	}
 	else
 	{
-		mState = EPrisonerState::Die;
+		SetState(EPrisonerState::Die);
+
 	}
 }
