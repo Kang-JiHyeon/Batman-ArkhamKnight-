@@ -91,6 +91,11 @@ void APlayerCharacter::Tick(float DeltaTime)
 		AddMovementInput(Direction, 1);
 		Direction = FVector::ZeroVector;
 	}
+
+	if (bRotatingToTarget)
+	{
+		RotateToTarget(TargetEnemy);
+	}
 }
 
 // Called to bind functionality to input
@@ -254,6 +259,7 @@ void APlayerCharacter::MoveToTarget(AActor* Target)
 	{
 		bMovingToTarget = false;
 
+		bRotatingToTarget = true;
 		// 애니메이션 실행
 		OnPlayAttackAnimation();
 
@@ -266,6 +272,31 @@ bool APlayerCharacter::IsLockedMove() const
 {
 	return bMovingToTarget || PlayerAnim->bDodge;
 }
+
+void APlayerCharacter::RotateToTarget(AActor* Target)
+{
+	if (!Target) return;
+	if (!bRotatingToTarget) return;
+
+	// 회전값 갱신
+	FVector targetLocation = Target->GetActorLocation();
+	FVector direction = (targetLocation - GetActorLocation()).GetSafeNormal();
+	FRotator targetRotation = FRotationMatrix::MakeFromX(direction).Rotator();
+
+	FRotator newRotation = FMath::RInterpTo(GetActorRotation(), targetRotation, GetWorld()->DeltaTimeSeconds, 8);
+	SetActorRotation(newRotation);
+
+	// 타겟과 마주보고 있다면 회전 종료
+	FVector forwardVector = GetActorForwardVector();
+	FVector targetForwardVector = Target->GetActorForwardVector();
+
+	if (FVector::DotProduct(forwardVector, targetForwardVector) < -0.8f)
+	{
+		bRotatingToTarget = false;
+	}
+}
+
+
 
 EEnemyDirection APlayerCharacter::GetTargetVerticalDirection(AActor* TargetActor)
 {
@@ -314,11 +345,13 @@ void APlayerCharacter::OnPlayAttackAnimation()
 	// 적이 뒤에 있다면 왼쪽, 오른쪽 구분해서 애니메이션 실행
 	else
 	{
-		
 		FString dirName = GetTargetHorizontalDirection(TargetEnemy) == EEnemyDirection::Left ? "Left" : "Right";
 		UE_LOG(LogTemp, Warning, TEXT("%s"), *dirName);
 		
 		PlayAnimMontage(BackAttackMontage, 1, FName(dirName));
+
+		// 회전
+
 	}
 
 	ComboCount++;

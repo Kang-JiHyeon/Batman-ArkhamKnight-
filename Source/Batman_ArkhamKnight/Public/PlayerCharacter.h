@@ -79,7 +79,6 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<class AActor> EnemyFactory;
 
-
 	// 방향
 	FVector Direction;
 
@@ -87,6 +86,8 @@ public:
 
 	// 움직임 여부
 	bool bMoveInputPressed;
+	bool bMovingToTarget;
+	bool bRotatingToTarget;
 
 	// 회피
 	UPROPERTY(EditDefaultsOnly)
@@ -103,8 +104,7 @@ public:
 
 	UPROPERTY()
 	class APrisoner* TargetEnemy;
-	bool bMovingToTarget;
-	
+
 	// Montage
 	UPROPERTY(EditAnywhere)
 	class UAnimMontage* AttackMontage;
@@ -128,6 +128,8 @@ private:
 	void OnPlayAttackAnimation();
 	void OnPlayBackAttackAnimation();
 	bool IsLockedMove() const;
+
+	void RotateToTarget(AActor* Target);
 
 
 	EEnemyDirection GetTargetVerticalDirection(AActor* TargetActor);
