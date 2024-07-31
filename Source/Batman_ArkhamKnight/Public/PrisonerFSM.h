@@ -11,10 +11,12 @@ enum class EPrisonerState :uint8
 {
 	Idle,
 	Move,
+	Run,
 	BackMove,
 	RightAttack,
 	LeftAttack,
 	Damage,
+	Faint,
 	Die,
 };
 
@@ -43,6 +45,8 @@ public:
 	void IdleState(float& DeltaSeconds);
 	// 이동상태
 	void MoveState(float& DeltaSeconds);
+	// 달리기상태
+	void RunState(float& DeltaSeconds);
 	// 뒷걸음상태
 	void BackMoveState(float& DeltaSeconds);
 	// 공격상태
@@ -51,6 +55,8 @@ public:
 	void LeftAttackState(float& DeltaSeconds);
 	// 피격상태
 	void DamageState(float& DeltaSeconds);
+	// 기절상태
+	void FaintState(float& DeltaSeconds);
 	// 죽음상태
 	void DieState(float& DeltaSeconds);
 
@@ -87,14 +93,16 @@ public:
 	// damage
 	void OnMyTakeDamage(int32 damage);
 	UPROPERTY(EditAnywhere,Category= PFSM)
-	float damageDelayTime = 1;
+	float damageDelayTime = 0.5f;
 
+	// faint
+	UPROPERTY(EditAnywhere,Category= PFSM)
+	float FaintDelayTime = 5.0f;
 
 	// HP
 	
 	UPROPERTY(EditAnywhere,Category= PFSM)
-	int32 MaxHp = 2;
-	int32 HP = MaxHp;
+	int32 MaxHp = 5;
 
 		
 };

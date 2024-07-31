@@ -31,5 +31,6 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	class APrisoner* me;
+
 	
 };
