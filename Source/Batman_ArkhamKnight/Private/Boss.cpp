@@ -45,4 +45,20 @@ void ABoss::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 }
 
+void ABoss::NotifyActorBeginOverlap(AActor* OtherActor)
+{
+	Super:: NotifyActorBeginOverlap(OtherActor);
+
+	APrisoner* prisoner = Cast<APrisoner>(OtherActor);
+	if (prisoner && fsm->mState == EBossState::FastMove)
+	{
+		FVector velo = prisoner->GetActorLocation() - GetActorLocation();
+		velo.Normalize();
+		velo *= FVector(1200.0f, 1200.0f, 0.0f); // °¢ Ãà¿¡ °ö¼À
+
+		prisoner->LaunchCharacter(velo, true, false);
+		UE_LOG(LogTemp, Warning, TEXT(" Boss NotifyActorBeginOverlap"));
+	}
+}
+
 

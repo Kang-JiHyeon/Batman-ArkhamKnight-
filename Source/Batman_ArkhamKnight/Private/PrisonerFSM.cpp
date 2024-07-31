@@ -29,6 +29,9 @@ void UPrisonerFSM::BeginPlay()
 
 	// animation
 	anim = Cast<UPrisonerAnim>(me->GetMesh()->GetAnimInstance());
+
+	// HP
+	HP = MaxHp;
 	
 }
 
@@ -46,6 +49,9 @@ void UPrisonerFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 	case EPrisonerState::Move:
 		MoveState(DeltaTime);
 		break;
+	case EPrisonerState::BackMove:
+		BackMoveState(DeltaTime);
+		break;
 	case EPrisonerState::RightAttack:
 		RightAttackState(DeltaTime);
 		break;
@@ -61,6 +67,30 @@ void UPrisonerFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 	}
 }
 
+void UPrisonerFSM::SetState(EPrisonerState NextState)
+{
+	EPrisonerState prevState = mState;
+	mState = NextState;
+	currentTime = 0;
+	switch (mState)
+	{
+	case EPrisonerState::Idle:
+		break;
+	case EPrisonerState::Move:
+		break;
+	case EPrisonerState::BackMove:
+		break;
+	case EPrisonerState::RightAttack:
+		break;
+	case EPrisonerState::LeftAttack:
+		break;
+	case EPrisonerState::Damage:
+		break;
+	case EPrisonerState::Die:
+		break;
+	}
+}
+
 void UPrisonerFSM::IdleState(float& DeltaSeconds)
 {
 
@@ -68,49 +98,79 @@ void UPrisonerFSM::IdleState(float& DeltaSeconds)
 	if (currentTime > idleDelayTime)
 	{
 
-		mState = EPrisonerState::Move;
-		currentTime = 0;
-		anim->PanimState = mState;
+		if (FMath::RandBool())
+		{
+			SetState(EPrisonerState::Move);
+			anim->PanimState = mState;
+		}
+		else
+		{
+			SetState(EPrisonerState::BackMove);
+			anim->PanimState = mState;
+		}
 	}
 }
 
-void UPrisonerFSM::MoveState(float& DeltaSeconds)
-{
+void UPrisonerFSM::MoveState(float& DeltaSeconds){
+
 	// 타깃의 목적지
 	FVector destination = Ptarget->GetActorLocation();
-	// 
 	FVector dir = destination - me->GetActorLocation();
-	// 모두 다 플레이어를 향하지 않고 몇몇은 뒷걸음질 치고 싶다.
-	//if (FMath::RandBool())
-	//{
-		//방향으로 이동
-		me->AddMovementInput(dir.GetSafeNormal(), 0.05f);
-	//}
-	//else
-	//{
-	//	// 뒷걸음질 치고 싶다
-
-	//	me->AddMovementInput(dir.GetSafeNormal(), 1.0f);
-
-	//}
-	
-
+	// 플레이어 방향으로 이동
+	me->AddMovementInput(dir.GetSafeNormal(), 0.1f);
 
 	// 공격범위내에 플레이어가 들어오면 공격하고 싶다. 
+	if (currentTime > moveDelayTime)
+	{
+
+		if (FMath::RandBool())
+		{
+			SetState(EPrisonerState::Move);
+			anim->PanimState = mState;
+		}
+		else
+		{
+			SetState(EPrisonerState::BackMove);
+			anim->PanimState = mState;
+		}
+	}
+
 	float distance = dir.Size();
 	if (distance < attackDistance)
 	{
 		// 오른쪽 공격과 왼쪽 공격을 랜덤하게 나오게 하고 싶다.
-		if (FMath::RandBool())
-		{
-			mState = EPrisonerState::LeftAttack;
-		}
-		else
-		{
-			mState = EPrisonerState::RightAttack;
-		}
+		
+		if (FMath::RandBool()) SetState(EPrisonerState::LeftAttack);
+		else SetState(EPrisonerState::RightAttack);
+		
+		anim->PanimState = mState;
 	}
 
+}
+
+void UPrisonerFSM::BackMoveState(float& DeltaSeconds)
+{
+	// 타깃의 목적지
+	FVector destination = Ptarget->GetActorLocation();
+	FVector dir = destination - me->GetActorLocation();
+	// 뒷걸음질 치고 싶다 = 플레이어를 바라보며 뒤로 걷고 싶다.
+	// 방향으로 회전 (보간 사용)
+	FRotator currentRotation = me->GetActorRotation();
+	FRotator targetRotation = dir.Rotation();
+	FRotator newRotation = FMath::RInterpTo(currentRotation, targetRotation, DeltaSeconds, 10.0f); // 10.0f는 회전 속도, 필요에 따라 조절 가능
+	me->SetActorRotation(newRotation);
+
+	// 플레이어의 반대 방향으로 이동
+	FVector backwardDir = -dir.GetSafeNormal();
+	me->AddMovementInput(backwardDir,0.1f);
+	currentTime += DeltaSeconds;
+	if (currentTime > backmoveDelayTime)
+	{
+		SetState(EPrisonerState::Move);
+		anim->PanimState = mState;
+	}
+
+	float distance = dir.Size();
 }
 
 void UPrisonerFSM::RightAttackState(float& DeltaSeconds)
@@ -120,7 +180,6 @@ void UPrisonerFSM::RightAttackState(float& DeltaSeconds)
 	currentTime += DeltaSeconds;
 	if (currentTime > attackDelayTime)
 	{
-		currentTime = 0;
 		// 펀치를 하고 난 후 다시 이동으로 전이하고 싶다.
 		float dist = me->GetDistanceTo(Ptarget);
 		if (dist < attackDistance)
@@ -129,7 +188,15 @@ void UPrisonerFSM::RightAttackState(float& DeltaSeconds)
 		}
 		else
 		{
-			mState = EPrisonerState::Move;
+			if (FMath::RandBool())
+			{
+				SetState(EPrisonerState::Move);
+			}
+			else
+			{
+				SetState(EPrisonerState::BackMove);
+			}
+			
 			anim->PanimState = mState;
 		}
 	}
@@ -144,7 +211,6 @@ void UPrisonerFSM::LeftAttackState(float& DeltaSeconds)
 	currentTime += DeltaSeconds;
 	if (currentTime > attackDelayTime)
 	{
-		currentTime = 0;
 		// 펀치를 하고 난 후 다시 이동으로 전이하고 싶다.
 		float dist = me->GetDistanceTo(Ptarget);
 		if (dist < attackDistance)
@@ -153,7 +219,15 @@ void UPrisonerFSM::LeftAttackState(float& DeltaSeconds)
 		}
 		else
 		{
-			mState = EPrisonerState::Move;
+			if (FMath::RandBool())
+			{
+				SetState(EPrisonerState::Move);
+			}
+			else
+			{
+				SetState(EPrisonerState::BackMove);
+			}
+
 			anim->PanimState = mState;
 		}
 	}
@@ -161,7 +235,11 @@ void UPrisonerFSM::LeftAttackState(float& DeltaSeconds)
 
 void UPrisonerFSM::DamageState(float& DeltaSeconds)
 {
-
+	currentTime += DeltaSeconds;
+	if (currentTime > damageDelayTime)
+	{
+		SetState(EPrisonerState::Move);
+	}
 }
 
 void UPrisonerFSM::DieState(float& DeltaSeconds)
