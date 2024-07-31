@@ -18,6 +18,14 @@ enum class EPlayerState
 	Die
 };
 
+UENUM()
+enum class EEnemyDirection
+{
+	Front,
+	Back,
+	Left,
+	Right
+};
 
 
 UCLASS()
@@ -97,9 +105,12 @@ public:
 	class APrisoner* TargetEnemy;
 	bool bMovingToTarget;
 	
+	// Montage
 	UPROPERTY(EditAnywhere)
 	class UAnimMontage* AttackMontage;
 
+	UPROPERTY(EditAnywhere)
+	class UAnimMontage* BackAttackMontage;
 
 	int ComboCount = 0;
 
@@ -115,9 +126,13 @@ private:
 
 	void MoveToTarget(AActor* Target);
 	void OnPlayAttackAnimation();
-
-
+	void OnPlayBackAttackAnimation();
 	bool IsLockedMove() const;
+
+
+	EEnemyDirection GetTargetVerticalDirection(AActor* TargetActor);
+	EEnemyDirection GetTargetHorizontalDirection(AActor* TargetActor);
+
 public:
 
 	void ResetCombo();
@@ -125,6 +140,5 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void OnMeshBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
 
 };

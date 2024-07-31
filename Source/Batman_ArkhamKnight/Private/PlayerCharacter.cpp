@@ -175,7 +175,6 @@ void APlayerCharacter::OnActionAttack(const FInputActionValue& Value)
 		return;
 	}
 
-
 	if (PlayerAnim->bIgnoreInputAttack)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Attack을 할 수 없는 상태입니다."));
@@ -194,12 +193,6 @@ void APlayerCharacter::OnActionAttack(const FInputActionValue& Value)
 		UE_LOG(LogTemp, Warning, TEXT("탐색된 적이 없습니다."));
 		return;
 	}
-
-	//// 가장 가까이 있는 적이 이전 적이랑 같다면, 다음으로 가까운 적을 찾고 싶다.
-	//if (targetActors.Contains(TargetEnemy))
-	//{
-	//	targetActors.Remove(TargetEnemy);
-	//}
 
 	// 기존의 이동 대상을 초기화
 	TargetEnemy = nullptr;
@@ -223,8 +216,6 @@ void APlayerCharacter::OnActionAttack(const FInputActionValue& Value)
 		{
 			TargetEnemy = enemy;
 			minDistance = distance;
-
-			UE_LOG(LogTemp, Warning, TEXT("최단 거리의 적 갱신!"));
 		}
 	}
 
@@ -234,10 +225,11 @@ void APlayerCharacter::OnActionAttack(const FInputActionValue& Value)
 		// 대상 위치로 이동
 		bMovingToTarget = true;
 
-		// 공격 스피드 증가
+		// 최대 스피드 증가
 		GetCharacterMovement()->MaxWalkSpeed = AttackMaxSpeed;
 
-		//PlayerAnim->SetAttack(true);
+		// 매쉬 콜리전 활성화
+		SetMeshCollisionEnabled(true);
 
 	}
 	// 공격할 수 있는 대상이 없다면, 앞방향으로 일정거리만큼 이동
@@ -245,19 +237,15 @@ void APlayerCharacter::OnActionAttack(const FInputActionValue& Value)
 	{
 		OnPlayAttackAnimation();
 		GetCharacterMovement()->Velocity = GetActorForwardVector() * 2000;
-		UE_LOG(LogTemp, Warning, TEXT("적 발견 실패, 앞방향으로 이동합니다."));
 	}
-
-	SetMeshCollisionEnabled(true);
-
 }
 
-void APlayerCharacter::MoveToTarget(AActor* target)
+void APlayerCharacter::MoveToTarget(AActor* Target)
 {
-	if (!target) return;
+	if (!Target) return;
 	if (!bMovingToTarget) return;
 
-	FVector dir = target->GetActorLocation() - GetActorLocation();
+	FVector dir = Target->GetActorLocation() - GetActorLocation();
 	dir.Z = 0;
 	AddMovementInput(dir.GetSafeNormal());
 	
@@ -265,9 +253,11 @@ void APlayerCharacter::MoveToTarget(AActor* target)
 	if (dir.Size() < 100)
 	{
 		bMovingToTarget = false;
+
+		// 애니메이션 실행
 		OnPlayAttackAnimation();
 
-		// 스피드 복구
+		// 최대 스피드 복구
 		GetCharacterMovement()->MaxWalkSpeed = DefaultMaxSpeed;
 	}
 }
@@ -277,16 +267,62 @@ bool APlayerCharacter::IsLockedMove() const
 	return bMovingToTarget || PlayerAnim->bDodge;
 }
 
-void APlayerCharacter::OnPlayAttackAnimation()
+EEnemyDirection APlayerCharacter::GetTargetVerticalDirection(AActor* TargetActor)
 {
-	// 콤보 카운트 증가
-	FString section = FString::FromInt((ComboCount % 3));
-	ComboCount++;
-	// 애니메이션 실행
-	PlayAnimMontage(AttackMontage, 1, FName(section));
+	// 적이 앞에 있는지, 뒤에 있는지 판별
+	FVector targetVector = TargetActor->GetActorLocation() - GetActorLocation();
+	FVector forwardVector = GetActorForwardVector();
+
+	float forwardDotProduct = FVector::DotProduct(targetVector, forwardVector);
+
+	if(forwardDotProduct > 0)
+		return EEnemyDirection::Front;
+	else
+		return EEnemyDirection::Back;
+}
+
+EEnemyDirection APlayerCharacter::GetTargetHorizontalDirection(AActor* TargetActor)
+{
+	// 적이 왼쪽에 있는지, 오른쪽에 있는지 판별
+	FVector targetVector = TargetActor->GetActorLocation() - GetActorLocation();
+	FVector rightVector = GetActorRightVector();
+
+	float rightDotProject = FVector::DotProduct(targetVector, rightVector);
+
+	if (rightDotProject > 0)
+		return EEnemyDirection::Right;
+	else
+		return EEnemyDirection::Left;
 }
 
 
+void APlayerCharacter::OnPlayAttackAnimation()
+{
+	if(TargetEnemy == nullptr) return;
+
+	// 앞, 뒤 방향 확인
+	EEnemyDirection enemyDir = GetTargetVerticalDirection(TargetEnemy);
+
+	// 적이 앞에 있다면 콤보 애니메이션 실행
+	if (enemyDir == EEnemyDirection::Front)
+	{
+		// 콤보 카운트 증가
+		FString section = FString::FromInt((ComboCount % 3));
+		// 애니메이션 실행
+		PlayAnimMontage(AttackMontage, 1, FName(section));
+	}
+	// 적이 뒤에 있다면 왼쪽, 오른쪽 구분해서 애니메이션 실행
+	else
+	{
+		
+		FString dirName = GetTargetHorizontalDirection(TargetEnemy) == EEnemyDirection::Left ? "Left" : "Right";
+		UE_LOG(LogTemp, Warning, TEXT("%s"), *dirName);
+		
+		PlayAnimMontage(BackAttackMontage, 1, FName(dirName));
+	}
+
+	ComboCount++;
+}
 
 void APlayerCharacter::ResetCombo()
 {
@@ -297,8 +333,6 @@ void APlayerCharacter::ResetCombo()
 
 void APlayerCharacter::SetMeshCollisionEnabled(bool bValue)
 {
-	// todo : 공격 할 때 껏다 켜야 함
-
 	if (bValue)
 	{
 		GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
@@ -326,7 +360,6 @@ void APlayerCharacter::OnMeshBeginOverlap(UPrimitiveComponent* OverlappedCompone
 			UE_LOG(LogTemp, Warning, TEXT("Player->Prisoner Attack!!"));
 		}
 	}
+	
 	SetMeshCollisionEnabled(false);
-	//UE_LOG(LogTemp, Warning, TEXT("Call Attack!!!"));
-
 }
