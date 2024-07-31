@@ -28,36 +28,6 @@ void UPlayerAnim::SetDodge(bool bValue)
     bDodge = bValue;
 }
 
-void UPlayerAnim::SetAttack(bool bValue)
-{
-    bAttack = bValue;
-}
-
-bool UPlayerAnim::GetIsAttack()
-{
-    return bIsAttack;
-}
-
-bool UPlayerAnim::GetEnableCombo()
-{
-    return bIgnoreAttack;
-}
-
-void UPlayerAnim::SetIsAttack(bool bValue)
-{
-    bIsAttack = bValue;
-}
-
-void UPlayerAnim::OnEnableCombo()
-{
-    bIgnoreAttack = true;
-}
-
-void UPlayerAnim::OnDisableCombo()
-{   
-    bIgnoreAttack = false;
-    bIsAttack = false;
-}
 
 void UPlayerAnim::OnResetCombo()
 {
@@ -67,5 +37,5 @@ void UPlayerAnim::OnResetCombo()
 
 void UPlayerAnim::SetIgnoreAttack(bool bValue)
 {
-    bIgnoreAttack = bValue;
+    bIgnoreInputAttack = bValue;
 }

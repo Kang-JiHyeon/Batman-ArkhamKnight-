@@ -103,6 +103,8 @@ public:
 
 	int ComboCount = 0;
 
+	int AttackMaxSpeed = 3000;
+	int DefaultMaxSpeed;
 
 private:
 	void OnActionMove(const FInputActionValue& Value);
@@ -112,12 +114,17 @@ private:
 	void OnActionAttack(const FInputActionValue& Value);
 
 	void MoveToTarget(AActor* Target);
-	void RotateToTarget(AActor* Target);
+	void OnPlayAttackAnimation();
+
 
 	bool IsLockedMove() const;
-
 public:
-	void OnChangedDodgeSpeed(bool bDefault);
 
 	void ResetCombo();
+	void SetMeshCollisionEnabled(bool bValue);
+
+	UFUNCTION(BlueprintCallable)
+	void OnMeshBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+
 };

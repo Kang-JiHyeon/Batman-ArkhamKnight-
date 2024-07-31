@@ -11,6 +11,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "TestEnemy.h"
 #include "Prisoner.h"
+#include "PrisonerFSM.h"
 
 
 // Sets default values
@@ -31,6 +32,7 @@ APlayerCharacter::APlayerCharacter()
 	// 회전 설정
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	bUseControllerRotationYaw = false;
+	
 	
 }
 
@@ -57,6 +59,16 @@ void APlayerCharacter::BeginPlay()
 	
 	// 애니메이션
 	PlayerAnim = Cast<UPlayerAnim>(GetMesh()->GetAnimInstance());
+
+	// 기본 이동 속도 캐싱
+	DefaultMaxSpeed = GetCharacterMovement()->MaxWalkSpeed;
+
+	// 매쉬 콜리전 비활성화
+	SetMeshCollisionEnabled(false);
+
+	// 매쉬 충돌 이벤트 설정
+	GetMesh()->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::OnMeshBeginOverlap);
+
 }
 
 // Called every frame
@@ -67,7 +79,6 @@ void APlayerCharacter::Tick(float DeltaTime)
 	if (bMovingToTarget)
 	{
 		MoveToTarget(TargetEnemy);
-		RotateToTarget(TargetEnemy);
 	}
 	else
 	{
@@ -80,7 +91,6 @@ void APlayerCharacter::Tick(float DeltaTime)
 		AddMovementInput(Direction, 1);
 		Direction = FVector::ZeroVector;
 	}
-
 }
 
 // Called to bind functionality to input
@@ -97,6 +107,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	//Input->BindAction(IA_Dodge, ETriggerEvent::Completed, this, &APlayerCharacter::OnActionDodgeCompleted);
 
 }
+
 
 void APlayerCharacter::OnActionMove(const FInputActionValue& Value)
 {
@@ -165,7 +176,7 @@ void APlayerCharacter::OnActionAttack(const FInputActionValue& Value)
 	}
 
 
-	if (PlayerAnim->bIgnoreAttack)
+	if (PlayerAnim->bIgnoreInputAttack)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Attack을 할 수 없는 상태입니다."));
 		return;
@@ -206,7 +217,6 @@ void APlayerCharacter::OnActionAttack(const FInputActionValue& Value)
 			continue;
 		}
 
-
 		// Enemy와 나의 위치의 거리가 현재 탐색된 적과의 최소 거리보다 작다면, Target 대상 변경
 		float distance = FVector::Distance(enemy->GetActorLocation(), GetActorLocation());
 		if (distance < minDistance)
@@ -224,21 +234,21 @@ void APlayerCharacter::OnActionAttack(const FInputActionValue& Value)
 		// 대상 위치로 이동
 		bMovingToTarget = true;
 
+		// 공격 스피드 증가
+		GetCharacterMovement()->MaxWalkSpeed = AttackMaxSpeed;
+
 		//PlayerAnim->SetAttack(true);
 
 	}
 	// 공격할 수 있는 대상이 없다면, 앞방향으로 일정거리만큼 이동
 	else
 	{
+		OnPlayAttackAnimation();
 		GetCharacterMovement()->Velocity = GetActorForwardVector() * 2000;
 		UE_LOG(LogTemp, Warning, TEXT("적 발견 실패, 앞방향으로 이동합니다."));
 	}
 
-	// 콤보 카운트 증가
-	FString section = FString::FromInt((ComboCount % 3));
-	ComboCount++;
-	// 애니메이션 실행
-	PlayAnimMontage(AttackMontage, 1, FName(section));
+	SetMeshCollisionEnabled(true);
 
 }
 
@@ -247,29 +257,19 @@ void APlayerCharacter::MoveToTarget(AActor* target)
 	if (!target) return;
 	if (!bMovingToTarget) return;
 
-	FVector targetLocation = target->GetActorLocation();
-
-	FVector newLocation = FMath::VInterpTo(GetActorLocation(), targetLocation, GetWorld()->DeltaTimeSeconds, 5.0f);
-	SetActorLocation(newLocation);
+	FVector dir = target->GetActorLocation() - GetActorLocation();
+	dir.Z = 0;
+	AddMovementInput(dir.GetSafeNormal());
+	
 	// 목표 지점에 도달했는지 확인
-	if (FVector::Dist(GetActorLocation(), targetLocation) < 50)
+	if (dir.Size() < 100)
 	{
 		bMovingToTarget = false;
-		PlayerAnim->SetAttack(false);
+		OnPlayAttackAnimation();
+
+		// 스피드 복구
+		GetCharacterMovement()->MaxWalkSpeed = DefaultMaxSpeed;
 	}
-}
-
-void APlayerCharacter::RotateToTarget(AActor* Target)
-{
-	if (!Target) return;
-	//if (!bRotatingToTarget) return;
-
-	FVector targetLocation = Target->GetActorLocation();
-	FVector direction = (targetLocation - GetActorLocation()).GetSafeNormal();
-	FRotator targetRotation = FRotationMatrix::MakeFromX(direction).Rotator();
-
-	FRotator newRotation = FMath::RInterpTo(GetActorRotation(), targetRotation, GetWorld()->DeltaTimeSeconds, 10);
-	SetActorRotation(newRotation);
 }
 
 bool APlayerCharacter::IsLockedMove() const
@@ -277,7 +277,56 @@ bool APlayerCharacter::IsLockedMove() const
 	return bMovingToTarget || PlayerAnim->bDodge;
 }
 
+void APlayerCharacter::OnPlayAttackAnimation()
+{
+	// 콤보 카운트 증가
+	FString section = FString::FromInt((ComboCount % 3));
+	ComboCount++;
+	// 애니메이션 실행
+	PlayAnimMontage(AttackMontage, 1, FName(section));
+}
+
+
+
 void APlayerCharacter::ResetCombo()
 {
 	ComboCount = 0;
+
+	SetMeshCollisionEnabled(false);
+}
+
+void APlayerCharacter::SetMeshCollisionEnabled(bool bValue)
+{
+	// todo : 공격 할 때 껏다 켜야 함
+
+	if (bValue)
+	{
+		GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+
+		UE_LOG(LogTemp, Warning, TEXT("Collision Enable : QueryAndPhysics!"));
+	}
+	else
+	{
+		GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		UE_LOG(LogTemp, Warning, TEXT("Collision Enable : NoCollision"));
+	}
+}
+
+void APlayerCharacter::OnMeshBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	auto* prisoner = Cast<APrisoner>(OtherActor);
+
+	if (prisoner != nullptr)
+	{
+		auto* prisonerFSM = prisoner->GetComponentByClass<UPrisonerFSM>();
+		if (prisonerFSM != nullptr)
+		{
+			prisoner->fsm->OnMyTakeDamage(1);
+
+			UE_LOG(LogTemp, Warning, TEXT("Player->Prisoner Attack!!"));
+		}
+	}
+	SetMeshCollisionEnabled(false);
+	//UE_LOG(LogTemp, Warning, TEXT("Call Attack!!!"));
+
 }
