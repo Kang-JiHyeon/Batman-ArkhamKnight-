@@ -37,6 +37,8 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = PFSM)
 	EPrisonerState mState = EPrisonerState::Idle;
 
+	void SetState(EPrisonerState NextState);
+
 	// 대기상태
 	void IdleState(float& DeltaSeconds);
 	// 이동상태
@@ -84,6 +86,9 @@ public:
 
 	// damage
 	void OnMyTakeDamage(int32 damage);
+	UPROPERTY(EditAnywhere,Category= PFSM)
+	float damageDelayTime = 1;
+
 
 	// HP
 	

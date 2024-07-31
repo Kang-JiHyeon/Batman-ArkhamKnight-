@@ -29,6 +29,9 @@ void UPrisonerFSM::BeginPlay()
 
 	// animation
 	anim = Cast<UPrisonerAnim>(me->GetMesh()->GetAnimInstance());
+
+	// HP
+	HP = MaxHp;
 	
 }
 
@@ -64,6 +67,30 @@ void UPrisonerFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 	}
 }
 
+void UPrisonerFSM::SetState(EPrisonerState NextState)
+{
+	EPrisonerState prevState = mState;
+	mState = NextState;
+	currentTime = 0;
+	switch (mState)
+	{
+	case EPrisonerState::Idle:
+		break;
+	case EPrisonerState::Move:
+		break;
+	case EPrisonerState::BackMove:
+		break;
+	case EPrisonerState::RightAttack:
+		break;
+	case EPrisonerState::LeftAttack:
+		break;
+	case EPrisonerState::Damage:
+		break;
+	case EPrisonerState::Die:
+		break;
+	}
+}
+
 void UPrisonerFSM::IdleState(float& DeltaSeconds)
 {
 
@@ -73,15 +100,14 @@ void UPrisonerFSM::IdleState(float& DeltaSeconds)
 
 		if (FMath::RandBool())
 		{
-			mState = EPrisonerState::Move;
+			SetState(EPrisonerState::Move);
 			anim->PanimState = mState;
 		}
 		else
 		{
-			mState = EPrisonerState::BackMove;
+			SetState(EPrisonerState::BackMove);
 			anim->PanimState = mState;
 		}
-		currentTime = 0;
 	}
 }
 
@@ -99,15 +125,14 @@ void UPrisonerFSM::MoveState(float& DeltaSeconds){
 
 		if (FMath::RandBool())
 		{
-			mState = EPrisonerState::Move;
+			SetState(EPrisonerState::Move);
 			anim->PanimState = mState;
 		}
 		else
 		{
-			mState = EPrisonerState::BackMove;
+			SetState(EPrisonerState::BackMove);
 			anim->PanimState = mState;
 		}
-		currentTime = 0;
 	}
 
 	float distance = dir.Size();
@@ -115,8 +140,8 @@ void UPrisonerFSM::MoveState(float& DeltaSeconds){
 	{
 		// 오른쪽 공격과 왼쪽 공격을 랜덤하게 나오게 하고 싶다.
 		
-		if (FMath::RandBool()) mState = EPrisonerState::LeftAttack;
-		else mState = EPrisonerState::RightAttack;
+		if (FMath::RandBool()) SetState(EPrisonerState::LeftAttack);
+		else SetState(EPrisonerState::RightAttack);
 		
 		anim->PanimState = mState;
 	}
@@ -141,9 +166,8 @@ void UPrisonerFSM::BackMoveState(float& DeltaSeconds)
 	currentTime += DeltaSeconds;
 	if (currentTime > backmoveDelayTime)
 	{
-		mState = EPrisonerState::Move;
+		SetState(EPrisonerState::Move);
 		anim->PanimState = mState;
-		currentTime = 0;
 	}
 
 	float distance = dir.Size();
@@ -156,7 +180,6 @@ void UPrisonerFSM::RightAttackState(float& DeltaSeconds)
 	currentTime += DeltaSeconds;
 	if (currentTime > attackDelayTime)
 	{
-		currentTime = 0;
 		// 펀치를 하고 난 후 다시 이동으로 전이하고 싶다.
 		float dist = me->GetDistanceTo(Ptarget);
 		if (dist < attackDistance)
@@ -167,11 +190,11 @@ void UPrisonerFSM::RightAttackState(float& DeltaSeconds)
 		{
 			if (FMath::RandBool())
 			{
-				mState = EPrisonerState::BackMove;
+				SetState(EPrisonerState::Move);
 			}
 			else
 			{
-				mState = EPrisonerState::Move;
+				SetState(EPrisonerState::BackMove);
 			}
 			
 			anim->PanimState = mState;
@@ -188,7 +211,6 @@ void UPrisonerFSM::LeftAttackState(float& DeltaSeconds)
 	currentTime += DeltaSeconds;
 	if (currentTime > attackDelayTime)
 	{
-		currentTime = 0;
 		// 펀치를 하고 난 후 다시 이동으로 전이하고 싶다.
 		float dist = me->GetDistanceTo(Ptarget);
 		if (dist < attackDistance)
@@ -199,11 +221,11 @@ void UPrisonerFSM::LeftAttackState(float& DeltaSeconds)
 		{
 			if (FMath::RandBool())
 			{
-				mState = EPrisonerState::BackMove;
+				SetState(EPrisonerState::Move);
 			}
 			else
 			{
-				mState = EPrisonerState::Move;
+				SetState(EPrisonerState::BackMove);
 			}
 
 			anim->PanimState = mState;
@@ -213,7 +235,11 @@ void UPrisonerFSM::LeftAttackState(float& DeltaSeconds)
 
 void UPrisonerFSM::DamageState(float& DeltaSeconds)
 {
-
+	currentTime += DeltaSeconds;
+	if (currentTime > damageDelayTime)
+	{
+		SetState(EPrisonerState::Move);
+	}
 }
 
 void UPrisonerFSM::DieState(float& DeltaSeconds)
