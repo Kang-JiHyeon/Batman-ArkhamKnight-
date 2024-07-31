@@ -12,6 +12,7 @@
 #include "TestEnemy.h"
 #include "Prisoner.h"
 #include "PrisonerFSM.h"
+#include "TimerManager.h"
 
 
 // Sets default values
@@ -32,8 +33,6 @@ APlayerCharacter::APlayerCharacter()
 	// 회전 설정
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	bUseControllerRotationYaw = false;
-	
-	
 }
 
 // Called when the game starts or when spawned
@@ -69,6 +68,8 @@ void APlayerCharacter::BeginPlay()
 	// 매쉬 충돌 이벤트 설정
 	GetMesh()->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::OnMeshBeginOverlap);
 
+	// HP 초기화
+	HP = MaxHP;
 }
 
 // Called every frame
@@ -109,10 +110,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	Input->BindAction(IA_Look, ETriggerEvent::Triggered, this, &APlayerCharacter::OnActionLook);
 	Input->BindAction(IA_Dodge, ETriggerEvent::Started, this, &APlayerCharacter::OnActionDodge);
 	Input->BindAction(IA_Attack, ETriggerEvent::Started, this, &APlayerCharacter::OnActionAttack);
-	//Input->BindAction(IA_Dodge, ETriggerEvent::Completed, this, &APlayerCharacter::OnActionDodgeCompleted);
-
 }
-
 
 void APlayerCharacter::OnActionMove(const FInputActionValue& Value)
 {
@@ -164,7 +162,6 @@ void APlayerCharacter::OnActionDodge(const FInputActionValue& Value)
 		GetCharacterMovement()->Velocity = GetActorForwardVector() * DodgeSpeed;
         Jump();
 	}
-	
 	LastDodgeInputPressTime = currtime;
 }
 
@@ -235,7 +232,6 @@ void APlayerCharacter::OnActionAttack(const FInputActionValue& Value)
 
 		// 매쉬 콜리전 활성화
 		SetMeshCollisionEnabled(true);
-
 	}
 	// 공격할 수 있는 대상이 없다면, 앞방향으로 일정거리만큼 이동
 	else
@@ -270,7 +266,7 @@ void APlayerCharacter::MoveToTarget(AActor* Target)
 
 bool APlayerCharacter::IsLockedMove() const
 {
-	return bMovingToTarget || PlayerAnim->bDodge;
+	return bMovingToTarget || PlayerAnim->bDodge || bDamageState;
 }
 
 void APlayerCharacter::RotateToTarget(AActor* Target)
@@ -295,8 +291,6 @@ void APlayerCharacter::RotateToTarget(AActor* Target)
 		bRotatingToTarget = false;
 	}
 }
-
-
 
 EEnemyDirection APlayerCharacter::GetTargetVerticalDirection(AActor* TargetActor)
 {
@@ -346,22 +340,50 @@ void APlayerCharacter::OnPlayAttackAnimation()
 	else
 	{
 		FString dirName = GetTargetHorizontalDirection(TargetEnemy) == EEnemyDirection::Left ? "Left" : "Right";
-		UE_LOG(LogTemp, Warning, TEXT("%s"), *dirName);
 		
 		PlayAnimMontage(BackAttackMontage, 1, FName(dirName));
-
-		// 회전
-
 	}
-
 	ComboCount++;
+}
+
+void APlayerCharacter::OnDamageProcess(AActor* OtherActor, int32 Damage)
+{
+	if(HP <= 0) return;
+	if(bDamageState) return;
+
+	HP -= Damage;
+	
+	// Damage 처리
+	if (HP > 0)
+	{
+		bDamageState = true;
+
+		// 맞은 방향으로 밀리기
+		FVector dir = GetActorLocation() - OtherActor->GetActorLocation();
+		dir.Normalize();
+		GetCharacterMovement()->Velocity = dir * 2000;
+
+
+		// 일정 시간 뒤 Damage 상태 해제
+		GetWorld()->GetTimerManager().SetTimer(DamageTimerHandler, [this]()
+			{
+				bDamageState = false;
+			}
+		, DamageIdleTime, false);
+
+		UE_LOG(LogTemp, Warning, TEXT("Player Damage!! : Hp = %d"), HP);
+	}
+	// Die 처리
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Player Die!!"), HP);
+	}
 }
 
 void APlayerCharacter::ResetCombo()
 {
-	ComboCount = 0;
-
 	SetMeshCollisionEnabled(false);
+	ComboCount = 0;
 }
 
 void APlayerCharacter::SetMeshCollisionEnabled(bool bValue)
@@ -393,6 +415,5 @@ void APlayerCharacter::OnMeshBeginOverlap(UPrimitiveComponent* OverlappedCompone
 			UE_LOG(LogTemp, Warning, TEXT("Player->Prisoner Attack!!"));
 		}
 	}
-	
 	SetMeshCollisionEnabled(false);
 }
