@@ -187,7 +187,7 @@ void APlayerCharacter::OnActionAttack(const FInputActionValue& Value)
 	float minDistance = AttackRange;
 
 	// Enemy를 모두 탐색
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), EnemyFactory, targetActors);
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), PrisonerFactory, targetActors);
 
 	// 탐색된 Enemy가 없을 경우 종료
 	if (targetActors.Num() <= 0)
@@ -334,7 +334,7 @@ void APlayerCharacter::OnPlayAttackAnimation()
 		// 콤보 카운트 증가
 		FString section = FString::FromInt((ComboCount % 3));
 		// 애니메이션 실행
-		PlayAnimMontage(AttackMontage, 1, FName(section));
+		PlayAnimMontage(FrontAttackMontage, 1, FName(section));
 	}
 	// 적이 뒤에 있다면 왼쪽, 오른쪽 구분해서 애니메이션 실행
 	else
@@ -360,9 +360,23 @@ void APlayerCharacter::OnDamageProcess(AActor* OtherActor, int32 Damage)
 
 		// 맞은 방향으로 밀리기
 		FVector dir = GetActorLocation() - OtherActor->GetActorLocation();
+		dir.Z = 0;
 		dir.Normalize();
 		GetCharacterMovement()->Velocity = dir * 2000;
 
+		// 적이 앞에서 공격했다면, 뒤로 휘청거리기
+		EEnemyDirection dirState = GetTargetVerticalDirection(OtherActor);
+		if (dirState == EEnemyDirection::Front)
+		{
+			PlayAnimMontage(DamageMontage, 1, FName("FrontDamage"));
+			UE_LOG(LogTemp, Warning, TEXT("적이 [앞]에서 때렸습니다!!"));
+		}
+		// 적이 뒤에서 공격했다면, 앞으로 휘청거리기
+		else
+		{
+			PlayAnimMontage(DamageMontage, 1, FName("BackDamage"));
+			UE_LOG(LogTemp, Warning, TEXT("적이 [뒤]에서 때렸습니다!!"));
+		}
 
 		// 일정 시간 뒤 Damage 상태 해제
 		GetWorld()->GetTimerManager().SetTimer(DamageTimerHandler, [this]()
@@ -376,6 +390,12 @@ void APlayerCharacter::OnDamageProcess(AActor* OtherActor, int32 Damage)
 	// Die 처리
 	else
 	{
+		bDamageState = true;
+
+		PlayerAnim->bDie = true;
+
+		//PlayAnimMontage(DamageMontage, 1, FName("Die"));
+		SetMeshCollisionEnabled(false);
 		UE_LOG(LogTemp, Warning, TEXT("Player Die!!"), HP);
 	}
 }
@@ -410,7 +430,7 @@ void APlayerCharacter::OnMeshBeginOverlap(UPrimitiveComponent* OverlappedCompone
 		auto* prisonerFSM = prisoner->GetComponentByClass<UPrisonerFSM>();
 		if (prisonerFSM != nullptr)
 		{
-			prisoner->fsm->OnMyTakeDamage(1);
+			prisonerFSM->OnMyTakeDamage(1);
 
 			UE_LOG(LogTemp, Warning, TEXT("Player->Prisoner Attack!!"));
 		}

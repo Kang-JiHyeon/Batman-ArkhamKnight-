@@ -38,6 +38,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	bool bAttack = false;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	bool bDie = false;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	EComboAttackState ComboAttackState;
 

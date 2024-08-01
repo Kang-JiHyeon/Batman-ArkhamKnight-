@@ -71,12 +71,15 @@ public:
 	class UPlayerAnim* PlayerAnim;
 	// 局聪皋捞记 根鸥林
 	UPROPERTY(EditAnywhere)
-	class UAnimMontage* AttackMontage;
+	class UAnimMontage* FrontAttackMontage;
 	UPROPERTY(EditAnywhere)
 	class UAnimMontage* BackAttackMontage;
+	UPROPERTY(EditAnywhere)
+	class UAnimMontage* DamageMontage;
 
+	// 了荐
 	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<class AActor> EnemyFactory;
+	TSubclassOf<class AActor> PrisonerFactory;
 	UPROPERTY()
 	class APrisoner* TargetEnemy;
 
