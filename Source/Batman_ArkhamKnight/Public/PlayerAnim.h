@@ -54,4 +54,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void SetIgnoreAttack(bool bValue);
+
+
+	UFUNCTION(BlueprintCallable)
+	void OnEndDamageAnimation();
 };

@@ -126,6 +126,7 @@ private:
 	void OnActionAttack(const FInputActionValue& Value);
 	void OnPlayAttackAnimation();
 
+
 	void MoveToTarget(AActor* Target);
 	void RotateToTarget(AActor* Target);
 	
@@ -137,10 +138,10 @@ private:
 public:
 	void ResetCombo();
 	void SetMeshCollisionEnabled(bool bValue);
-
 	void OnDamageProcess(AActor* OtherActor, int32 Damage);
+	void OnEndDamage();
 
-	UFUNCTION(BlueprintCallable)
+    UFUNCTION(BlueprintCallable)
 	void OnMeshBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 };

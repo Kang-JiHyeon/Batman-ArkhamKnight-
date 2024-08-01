@@ -378,12 +378,12 @@ void APlayerCharacter::OnDamageProcess(AActor* OtherActor, int32 Damage)
 			UE_LOG(LogTemp, Warning, TEXT("적이 [뒤]에서 때렸습니다!!"));
 		}
 
-		// 일정 시간 뒤 Damage 상태 해제
-		GetWorld()->GetTimerManager().SetTimer(DamageTimerHandler, [this]()
-			{
-				bDamageState = false;
-			}
-		, DamageIdleTime, false);
+		//// 일정 시간 뒤 Damage 상태 해제
+		//GetWorld()->GetTimerManager().SetTimer(DamageTimerHandler, [this]()
+		//	{
+		//		bDamageState = false;
+		//	}
+		//, DamageIdleTime, false);
 
 		UE_LOG(LogTemp, Warning, TEXT("Player Damage!! : Hp = %d"), HP);
 	}
@@ -398,6 +398,11 @@ void APlayerCharacter::OnDamageProcess(AActor* OtherActor, int32 Damage)
 		SetMeshCollisionEnabled(false);
 		UE_LOG(LogTemp, Warning, TEXT("Player Die!!"), HP);
 	}
+}
+
+void APlayerCharacter::OnEndDamage()
+{
+	bDamageState = false;
 }
 
 void APlayerCharacter::ResetCombo()

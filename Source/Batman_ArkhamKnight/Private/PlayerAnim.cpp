@@ -39,3 +39,8 @@ void UPlayerAnim::SetIgnoreAttack(bool bValue)
 {
     bIgnoreInputAttack = bValue;
 }
+
+void UPlayerAnim::OnEndDamageAnimation()
+{
+    Player->OnEndDamage();
+}
