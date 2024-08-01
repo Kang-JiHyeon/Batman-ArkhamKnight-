@@ -8,6 +8,7 @@
 #include "PrisonerAnim.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/CapsuleComponent.h"
 
 // Sets default values for this component's properties
 UPrisonerFSM::UPrisonerFSM()
@@ -35,6 +36,7 @@ void UPrisonerFSM::BeginPlay()
 	// HP
 	HP = MaxHp;
 	
+	me->GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &UPrisonerFSM::OnCapsuleBeginOverlap);
 }
 
 
@@ -73,6 +75,8 @@ void UPrisonerFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 		DieState(DeltaTime);
 		break;
 	}
+	FString logMsg = UEnum::GetValueAsString(mState);
+	GEngine->AddOnScreenDebugMessage(0, 1, FColor::Cyan, logMsg);
 }
 
 void UPrisonerFSM::SetState(EPrisonerState NextState)
@@ -103,6 +107,7 @@ void UPrisonerFSM::SetState(EPrisonerState NextState)
 	default:
 		break;
 	}
+
 }
 
 void UPrisonerFSM::IdleState(float& DeltaSeconds)
@@ -209,6 +214,7 @@ void UPrisonerFSM::RightAttackState(float& DeltaSeconds)
 		float dist = me->GetDistanceTo(Ptarget);
 		if (dist < attackDistance)
 		{
+			// 때리는 함수
 			anim->PanimState = mState;
 		}
 		else
@@ -276,13 +282,10 @@ void UPrisonerFSM::DamageState(float& DeltaSeconds)
 		if (HP/MaxHp < 0.5f && HP/MaxHp >0)
 		{
 			SetState(EPrisonerState::Faint);
+			SetCollision(false);
 			anim->PanimState = mState;
 		}
-		else if (HP / MaxHp == 0)
-		{
-			SetState(EPrisonerState::Die);
-			anim->PanimState = mState;
-		}
+
 		else
 		{
 			SetState(EPrisonerState::Move);
@@ -298,6 +301,7 @@ void UPrisonerFSM::FaintState(float& DeltaSeconds)
 	currentTime += DeltaSeconds;
 	if (currentTime > FaintDelayTime)
 	{
+		SetCollision(true);
 		SetState(EPrisonerState::Move);
 		anim->PanimState = mState;
 	}
@@ -306,7 +310,7 @@ void UPrisonerFSM::FaintState(float& DeltaSeconds)
 
 void UPrisonerFSM::DieState(float& DeltaSeconds)
 {
-	
+
 }
 
 void UPrisonerFSM::OnMyTakeDamage(int32 damage)
@@ -315,12 +319,39 @@ void UPrisonerFSM::OnMyTakeDamage(int32 damage)
 // 기절상태에 들어가고 나서 일정 시간이후에 다시 이동 상태로 전이하고 싶다.
 {
 	HP -= damage;
-	if (mState == EPrisonerState::Die)
+
+	if(HP> 0)
 	{
-	
-	}
-	else {
 		SetState(EPrisonerState::Damage);
 		anim->PanimState = mState;
+	}
+	else
+	{
+		SetState(EPrisonerState::Die);
+		anim->PanimState = mState;
+		SetCollision(false);
+	}
+}
+
+void UPrisonerFSM::SetCollision(bool bvalue)
+{
+	if (bvalue)
+	{
+		// collision을 켜야함
+		me->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	}
+	else {
+		// collision을 꺼야함
+		me->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+}
+
+void UPrisonerFSM::OnCapsuleBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	auto* player = Cast<APlayerCharacter>(OtherActor);
+
+	if (player != nullptr)
+	{
+		player->OnDamageProcess(me, 1);
 	}
 }
