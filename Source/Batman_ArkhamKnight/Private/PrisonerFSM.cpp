@@ -33,7 +33,7 @@ void UPrisonerFSM::BeginPlay()
 	anim = Cast<UPrisonerAnim>(me->GetMesh()->GetAnimInstance());
 
 	// HP
-	anim->HP = MaxHp;
+	HP = MaxHp;
 	
 }
 
@@ -66,6 +66,9 @@ void UPrisonerFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 	case EPrisonerState::Damage:
 		DamageState(DeltaTime);
 		break;
+	case EPrisonerState::Faint:
+		FaintState(DeltaTime);
+		break;
 	case EPrisonerState::Die:
 		DieState(DeltaTime);
 		break;
@@ -92,6 +95,8 @@ void UPrisonerFSM::SetState(EPrisonerState NextState)
 	case EPrisonerState::LeftAttack:
 		break;
 	case EPrisonerState::Damage:
+		break;
+	case EPrisonerState::Faint:
 		break;
 	case EPrisonerState::Die:
 		break;
@@ -268,9 +273,14 @@ void UPrisonerFSM::DamageState(float& DeltaSeconds)
 	currentTime += DeltaSeconds;
 	if (currentTime > damageDelayTime)
 	{
-		if (anim->HP > 0 && anim->HP < 2)
+		if (HP/MaxHp < 0.5f && HP/MaxHp >0)
 		{
 			SetState(EPrisonerState::Faint);
+			anim->PanimState = mState;
+		}
+		else if (HP / MaxHp == 0)
+		{
+			SetState(EPrisonerState::Die);
 			anim->PanimState = mState;
 		}
 		else
@@ -296,7 +306,11 @@ void UPrisonerFSM::FaintState(float& DeltaSeconds)
 
 void UPrisonerFSM::DieState(float& DeltaSeconds)
 {
-	me->Destroy();
+	//currentTime += DeltaSeconds;
+	//if (currentTime > DieDelayTime)
+	//{
+	//	me->Destroy();
+	//}
 }
 
 void UPrisonerFSM::OnMyTakeDamage(int32 damage)
@@ -304,15 +318,15 @@ void UPrisonerFSM::OnMyTakeDamage(int32 damage)
 // 데미지를 입다가 일정 HP 이하가 되면 기절상태에 들어가고 싶다.
 // 기절상태에 들어가고 나서 일정 시간이후에 다시 이동 상태로 전이하고 싶다.
 {
-	anim->HP -= damage;
-	if (anim->HP > 0)
-	{
+	HP -= damage;
+	//if (HP > 0)
+	//{
 		SetState(EPrisonerState::Damage);
 		anim->PanimState = mState;
-	}
-	else
-	{
-		SetState(EPrisonerState::Die);
-
-	}
+	//}
+	//else
+	//{
+	//	SetState(EPrisonerState::Die);
+	//	anim->PanimState = mState;
+	//}
 }

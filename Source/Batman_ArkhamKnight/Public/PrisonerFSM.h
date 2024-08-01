@@ -97,12 +97,15 @@ public:
 
 	// faint
 	UPROPERTY(EditAnywhere,Category= PFSM)
-	float FaintDelayTime = 5.0f;
+	float FaintDelayTime = 10.0f;
 
 	// HP
 	
 	UPROPERTY(EditAnywhere,Category= PFSM)
-	int32 MaxHp = 5;
+	float MaxHp = 5;
+	float HP;
 
-		
+	// Die
+	UPROPERTY(EditAnywhere,Category= PFSM)
+	float DieDelayTime = 2.0f;
 };
