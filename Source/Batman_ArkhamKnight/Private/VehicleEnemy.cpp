@@ -3,6 +3,7 @@
 
 #include "VehicleEnemy.h"
 
+#include "Missile.h"
 #include "Components/BoxComponent.h"
 #include "Components/SplineComponent.h"
 #include "Components/TimelineComponent.h"
@@ -46,6 +47,7 @@ void AVehicleEnemy::BeginPlay()
 	OnSplineTimeline -> SetLooping(false);
 
 	Move();
+	Health = 6;
 }
 
 // Called every frame

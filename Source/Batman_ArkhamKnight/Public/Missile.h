@@ -12,6 +12,7 @@
  */
 
 class USkeletalMeshComponent;
+class UCapsuleComponent;
 
 struct FTimerHandle;
 
@@ -19,6 +20,9 @@ UCLASS()
 class BATMAN_ARKHAMKNIGHT_API AMissile : public AActor
 {
 	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Collision", meta = (AllowPrivateAccess = "true"))
+	UCapsuleComponent* MissileCollision;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "MissileMesh", meta = (AllowPrivateAccess = "true"))
 	USkeletalMeshComponent* MissileMesh;
@@ -45,4 +49,7 @@ public:
 
 	void Translate(float Time, const FVector& direction, float Speed);
 	void TurnToTarget();
+	
+	UFUNCTION()
+	void OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 };

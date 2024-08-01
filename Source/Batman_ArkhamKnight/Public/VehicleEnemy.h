@@ -48,6 +48,9 @@ class BATMAN_ARKHAMKNIGHT_API AVehicleEnemy : public AActor
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Speed", meta = (AllowPrivateAccess = "true"))
 	float TimeToCompleteTrack = 30.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Health", meta = (AllowPrivateAccess = "true"))
+	int Health;
 	
 public:	
 	// Sets default values for this actor's properties
@@ -63,4 +66,7 @@ public:
 
 	UFUNCTION()
 	void Move();
+
+	FORCEINLINE void SetHealth(int NewHealth) { Health = NewHealth; }
+	FORCEINLINE int GetHealth() const { return Health; }
 };
