@@ -25,9 +25,13 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
+	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 public:
 	UPROPERTY(EditAnywhere,Category = FSMComponent)
 	class UBossFSM* fsm;
+
+	UPROPERTY(EditAnywhere)
+	class ABoss* me;
+
 
 };

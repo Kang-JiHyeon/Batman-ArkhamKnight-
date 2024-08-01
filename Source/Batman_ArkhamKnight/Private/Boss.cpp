@@ -3,6 +3,8 @@
 
 #include "Boss.h"
 #include "BossFSM.h"
+#include "EnemyPlayer.h"
+#include "Prisoner.h"
 
 
 // Sets default values
@@ -25,6 +27,7 @@ ABoss::ABoss()
 void ABoss::BeginPlay()
 {
 	Super::BeginPlay();
+
 	
 }
 
@@ -41,4 +44,21 @@ void ABoss::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 }
+
+void ABoss::NotifyActorBeginOverlap(AActor* OtherActor)
+{
+	Super:: NotifyActorBeginOverlap(OtherActor);
+
+	APrisoner* prisoner = Cast<APrisoner>(OtherActor);
+	if (prisoner && fsm->mState == EBossState::FastMove)
+	{
+		FVector velo = prisoner->GetActorLocation() - GetActorLocation();
+		velo.Normalize();
+		velo *= FVector(1200.0f, 1200.0f, 0.0f); // °¢ Ãà¿¡ °ö¼À
+
+		prisoner->LaunchCharacter(velo, true, false);
+		UE_LOG(LogTemp, Warning, TEXT(" Boss NotifyActorBeginOverlap"));
+	}
+}
+
 
