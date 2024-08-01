@@ -32,6 +32,6 @@ public:
 	UPROPERTY(EditAnywhere)
 	class APrisoner* me;
 
-	bool Attackable();
+	bool IsAttackable();
 	
 };

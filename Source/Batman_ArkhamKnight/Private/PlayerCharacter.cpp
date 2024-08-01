@@ -206,7 +206,7 @@ void APlayerCharacter::OnActionAttack(const FInputActionValue& Value)
 
 		// TODO : 적이 무력화 상태라면, 다음으로 최단 거리에 있는 적을 향해 이동하고 싶다.
 		//if (enemy == nullptr || enemy->GetValided())
-		if (enemy == nullptr)
+		if (enemy == nullptr || enemy->IsAttackable() == false)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("적이 기절 상태입니다. 다음 적을 탐색합니다."));
 			continue;
