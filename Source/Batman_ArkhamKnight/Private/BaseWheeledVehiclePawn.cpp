@@ -56,14 +56,15 @@ ABaseWheeledVehiclePawn::ABaseWheeledVehiclePawn()
 	MissileSpawnLocationRight->SetRelativeLocation(FVector(0.f, 140.f, 100.f));
 	MissileSpawnLocationRight->SetRelativeRotation(FRotator(30.f, 90.f, 0.f));
 
-	MissileSpawnLocations.Add(MissileSpawnLocationLeft);
-	MissileSpawnLocations.Add(MissileSpawnLocationUp);
-	MissileSpawnLocations.Add(MissileSpawnLocationRight);
 }
 
 void ABaseWheeledVehiclePawn::BeginPlay()
 {
 	Super::BeginPlay();
+
+	MissileSpawnLocations.Add(MissileSpawnLocationLeft);
+	MissileSpawnLocations.Add(MissileSpawnLocationUp);
+	MissileSpawnLocations.Add(MissileSpawnLocationRight);
 
 	if(APlayerController* PlayerController = Cast<APlayerController>(GetController()))
 	{
@@ -125,7 +126,7 @@ void ABaseWheeledVehiclePawn::SetupPlayerInputComponent(UInputComponent* PlayerI
 void ABaseWheeledVehiclePawn::ThrottleTrigger(const FInputActionValue& Value)
 {
 	ChaosVehicleMovementComponent->SetThrottleInput(Value.Get<float>());
-	//UKismetSystemLibrary::PrintString(GetWorld(), FString::Format(TEXT("Speed : {0}"), {ChaosVehicleMovementComponent -> GetForwardSpeed()}));
+	UKismetSystemLibrary::PrintString(GetWorld(), FString::Format(TEXT("Speed : {0}"), {ChaosVehicleMovementComponent -> GetForwardSpeed()}));
 }
 
 void ABaseWheeledVehiclePawn::ThrottleComplete(const FInputActionValue& Value)
@@ -224,6 +225,6 @@ void ABaseWheeledVehiclePawn::FireMissile()
 {
 	int rand = UKismetMathLibrary::RandomIntegerInRange(0, 2);
 	FVector SpawnLocation = MissileSpawnLocations[rand] -> GetComponentLocation();
-	FRotator SpawnRotation = MissileSpawnLocations[rand] -> GetForwardVector().Rotation();
-	GetWorld() -> SpawnActor<AMissile>(MissileClass, SpawnLocation, SpawnRotation) -> SetTargetLocation(TargetLocation);
+	FRotator SpawnRotation = MissileSpawnLocations[rand] -> GetForwardVector().ToOrientationRotator();
+	GetWorld() -> SpawnActor<AMissile>(MissileClass, MissileSpawnLocations[rand]->GetComponentTransform()) -> SetTargetLocation(TargetLocation);
 }

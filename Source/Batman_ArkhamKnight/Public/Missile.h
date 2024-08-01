@@ -26,7 +26,7 @@ class BATMAN_ARKHAMKNIGHT_API AMissile : public AActor
 	FTimerHandle MissileTimerHandle;
 
 	FVector TargetLocation;
-	FVector Direction = GetActorForwardVector();
+	FVector Direction;
 	float MissileSpeed = 2000.f;
 	
 public:	

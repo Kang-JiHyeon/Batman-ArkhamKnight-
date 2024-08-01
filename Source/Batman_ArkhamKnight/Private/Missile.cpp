@@ -25,8 +25,9 @@ AMissile::AMissile()
 void AMissile::BeginPlay()
 {
 	Super::BeginPlay();
+	Direction = GetActorForwardVector();
+	SetActorRotation(Direction.ToOrientationRotator());
 	
-	SetActorRelativeRotation(Direction.Rotation());
 
 	GetWorld()->GetTimerManager().SetTimer(MissileTimerHandle,
 		this,
@@ -56,5 +57,5 @@ void AMissile::TurnToTarget()
 	SetActorRotation(TargetRotation);
 	Direction = TargetLocation - GetActorLocation();
 	Direction.Normalize();
-	MissileSpeed = 30000.f;
+	MissileSpeed = 10000.f;
 }
