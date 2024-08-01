@@ -31,7 +31,7 @@ class BATMAN_ARKHAMKNIGHT_API AMissile : public AActor
 
 	FVector TargetLocation;
 	FVector Direction;
-	float MissileSpeed = 2000.f;
+	float MissileSpeed = 3000.f;
 	
 public:	
 	// Sets default values for this actor's properties

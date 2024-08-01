@@ -43,18 +43,12 @@ ABaseWheeledVehiclePawn::ABaseWheeledVehiclePawn()
 	MissileSpawnLocationLeft = CreateDefaultSubobject<UArrowComponent>(TEXT("MissileSpawnLocationLeft"));
 	MissileSpawnLocationLeft->SetupAttachment(RootComponent);
 	MissileSpawnLocationLeft->SetRelativeLocation(FVector(0.f, -140.f, 100.f));
-	MissileSpawnLocationLeft->SetRelativeRotation(FRotator(30.f, -90.f, 0.f));
-
-	MissileSpawnLocationUp = CreateDefaultSubobject<UArrowComponent>(TEXT("MissileSpawnLocationUp"));
-	MissileSpawnLocationUp->SetupAttachment(RootComponent);
-	MissileSpawnLocationUp->SetRelativeLocation(FVector(0.f, 0.f, 150.f));
-	MissileSpawnLocationUp->SetRelativeRotation(FRotator(40.f, 0.f, 0.f));
+	MissileSpawnLocationLeft->SetRelativeRotation(FRotator(26.5f, 14.5f, -26.5f));
 	
-
 	MissileSpawnLocationRight = CreateDefaultSubobject<UArrowComponent>(TEXT("MissileSpawnLocationRight"));
 	MissileSpawnLocationRight->SetupAttachment(RootComponent);
 	MissileSpawnLocationRight->SetRelativeLocation(FVector(0.f, 140.f, 100.f));
-	MissileSpawnLocationRight->SetRelativeRotation(FRotator(30.f, 90.f, 0.f));
+	MissileSpawnLocationRight->SetRelativeRotation(FRotator(-26.5f, 14.5f, 26.5f));
 
 }
 
@@ -63,7 +57,6 @@ void ABaseWheeledVehiclePawn::BeginPlay()
 	Super::BeginPlay();
 
 	MissileSpawnLocations.Add(MissileSpawnLocationLeft);
-	MissileSpawnLocations.Add(MissileSpawnLocationUp);
 	MissileSpawnLocations.Add(MissileSpawnLocationRight);
 
 	if(APlayerController* PlayerController = Cast<APlayerController>(GetController()))
@@ -223,8 +216,6 @@ void ABaseWheeledVehiclePawn::Shot(const FInputActionValue& Value)
 
 void ABaseWheeledVehiclePawn::FireMissile()
 {
-	int rand = UKismetMathLibrary::RandomIntegerInRange(0, 2);
-	FVector SpawnLocation = MissileSpawnLocations[rand] -> GetComponentLocation();
-	FRotator SpawnRotation = MissileSpawnLocations[rand] -> GetForwardVector().ToOrientationRotator();
+	int rand = UKismetMathLibrary::RandomIntegerInRange(0, 1);
 	GetWorld() -> SpawnActor<AMissile>(MissileClass, MissileSpawnLocations[rand]->GetComponentTransform()) -> SetTargetLocation(TargetLocation);
 }

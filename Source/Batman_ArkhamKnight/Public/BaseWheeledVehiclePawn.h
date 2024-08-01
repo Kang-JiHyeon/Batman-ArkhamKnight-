@@ -43,9 +43,6 @@ class BATMAN_ARKHAMKNIGHT_API ABaseWheeledVehiclePawn : public AWheeledVehiclePa
 	UArrowComponent* MissileSpawnLocationLeft;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "MissileSpawnLocation", meta = (AllowPrivateAccess = "true"))
-	UArrowComponent* MissileSpawnLocationUp;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "MissileSpawnLocation", meta = (AllowPrivateAccess = "true"))
 	UArrowComponent* MissileSpawnLocationRight;
 
 	TArray<UArrowComponent*> MissileSpawnLocations;
