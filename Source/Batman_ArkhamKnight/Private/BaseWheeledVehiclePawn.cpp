@@ -166,12 +166,12 @@ void ABaseWheeledVehiclePawn::SteeringComplete(const FInputActionValue& Value)
 
 void ABaseWheeledVehiclePawn::BoostTrigger(const FInputActionValue& Value)
 {
-	ChaosVehicleMovementComponent-> SetMaxEngineTorque(10000.f);
+	ChaosVehicleMovementComponent-> SetMaxEngineTorque(BoostSpeed);
 }
 
 void ABaseWheeledVehiclePawn::BoostComplete(const FInputActionValue& Value)
 {
-	ChaosVehicleMovementComponent-> SetMaxEngineTorque(5000.f);
+	ChaosVehicleMovementComponent-> SetMaxEngineTorque(BaseSpeed);
 }
 
 void ABaseWheeledVehiclePawn::ToggleCamera()

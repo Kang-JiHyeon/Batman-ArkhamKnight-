@@ -92,6 +92,12 @@ class BATMAN_ARKHAMKNIGHT_API ABaseWheeledVehiclePawn : public AWheeledVehiclePa
 	//* Target Info*/
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	AActor* TargetActor;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BoostSpeed", meta = (AllowPrivateAccess = "true"))
+	float BoostSpeed = 10000.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BoostSpeed", meta = (AllowPrivateAccess = "true"))
+	float BaseSpeed = 5000.f;
 	
 	FVector TargetLocation;
 	float TargetDistance;
