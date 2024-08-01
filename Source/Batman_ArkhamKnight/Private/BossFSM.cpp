@@ -108,7 +108,7 @@ void UBossFSM::MoveState() // boss move to player or idle
 			mState = EBossState::Move;
 
 		}
-		else if (statevalue > 0 && statevalue <2)
+		else if (statevalue > 0 && statevalue <3)
 		{
 			direction = Ptarget->GetActorLocation() - me->GetActorLocation();
 			mState = EBossState::FastMove;

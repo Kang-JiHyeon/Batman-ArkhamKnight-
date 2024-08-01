@@ -306,11 +306,7 @@ void UPrisonerFSM::FaintState(float& DeltaSeconds)
 
 void UPrisonerFSM::DieState(float& DeltaSeconds)
 {
-	//currentTime += DeltaSeconds;
-	//if (currentTime > DieDelayTime)
-	//{
-	//	me->Destroy();
-	//}
+	
 }
 
 void UPrisonerFSM::OnMyTakeDamage(int32 damage)
@@ -319,14 +315,12 @@ void UPrisonerFSM::OnMyTakeDamage(int32 damage)
 // 기절상태에 들어가고 나서 일정 시간이후에 다시 이동 상태로 전이하고 싶다.
 {
 	HP -= damage;
-	//if (HP > 0)
-	//{
+	if (mState == EPrisonerState::Die)
+	{
+	
+	}
+	else {
 		SetState(EPrisonerState::Damage);
 		anim->PanimState = mState;
-	//}
-	//else
-	//{
-	//	SetState(EPrisonerState::Die);
-	//	anim->PanimState = mState;
-	//}
+	}
 }
