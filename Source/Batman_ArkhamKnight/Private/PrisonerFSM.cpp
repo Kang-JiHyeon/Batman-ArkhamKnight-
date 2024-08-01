@@ -36,7 +36,7 @@ void UPrisonerFSM::BeginPlay()
 	// HP
 	HP = MaxHp;
 	
-	me->GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &UPrisonerFSM::OnCapsuleBeginOverlap);
+	me-> GetMesh()->OnComponentBeginOverlap.AddDynamic(this, &UPrisonerFSM::OnMeshBeginOverlap);
 }
 
 
@@ -214,11 +214,12 @@ void UPrisonerFSM::RightAttackState(float& DeltaSeconds)
 		float dist = me->GetDistanceTo(Ptarget);
 		if (dist < attackDistance)
 		{
-			// 때리는 함수
+			SetCollision(true);
 			anim->PanimState = mState;
 		}
 		else
 		{
+			SetCollision(false);
 			if (FMath::RandBool())
 			{
 				SetState(EPrisonerState::Move);
@@ -246,10 +247,12 @@ void UPrisonerFSM::LeftAttackState(float& DeltaSeconds)
 		float dist = me->GetDistanceTo(Ptarget);
 		if (dist < attackDistance)
 		{
+			SetCollision(true);
 			anim->PanimState = mState;
 		}
 		else
 		{
+			SetCollision(false);
 			if (FMath::RandBool())
 			{
 				SetState(EPrisonerState::Move);
@@ -281,8 +284,8 @@ void UPrisonerFSM::DamageState(float& DeltaSeconds)
 	{
 		if (HP/MaxHp < 0.5f && HP/MaxHp >0)
 		{
-			SetState(EPrisonerState::Faint);
 			SetCollision(false);
+			SetState(EPrisonerState::Faint);
 			anim->PanimState = mState;
 		}
 
@@ -318,6 +321,10 @@ void UPrisonerFSM::OnMyTakeDamage(int32 damage)
 // 데미지를 입다가 일정 HP 이하가 되면 기절상태에 들어가고 싶다.
 // 기절상태에 들어가고 나서 일정 시간이후에 다시 이동 상태로 전이하고 싶다.
 {
+	if (mState == EPrisonerState::Die || mState == EPrisonerState::Faint)
+	{
+		return;
+	}
 	HP -= damage;
 
 	if(HP> 0)
@@ -338,15 +345,15 @@ void UPrisonerFSM::SetCollision(bool bvalue)
 	if (bvalue)
 	{
 		// collision을 켜야함
-		me->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		me->GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	}
 	else {
 		// collision을 꺼야함
-		me->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		me->GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
 }
 
-void UPrisonerFSM::OnCapsuleBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void UPrisonerFSM::OnMeshBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	auto* player = Cast<APlayerCharacter>(OtherActor);
 
