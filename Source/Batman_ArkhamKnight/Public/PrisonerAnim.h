@@ -17,4 +17,12 @@ class BATMAN_ARKHAMKNIGHT_API UPrisonerAnim : public UAnimInstance
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category=PrisonerFSM)
 	EPrisonerState PanimState;
+
+	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite,Category=PrisonerFSM)
+	bool attack;
+
+	virtual void NativeUpdateAnimation(float DeltaSeconds);
+
+	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite,Category=PrisonerFSM)
+	float Speed;
 };
