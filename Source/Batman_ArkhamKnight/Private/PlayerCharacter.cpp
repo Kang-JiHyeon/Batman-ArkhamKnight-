@@ -369,21 +369,17 @@ void APlayerCharacter::OnDamageProcess(AActor* OtherActor, int32 Damage)
 		if (dirState == EEnemyDirection::Front)
 		{
 			PlayAnimMontage(DamageMontage, 1, FName("FrontDamage"));
-			UE_LOG(LogTemp, Warning, TEXT("적이 [앞]에서 때렸습니다!!"));
+			//UE_LOG(LogTemp, Warning, TEXT("적이 [앞]에서 때렸습니다!!"));
 		}
 		// 적이 뒤에서 공격했다면, 앞으로 휘청거리기
 		else
 		{
 			PlayAnimMontage(DamageMontage, 1, FName("BackDamage"));
-			UE_LOG(LogTemp, Warning, TEXT("적이 [뒤]에서 때렸습니다!!"));
+			//UE_LOG(LogTemp, Warning, TEXT("적이 [뒤]에서 때렸습니다!!"));
 		}
 
-		//// 일정 시간 뒤 Damage 상태 해제
-		//GetWorld()->GetTimerManager().SetTimer(DamageTimerHandler, [this]()
-		//	{
-		//		bDamageState = false;
-		//	}
-		//, DamageIdleTime, false);
+		// 일정 시간 뒤 Damage 상태 해제
+		GetWorld()->GetTimerManager().SetTimer(DamageTimerHandler, this, &APlayerCharacter::OnEndDamage, DamageIdleTime, false);
 
 		UE_LOG(LogTemp, Warning, TEXT("Player Damage!! : Hp = %d"), HP);
 	}
@@ -403,6 +399,7 @@ void APlayerCharacter::OnDamageProcess(AActor* OtherActor, int32 Damage)
 void APlayerCharacter::OnEndDamage()
 {
 	bDamageState = false;
+	PlayerAnim->bIgnoreInputAttack = false;
 }
 
 void APlayerCharacter::ResetCombo()
@@ -416,13 +413,12 @@ void APlayerCharacter::SetMeshCollisionEnabled(bool bValue)
 	if (bValue)
 	{
 		GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-
-		UE_LOG(LogTemp, Warning, TEXT("Collision Enable : QueryAndPhysics!"));
+		//UE_LOG(LogTemp, Warning, TEXT("Collision Enable : QueryAndPhysics!"));
 	}
 	else
 	{
 		GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		UE_LOG(LogTemp, Warning, TEXT("Collision Enable : NoCollision"));
+		//UE_LOG(LogTemp, Warning, TEXT("Collision Enable : NoCollision"));
 	}
 }
 

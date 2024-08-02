@@ -112,7 +112,7 @@ public:
 	int32 HP;
 
 	UPROPERTY(EditDefaultsOnly)
-	float DamageIdleTime = 1;
+	float DamageIdleTime = 1.5f;
 	bool bDamageState;
 
 	// TimerHandler
