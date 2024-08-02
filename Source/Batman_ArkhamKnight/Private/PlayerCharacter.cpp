@@ -252,8 +252,10 @@ void APlayerCharacter::MoveToTarget(AActor* Target)
 	if (dir.Size() < 100)
 	{
 		bMovingToTarget = false;
-
 		bRotatingToTarget = true;
+
+		//SetGlobalTimeDilation(0.2f);
+		
 		// 애니메이션 실행
 		OnPlayAttackAnimation();
 
@@ -323,6 +325,7 @@ void APlayerCharacter::OnPlayAttackAnimation()
 {
 	if(TargetEnemy == nullptr) return;
 
+	
 	// 앞, 뒤 방향 확인
 	EEnemyDirection enemyDir = GetTargetVerticalDirection(TargetEnemy);
 
@@ -342,6 +345,15 @@ void APlayerCharacter::OnPlayAttackAnimation()
 		PlayAnimMontage(BackAttackMontage, 1, FName(dirName));
 	}
 	ComboCount++;
+}
+
+void APlayerCharacter::SetGlobalTimeDilation(float Value)
+{
+	GetWorldSettings()->SetTimeDilation(Value);
+
+	//GetWorld()->GetTimerManager().SetTimer(DamageTimerHandler, [this](){
+	//	GetWorldSettings()->SetTimeDilation(1);
+	//	}, 1, false);
 }
 
 void APlayerCharacter::OnDamageProcess(AActor* OtherActor, int32 Damage)
@@ -430,6 +442,8 @@ void APlayerCharacter::OnMeshBeginOverlap(UPrimitiveComponent* OverlappedCompone
 		if (prisonerFSM != nullptr)
 		{
 			prisonerFSM->OnMyTakeDamage(1);
+
+			//SetGlobalTimeDilation(1);
 
 			UE_LOG(LogTemp, Warning, TEXT("Player->Prisoner Attack!!"));
 		}

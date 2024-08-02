@@ -119,29 +119,32 @@ public:
 	FTimerHandle DamageTimerHandler;
 
 private:
+	// Input
 	void OnActionMove(const FInputActionValue& Value);
 	void OnActionMoveCompleted(const FInputActionValue& Value);
 	void OnActionLook(const FInputActionValue& Value);
 	void OnActionDodge(const FInputActionValue& Value);
 	void OnActionAttack(const FInputActionValue& Value);
-	void OnPlayAttackAnimation();
 
-
+	// Move
 	void MoveToTarget(AActor* Target);
 	void RotateToTarget(AActor* Target);
-	
 	bool IsLockedMove() const;
-
 	EEnemyDirection GetTargetVerticalDirection(AActor* TargetActor);
 	EEnemyDirection GetTargetHorizontalDirection(AActor* TargetActor);
 
+	// Animation
+	void OnPlayAttackAnimation();
+
+	void SetGlobalTimeDilation(float Value);
+
+
 public:
 	void ResetCombo();
-	void SetMeshCollisionEnabled(bool bValue);
 	void OnDamageProcess(AActor* OtherActor, int32 Damage);
 	void OnEndDamage();
+	void SetMeshCollisionEnabled(bool bValue);
 
-    UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable)
 	void OnMeshBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
 };
