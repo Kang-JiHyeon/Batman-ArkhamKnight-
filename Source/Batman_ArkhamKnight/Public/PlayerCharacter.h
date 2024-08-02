@@ -108,7 +108,7 @@ public:
 
 	// ÇÇ°Ý
 	UPROPERTY(EditDefaultsOnly)
-	int32 MaxHP = 10;
+	int32 MaxHP = 20;
 	int32 HP;
 
 	UPROPERTY(EditDefaultsOnly)

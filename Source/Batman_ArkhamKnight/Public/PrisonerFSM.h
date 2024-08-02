@@ -102,7 +102,7 @@ public:
 	// HP
 	
 	UPROPERTY(EditAnywhere,Category= PFSM)
-	float MaxHp = 5;
+	float MaxHp = 4;
 	float HP;
 
 	// Die

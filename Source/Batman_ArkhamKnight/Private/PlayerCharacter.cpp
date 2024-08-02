@@ -148,7 +148,7 @@ void APlayerCharacter::OnActionLook(const FInputActionValue& Value)
 /// <param name="Value"></param>
 void APlayerCharacter::OnActionDodge(const FInputActionValue& Value)
 {
-	if(bMoveInputPressed == false || bMovingToTarget) return;
+	if(bMoveInputPressed == false || IsLockedMove()) return;
 
 	float currtime = GetWorld()->GetTimeSeconds();
 
@@ -266,6 +266,7 @@ void APlayerCharacter::MoveToTarget(AActor* Target)
 
 bool APlayerCharacter::IsLockedMove() const
 {
+	// 공격 중일 때
 	return bMovingToTarget || PlayerAnim->bDodge || bDamageState;
 }
 
