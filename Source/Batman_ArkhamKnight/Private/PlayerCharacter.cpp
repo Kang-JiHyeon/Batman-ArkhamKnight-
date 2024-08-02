@@ -199,16 +199,14 @@ void APlayerCharacter::OnActionAttack(const FInputActionValue& Value)
 	// 기존의 이동 대상을 초기화
 	TargetEnemy = nullptr;
 
-	UE_LOG(LogTemp, Warning, TEXT("최단 거리의 적 탐색 중.."));
+	//UE_LOG(LogTemp, Warning, TEXT("최단 거리의 적 탐색 중.."));
 	for (AActor* targetActor : targetActors)
 	{
 		APrisoner* enemy = Cast<APrisoner>(targetActor);
 
-		// TODO : 적이 무력화 상태라면, 다음으로 최단 거리에 있는 적을 향해 이동하고 싶다.
-		//if (enemy == nullptr || enemy->GetValided())
 		if (enemy == nullptr || enemy->IsAttackable() == false)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("적이 기절 상태입니다. 다음 적을 탐색합니다."));
+			//UE_LOG(LogTemp, Warning, TEXT("적이 기절 상태입니다. 다음 적을 탐색합니다."));
 			continue;
 		}
 

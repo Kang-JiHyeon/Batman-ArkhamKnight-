@@ -100,7 +100,7 @@ public:
 
 	// È¸ÇÇ
 	UPROPERTY(EditDefaultsOnly)
-	float DodgeSpeed = 1000;
+	float DodgeSpeed = 500;
 	UPROPERTY(EditDefaultsOnly)
 	float DoublePressInterval = 0.5f;
     float LastDodgeInputPressTime = 0;
