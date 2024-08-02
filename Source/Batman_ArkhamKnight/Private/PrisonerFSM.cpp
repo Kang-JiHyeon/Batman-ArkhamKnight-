@@ -37,6 +37,7 @@ void UPrisonerFSM::BeginPlay()
 	HP = MaxHp;
 	
 	me->GetMesh()->OnComponentBeginOverlap.AddDynamic(this, &UPrisonerFSM::OnMeshBeginOverlap);
+	SetCollision(false);
 }
 
 
@@ -153,7 +154,7 @@ void UPrisonerFSM::MoveState(float& DeltaSeconds){
 		}
 		else
 		{
-			if (dir.Size() > 300)
+			if (dir.Size() > 400)
 			{
 				SetState(EPrisonerState::Run);
 				anim->PanimState = mState;
@@ -177,18 +178,19 @@ void UPrisonerFSM::RunState(float& DeltaSeconds)
 	me->AddMovementInput(dir.GetSafeNormal(), 0.7f);
 
 	currentTime += DeltaSeconds;
-	if (currentTime > 1.3 && dist < 100) {
+	if (currentTime > 1 && dist < 100) {
 		// 오른쪽 공격과 왼쪽 공격을 랜덤하게 나오게 하고 싶다.
 		if (FMath::RandBool()) {
+			SetCollision(true);
 			SetState(EPrisonerState::RightAttack);
 			anim->attack = true;
 		}
 		else {
+			SetCollision(true);
 			SetState(EPrisonerState::LeftAttack);
 			anim->attack = false;
 		}
 		anim->PanimState = mState;
-
 	}
 }
 
@@ -228,7 +230,6 @@ void UPrisonerFSM::RightAttackState(float& DeltaSeconds)
 		float dist = me->GetDistanceTo(Ptarget);
 		if (dist < attackDistance)
 		{
-			SetCollision(true);
 			anim->PanimState = mState;
 			SetCollision(false);
 		}
@@ -254,7 +255,6 @@ void UPrisonerFSM::LeftAttackState(float& DeltaSeconds)
 		float dist = me->GetDistanceTo(Ptarget);
 		if (dist < attackDistance)
 		{
-			SetCollision(true);
 			anim->PanimState = mState;
 			SetCollision(false);
 		}
@@ -313,6 +313,7 @@ void UPrisonerFSM::FaintState(float& DeltaSeconds)
 		SetState(EPrisonerState::Move);
 		anim->PanimState = mState;
 	}
+	SetCollision(false);
 }
 
 
@@ -343,13 +344,19 @@ void UPrisonerFSM::SetCollision(bool bvalue)
 	if (bvalue)
 	{
 		// collision을 켜야함
+		// 펀치가 먹는 상태
 		me->GetMesh()->SetCollisionProfileName(TEXT("Prisoner"));
 	}
 	else {
 		// collision을 꺼야함
+		// 끈다는 것은 기절 또는 죽음 상태가 되어 collision이 먹지 않는 상태
 		me->GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
 }
+// begin play에서 false로 시작하여 collision이 없는 상태였다가
+// damage를 받고 기절하거나 죽으면 true로 바꿔야한다
+// attack을 할 때도 켜야하고 attack이 끝나면 꺼야한다.
+
 
 void UPrisonerFSM::OnMeshBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
