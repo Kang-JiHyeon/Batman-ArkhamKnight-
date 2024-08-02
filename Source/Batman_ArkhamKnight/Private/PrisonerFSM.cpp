@@ -233,12 +233,12 @@ void UPrisonerFSM::RightAttackState(float& DeltaSeconds)
 			anim->PanimState = mState;
 			SetCollision(false);
 		}
-		else
-		{
-			SetCollision(false);
-			SetState(EPrisonerState::BackMove);
-			anim->PanimState = mState;
-		}
+		//else
+		//{
+		//	SetCollision(false);
+		//	SetState(EPrisonerState::BackMove);
+		//	anim->PanimState = mState;
+		//}
 	}
 	
 
@@ -258,12 +258,12 @@ void UPrisonerFSM::LeftAttackState(float& DeltaSeconds)
 			anim->PanimState = mState;
 			SetCollision(false);
 		}
-		else
-		{
-			SetCollision(false);
-			SetState(EPrisonerState::BackMove);
-			anim->PanimState = mState;
-		}
+		//else
+		//{
+		//	SetCollision(false);
+		//	SetState(EPrisonerState::BackMove);
+		//	anim->PanimState = mState;
+		//}
 	}
 }
 
@@ -365,6 +365,9 @@ void UPrisonerFSM::OnMeshBeginOverlap(UPrimitiveComponent* OverlappedComponent, 
 	if (player != nullptr)
 	{
 		Ptarget->OnDamageProcess(me, 1);
+
+		SetState(EPrisonerState::BackMove);
+		anim->PanimState = mState;
 	}
 	SetCollision(false);
 }

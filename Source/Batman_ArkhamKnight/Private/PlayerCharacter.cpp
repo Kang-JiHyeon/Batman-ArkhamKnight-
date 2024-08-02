@@ -148,7 +148,7 @@ void APlayerCharacter::OnActionLook(const FInputActionValue& Value)
 /// <param name="Value"></param>
 void APlayerCharacter::OnActionDodge(const FInputActionValue& Value)
 {
-	if(bMoveInputPressed == false || bMovingToTarget) return;
+	if(bMoveInputPressed == false || IsLockedMove()) return;
 
 	float currtime = GetWorld()->GetTimeSeconds();
 
@@ -247,13 +247,19 @@ void APlayerCharacter::MoveToTarget(AActor* Target)
 	FVector dir = Target->GetActorLocation() - GetActorLocation();
 	dir.Z = 0;
 	AddMovementInput(dir.GetSafeNormal());
+
+	PlayerAnim->SetRun(true);
 	
 	// 목표 지점에 도달했는지 확인
 	if (dir.Size() < 100)
 	{
-		bMovingToTarget = false;
+		PlayerAnim->SetRun(false);
 
+		bMovingToTarget = false;
 		bRotatingToTarget = true;
+
+		//SetGlobalTimeDilation(0.2f);
+		
 		// 애니메이션 실행
 		OnPlayAttackAnimation();
 
@@ -264,7 +270,10 @@ void APlayerCharacter::MoveToTarget(AActor* Target)
 
 bool APlayerCharacter::IsLockedMove() const
 {
-	return bMovingToTarget || PlayerAnim->bDodge || bDamageState;
+	bool bIsMontagePlaying = PlayerAnim->IsAnyMontagePlaying();
+
+	return bMovingToTarget || bDamageState || PlayerAnim->bDodge || bIsMontagePlaying;
+
 }
 
 void APlayerCharacter::RotateToTarget(AActor* Target)
@@ -322,7 +331,7 @@ EEnemyDirection APlayerCharacter::GetTargetHorizontalDirection(AActor* TargetAct
 void APlayerCharacter::OnPlayAttackAnimation()
 {
 	if(TargetEnemy == nullptr) return;
-
+	
 	// 앞, 뒤 방향 확인
 	EEnemyDirection enemyDir = GetTargetVerticalDirection(TargetEnemy);
 
@@ -338,10 +347,20 @@ void APlayerCharacter::OnPlayAttackAnimation()
 	else
 	{
 		FString dirName = GetTargetHorizontalDirection(TargetEnemy) == EEnemyDirection::Left ? "Left" : "Right";
-		
 		PlayAnimMontage(BackAttackMontage, 1, FName(dirName));
 	}
 	ComboCount++;
+
+	//SetGlobalTimeDilation(0.2f);
+}
+
+void APlayerCharacter::SetGlobalTimeDilation(float Value)
+{
+	GetWorldSettings()->SetTimeDilation(Value);
+
+    //GetWorld()->GetTimerManager().SetTimer(DamageTimerHandler, [this]() {
+    //    GetWorldSettings()->SetTimeDilation(1);
+    //    }, 1, false);
 }
 
 void APlayerCharacter::OnDamageProcess(AActor* OtherActor, int32 Damage)
@@ -430,6 +449,8 @@ void APlayerCharacter::OnMeshBeginOverlap(UPrimitiveComponent* OverlappedCompone
 		if (prisonerFSM != nullptr)
 		{
 			prisonerFSM->OnMyTakeDamage(1);
+
+			//SetGlobalTimeDilation(1);
 
 			UE_LOG(LogTemp, Warning, TEXT("Player->Prisoner Attack!!"));
 		}

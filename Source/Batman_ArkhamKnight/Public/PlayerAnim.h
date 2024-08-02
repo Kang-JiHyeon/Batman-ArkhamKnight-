@@ -27,23 +27,16 @@ public:
 	bool bDodge = false;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	bool bAttack = false;
+	bool bRun = false;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	bool bDie = false;
 
-private:
-	// 局聪皋捞记 根鸥林
-	UPROPERTY(EditAnywhere)
-	class UAnimMontage* FrontAttackMontage;
-	UPROPERTY(EditAnywhere)
-	class UAnimMontage* BackAttackMontage;
-	UPROPERTY(EditAnywhere)
-	class UAnimMontage* DamageMontage;
 
 public:
 	bool bIgnoreInputAttack = false;
 	
+	void SetRun(bool bValue);
 	void SetDodge(bool bValue);
 
 	UFUNCTION(BlueprintCallable)

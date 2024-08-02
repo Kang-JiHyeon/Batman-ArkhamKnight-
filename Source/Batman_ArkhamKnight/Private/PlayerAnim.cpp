@@ -23,6 +23,11 @@ void UPlayerAnim::NativeUpdateAnimation(float DeltaTime)
     }
 }
 
+void UPlayerAnim::SetRun(bool bValue)
+{
+    bRun = bValue;
+}
+
 void UPlayerAnim::SetDodge(bool bValue)
 {
     bDodge = bValue;
@@ -43,4 +48,16 @@ void UPlayerAnim::SetIgnoreAttack(bool bValue)
 void UPlayerAnim::OnEndDamageAnimation()
 {
     Player->OnEndDamage();
+}
+
+void APlayerCharacter::SetGlobalTimeDilation(bool bSlow)
+{
+    //bIsSlow != bIsSlow;
+
+    float dilation = bSlow ? 0.5f : 1;
+    GetWorldSettings()->SetTimeDilation(dilation);
+
+    //GetWorld()->GetTimerManager().SetTimer(DamageTimerHandler, [this]() {
+    //    GetWorldSettings()->SetTimeDilation(1);
+    //    }, 1, false);
 }

@@ -100,7 +100,7 @@ public:
 
 	// 회피
 	UPROPERTY(EditDefaultsOnly)
-	float DodgeSpeed = 500;
+	float DodgeSpeed = 700;
 	UPROPERTY(EditDefaultsOnly)
 	float DoublePressInterval = 0.5f;
     float LastDodgeInputPressTime = 0;
@@ -108,7 +108,7 @@ public:
 
 	// 피격
 	UPROPERTY(EditDefaultsOnly)
-	int32 MaxHP = 10;
+	int32 MaxHP = 20;
 	int32 HP;
 
 	UPROPERTY(EditDefaultsOnly)
@@ -119,29 +119,34 @@ public:
 	FTimerHandle DamageTimerHandler;
 
 private:
+	// Input
 	void OnActionMove(const FInputActionValue& Value);
 	void OnActionMoveCompleted(const FInputActionValue& Value);
 	void OnActionLook(const FInputActionValue& Value);
 	void OnActionDodge(const FInputActionValue& Value);
 	void OnActionAttack(const FInputActionValue& Value);
-	void OnPlayAttackAnimation();
 
-
+	// Move
 	void MoveToTarget(AActor* Target);
 	void RotateToTarget(AActor* Target);
-	
 	bool IsLockedMove() const;
-
 	EEnemyDirection GetTargetVerticalDirection(AActor* TargetActor);
 	EEnemyDirection GetTargetHorizontalDirection(AActor* TargetActor);
 
+	// Animation
+	void OnPlayAttackAnimation();
+
+	void SetGlobalTimeDilation(float Value);
+
+	bool bIsSlow;
 public:
 	void ResetCombo();
-	void SetMeshCollisionEnabled(bool bValue);
 	void OnDamageProcess(AActor* OtherActor, int32 Damage);
 	void OnEndDamage();
+	void SetMeshCollisionEnabled(bool bValue);
 
-    UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable)
 	void OnMeshBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
+	void SetGlobalTimeDilation();
+	void SetGlobalTimeDilation(bool bSlow);
 };
