@@ -199,16 +199,14 @@ void APlayerCharacter::OnActionAttack(const FInputActionValue& Value)
 	// 기존의 이동 대상을 초기화
 	TargetEnemy = nullptr;
 
-	UE_LOG(LogTemp, Warning, TEXT("최단 거리의 적 탐색 중.."));
+	//UE_LOG(LogTemp, Warning, TEXT("최단 거리의 적 탐색 중.."));
 	for (AActor* targetActor : targetActors)
 	{
 		APrisoner* enemy = Cast<APrisoner>(targetActor);
 
-		// TODO : 적이 무력화 상태라면, 다음으로 최단 거리에 있는 적을 향해 이동하고 싶다.
-		//if (enemy == nullptr || enemy->GetValided())
 		if (enemy == nullptr || enemy->IsAttackable() == false)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("적이 기절 상태입니다. 다음 적을 탐색합니다."));
+			//UE_LOG(LogTemp, Warning, TEXT("적이 기절 상태입니다. 다음 적을 탐색합니다."));
 			continue;
 		}
 
@@ -369,21 +367,17 @@ void APlayerCharacter::OnDamageProcess(AActor* OtherActor, int32 Damage)
 		if (dirState == EEnemyDirection::Front)
 		{
 			PlayAnimMontage(DamageMontage, 1, FName("FrontDamage"));
-			UE_LOG(LogTemp, Warning, TEXT("적이 [앞]에서 때렸습니다!!"));
+			//UE_LOG(LogTemp, Warning, TEXT("적이 [앞]에서 때렸습니다!!"));
 		}
 		// 적이 뒤에서 공격했다면, 앞으로 휘청거리기
 		else
 		{
 			PlayAnimMontage(DamageMontage, 1, FName("BackDamage"));
-			UE_LOG(LogTemp, Warning, TEXT("적이 [뒤]에서 때렸습니다!!"));
+			//UE_LOG(LogTemp, Warning, TEXT("적이 [뒤]에서 때렸습니다!!"));
 		}
 
-		//// 일정 시간 뒤 Damage 상태 해제
-		//GetWorld()->GetTimerManager().SetTimer(DamageTimerHandler, [this]()
-		//	{
-		//		bDamageState = false;
-		//	}
-		//, DamageIdleTime, false);
+		// 일정 시간 뒤 Damage 상태 해제
+		GetWorld()->GetTimerManager().SetTimer(DamageTimerHandler, this, &APlayerCharacter::OnEndDamage, DamageIdleTime, false);
 
 		UE_LOG(LogTemp, Warning, TEXT("Player Damage!! : Hp = %d"), HP);
 	}
@@ -403,6 +397,7 @@ void APlayerCharacter::OnDamageProcess(AActor* OtherActor, int32 Damage)
 void APlayerCharacter::OnEndDamage()
 {
 	bDamageState = false;
+	PlayerAnim->bIgnoreInputAttack = false;
 }
 
 void APlayerCharacter::ResetCombo()
@@ -416,13 +411,12 @@ void APlayerCharacter::SetMeshCollisionEnabled(bool bValue)
 	if (bValue)
 	{
 		GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-
-		UE_LOG(LogTemp, Warning, TEXT("Collision Enable : QueryAndPhysics!"));
+		//UE_LOG(LogTemp, Warning, TEXT("Collision Enable : QueryAndPhysics!"));
 	}
 	else
 	{
 		GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		UE_LOG(LogTemp, Warning, TEXT("Collision Enable : NoCollision"));
+		//UE_LOG(LogTemp, Warning, TEXT("Collision Enable : NoCollision"));
 	}
 }
 

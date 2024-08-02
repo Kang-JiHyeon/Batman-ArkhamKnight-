@@ -100,7 +100,7 @@ public:
 
 	// È¸ÇÇ
 	UPROPERTY(EditDefaultsOnly)
-	float DodgeSpeed = 1000;
+	float DodgeSpeed = 500;
 	UPROPERTY(EditDefaultsOnly)
 	float DoublePressInterval = 0.5f;
     float LastDodgeInputPressTime = 0;
@@ -112,7 +112,7 @@ public:
 	int32 HP;
 
 	UPROPERTY(EditDefaultsOnly)
-	float DamageIdleTime = 1;
+	float DamageIdleTime = 1.5f;
 	bool bDamageState;
 
 	// TimerHandler
