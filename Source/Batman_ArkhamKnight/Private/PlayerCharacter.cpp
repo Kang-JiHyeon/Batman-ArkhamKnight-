@@ -247,10 +247,14 @@ void APlayerCharacter::MoveToTarget(AActor* Target)
 	FVector dir = Target->GetActorLocation() - GetActorLocation();
 	dir.Z = 0;
 	AddMovementInput(dir.GetSafeNormal());
+
+	PlayerAnim->SetRun(true);
 	
 	// 목표 지점에 도달했는지 확인
 	if (dir.Size() < 100)
 	{
+		PlayerAnim->SetRun(false);
+
 		bMovingToTarget = false;
 		bRotatingToTarget = true;
 
@@ -266,8 +270,10 @@ void APlayerCharacter::MoveToTarget(AActor* Target)
 
 bool APlayerCharacter::IsLockedMove() const
 {
-	// 공격 중일 때
-	return bMovingToTarget || PlayerAnim->bDodge || bDamageState;
+	bool bIsMontagePlaying = PlayerAnim->IsAnyMontagePlaying();
+
+	return bMovingToTarget || bDamageState || PlayerAnim->bDodge || bIsMontagePlaying;
+
 }
 
 void APlayerCharacter::RotateToTarget(AActor* Target)
@@ -325,7 +331,6 @@ EEnemyDirection APlayerCharacter::GetTargetHorizontalDirection(AActor* TargetAct
 void APlayerCharacter::OnPlayAttackAnimation()
 {
 	if(TargetEnemy == nullptr) return;
-
 	
 	// 앞, 뒤 방향 확인
 	EEnemyDirection enemyDir = GetTargetVerticalDirection(TargetEnemy);
@@ -342,19 +347,20 @@ void APlayerCharacter::OnPlayAttackAnimation()
 	else
 	{
 		FString dirName = GetTargetHorizontalDirection(TargetEnemy) == EEnemyDirection::Left ? "Left" : "Right";
-		
 		PlayAnimMontage(BackAttackMontage, 1, FName(dirName));
 	}
 	ComboCount++;
+
+	//SetGlobalTimeDilation(0.2f);
 }
 
 void APlayerCharacter::SetGlobalTimeDilation(float Value)
 {
 	GetWorldSettings()->SetTimeDilation(Value);
 
-	//GetWorld()->GetTimerManager().SetTimer(DamageTimerHandler, [this](){
-	//	GetWorldSettings()->SetTimeDilation(1);
-	//	}, 1, false);
+    //GetWorld()->GetTimerManager().SetTimer(DamageTimerHandler, [this]() {
+    //    GetWorldSettings()->SetTimeDilation(1);
+    //    }, 1, false);
 }
 
 void APlayerCharacter::OnDamageProcess(AActor* OtherActor, int32 Damage)

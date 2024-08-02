@@ -100,7 +100,7 @@ public:
 
 	// È¸ÇÇ
 	UPROPERTY(EditDefaultsOnly)
-	float DodgeSpeed = 500;
+	float DodgeSpeed = 700;
 	UPROPERTY(EditDefaultsOnly)
 	float DoublePressInterval = 0.5f;
     float LastDodgeInputPressTime = 0;
@@ -138,7 +138,7 @@ private:
 
 	void SetGlobalTimeDilation(float Value);
 
-
+	bool bIsSlow;
 public:
 	void ResetCombo();
 	void OnDamageProcess(AActor* OtherActor, int32 Damage);
@@ -147,4 +147,6 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void OnMeshBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	void SetGlobalTimeDilation();
+	void SetGlobalTimeDilation(bool bSlow);
 };
