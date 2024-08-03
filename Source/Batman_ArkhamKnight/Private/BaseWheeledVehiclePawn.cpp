@@ -119,7 +119,7 @@ void ABaseWheeledVehiclePawn::SetupPlayerInputComponent(UInputComponent* PlayerI
 void ABaseWheeledVehiclePawn::ThrottleTrigger(const FInputActionValue& Value)
 {
 	ChaosVehicleMovementComponent->SetThrottleInput(Value.Get<float>());
-	UKismetSystemLibrary::PrintString(GetWorld(), FString::Format(TEXT("Speed : {0}"), {ChaosVehicleMovementComponent -> GetForwardSpeed()}));
+	//UKismetSystemLibrary::PrintString(GetWorld(), FString::Format(TEXT("Speed : {0}"), {ChaosVehicleMovementComponent -> GetForwardSpeed()}));
 }
 
 void ABaseWheeledVehiclePawn::ThrottleComplete(const FInputActionValue& Value)
@@ -217,5 +217,5 @@ void ABaseWheeledVehiclePawn::Shot(const FInputActionValue& Value)
 void ABaseWheeledVehiclePawn::FireMissile()
 {
 	int rand = UKismetMathLibrary::RandomIntegerInRange(0, 1);
-	GetWorld() -> SpawnActor<AMissile>(MissileClass, MissileSpawnLocations[rand]->GetComponentTransform()) -> SetTargetLocation(TargetLocation);
+	GetWorld() -> SpawnActor<AMissile>(MissileClass, MissileSpawnLocations[rand]->GetComponentTransform()) -> SetTarget(TargetActor);
 }

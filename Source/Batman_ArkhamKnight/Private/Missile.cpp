@@ -50,6 +50,11 @@ void AMissile::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	Translate(DeltaTime, Direction, MissileSpeed);
+
+	if(TargetActor != nullptr)
+	{
+		UpdateTargetLocation();
+	}
 }
 
 void AMissile::Translate(float Time, const FVector& direction, float Speed)
@@ -64,8 +69,14 @@ void AMissile::TurnToTarget()
 	SetActorRotation(TargetRotation);
 	Direction = TargetLocation - GetActorLocation();
 	Direction.Normalize();
-	MissileSpeed = 20000.f;
+	MissileSpeed = AfterSpeed;
 }
+
+void AMissile::UpdateTargetLocation()
+{
+	TargetLocation = TargetActor -> GetActorLocation();
+}
+
 
 void AMissile::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
