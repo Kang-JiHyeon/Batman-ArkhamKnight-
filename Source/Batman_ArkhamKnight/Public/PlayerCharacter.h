@@ -65,6 +65,8 @@ public:
 	class UInputAction* IA_Dodge;
 	UPROPERTY(EditDefaultsOnly)
 	class UInputAction* IA_Attack;
+	UPROPERTY(EditDefaultsOnly)
+	class UInputAction* IA_BossAttack;
 
 	// 애니메이션
 	UPROPERTY(EditDefaultsOnly)
@@ -76,12 +78,18 @@ public:
 	class UAnimMontage* BackAttackMontage;
 	UPROPERTY(EditAnywhere)
 	class UAnimMontage* DamageMontage;
+	UPROPERTY(EditAnywhere)
+	class UAnimMontage* BossAttackMontage;
 
+	// 보스
+	UPROPERTY()
+	class ABoss* TargetBoss;
+	
 	// 죄수
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<class AActor> PrisonerFactory;
 	UPROPERTY()
-	class APrisoner* TargetEnemy;
+	class AActor* TargetActor;
 
 	// 방향
 	FVector Direction;
@@ -96,7 +104,13 @@ public:
 	float AttackRange = 1000;
 	int32 AttackMaxSpeed = 3000;
 	int32 DefaultMaxSpeed;
-	int32 ComboCount = 0;
+	int32 AnimComboCount = 0;
+
+	// 보스 공격
+	UPROPERTY(EditDefaultsOnly)
+	int32 MaxBossAttackComboCount = 12;
+	int32 AttackComboCount = 0;
+	
 
 	// 회피
 	UPROPERTY(EditDefaultsOnly)
@@ -125,6 +139,7 @@ private:
 	void OnActionLook(const FInputActionValue& Value);
 	void OnActionDodge(const FInputActionValue& Value);
 	void OnActionAttack(const FInputActionValue& Value);
+	void OnActionBossAttack(const FInputActionValue& Value);
 
 	// Move
 	void MoveToTarget(AActor* Target);
@@ -135,10 +150,13 @@ private:
 
 	// Animation
 	void OnPlayAttackAnimation();
+	void OnPlayBossAttack();
 
 	void SetGlobalTimeDilation(float Value);
 
 	bool bIsSlow;
+
+	void SetAttackComboCount(float Value);
 public:
 	void ResetCombo();
 	void OnDamageProcess(AActor* OtherActor, int32 Damage);
