@@ -195,7 +195,7 @@ void ABaseWheeledVehiclePawn::LockOn(const FInputActionValue& Value)
 	FHitResult HitResult;
 	FVector Start = GetActorLocation() + FVector(700.f, 0.f, 200.f);
 	FVector End = Start + GetActorForwardVector() * 10000;
-	bool bHit = UKismetSystemLibrary::SphereTraceSingleForObjects(GetWorld(), Start, End, 400.f, TArray<TEnumAsByte<EObjectTypeQuery>>{UEngineTypes::ConvertToObjectType(ECC_Pawn)}, false, TArray<AActor*>{this}, EDrawDebugTrace::ForDuration, HitResult, true, FLinearColor::Red, FLinearColor::Green, 1.f);
+	bool bHit = UKismetSystemLibrary::SphereTraceSingleForObjects(GetWorld(), Start, End, 800.f, TArray<TEnumAsByte<EObjectTypeQuery>>{UEngineTypes::ConvertToObjectType(ECC_Pawn)}, false, TArray<AActor*>{this}, EDrawDebugTrace::ForDuration, HitResult, true, FLinearColor::Red, FLinearColor::Green, 1.f);
 
 	if(bHit)
 	{

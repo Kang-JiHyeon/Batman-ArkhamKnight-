@@ -40,6 +40,9 @@ class BATMAN_ARKHAMKNIGHT_API AMissile : public AActor
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "MissileSpeed", meta = (AllowPrivateAccess = "true"))
 	float AfterSpeed = 30000.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "MissileSpeed", meta = (AllowPrivateAccess = "true"))
+	float TurnDelay = .5f;
 	
 public:	
 	// Sets default values for this actor's properties

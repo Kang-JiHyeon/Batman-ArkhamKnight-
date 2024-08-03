@@ -41,7 +41,7 @@ void AMissile::BeginPlay()
 		&AMissile::TurnToTarget,
 		.1f,
 		false,
-		1.f);
+		TurnDelay);
 }
 
 // Called every frame
