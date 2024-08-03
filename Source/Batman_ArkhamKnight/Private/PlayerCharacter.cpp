@@ -14,6 +14,7 @@
 #include "Prisoner.h"
 #include "PrisonerFSM.h"
 #include "TimerManager.h"
+#include "PlayerBossAttackSequence.h"
 
 
 // Sets default values
@@ -34,6 +35,9 @@ APlayerCharacter::APlayerCharacter()
 	// 회전 설정
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	bUseControllerRotationYaw = false;
+
+	// 레벨 시퀀스
+	LevelSequence = CreateDefaultSubobject<UPlayerBossAttackSequence>(TEXT("LevelSequence"));
 }
 
 // Called when the game starts or when spawned
@@ -250,19 +254,21 @@ void APlayerCharacter::OnActionBossAttack(const FInputActionValue& Value)
 	if (TargetBoss == nullptr)
 		return;
 
-	if (AttackComboCount >= MaxBossAttackComboCount)
-	{
-		// 보스를 향해 뛰어간다.
-		TargetActor = TargetBoss;
-	
-		bMovingToTarget = true;
-		GetCharacterMovement()->MaxWalkSpeed = AttackMaxSpeed;
+	//if (AttackComboCount >= MaxBossAttackComboCount)
+	//{
+	//	// 보스를 향해 뛰어간다.
+	//	TargetActor = TargetBoss;
+	//
+	//	//bMovingToTarget = true;
+	//	GetCharacterMovement()->MaxWalkSpeed = AttackMaxSpeed;
 
-		//PlayAnimMontage(BossAttackMontage);
+	//	//PlayAnimMontage(BossAttackMontage);
 
-		UE_LOG(LogTemp, Warning, TEXT("Boss Attack!!"));
-		AttackComboCount = 0;
-	}
+	//	UE_LOG(LogTemp, Warning, TEXT("Boss Attack!!"));
+	//	AttackComboCount = 0;
+	//}
+
+	LevelSequence->PlaySequence();
 }
 
 void APlayerCharacter::MoveToTarget(AActor* Target)
@@ -521,4 +527,6 @@ void APlayerCharacter::OnMeshBeginOverlap(UPrimitiveComponent* OverlappedCompone
 	}
 
 	SetMeshCollisionEnabled(false);
+
+
 }

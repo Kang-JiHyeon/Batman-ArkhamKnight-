@@ -82,13 +82,14 @@ public:
 	class UAnimMontage* BossAttackMontage;
 
 	// 보스
-	UPROPERTY()
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
 	class ABoss* TargetBoss;
 	
 	// 죄수
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<class AActor> PrisonerFactory;
-	UPROPERTY()
+
+	UPROPERTY(VisibleDefaultsOnly)
 	class AActor* TargetActor;
 
 	// 방향
@@ -131,6 +132,10 @@ public:
 
 	// TimerHandler
 	FTimerHandle DamageTimerHandler;
+
+	// Level Sequence
+	UPROPERTY(EditDefaultsOnly)
+	class UPlayerBossAttackSequence* LevelSequence;
 
 private:
 	// Input
