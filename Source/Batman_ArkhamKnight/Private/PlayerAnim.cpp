@@ -5,12 +5,20 @@
 #include "PlayerCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
+void UPlayerAnim::NativeInitializeAnimation()
+{
+    Super::NativeInitializeAnimation();
+
+    auto ownerPawn = TryGetPawnOwner();
+    Player = Cast<APlayerCharacter>(ownerPawn);
+}
+
 void UPlayerAnim::NativeUpdateAnimation(float DeltaTime)
 {
     Super::NativeUpdateAnimation(DeltaTime);
 
-    auto ownerPawn = TryGetPawnOwner();
-    Player = Cast<APlayerCharacter>(ownerPawn);
+    //auto ownerPawn = TryGetPawnOwner();
+    //Player = Cast<APlayerCharacter>(ownerPawn);
 
     if (Player != nullptr)
     {
@@ -20,6 +28,8 @@ void UPlayerAnim::NativeUpdateAnimation(float DeltaTime)
 
         auto movement = Player->GetCharacterMovement();
         bDodge = movement->IsFalling();
+
+        //UE_LOG(LogTemp, Warning, TEXT("bDodge : %d"), bDodge);
     }
 }
 
