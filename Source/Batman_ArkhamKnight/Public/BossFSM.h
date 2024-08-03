@@ -17,7 +17,6 @@ enum class EBossState :uint8
 	DoubleLeftAttack,
 	Damage,
 	Die,
-	SavePrisoner,
 	FastMove,
 
 };
@@ -59,8 +58,6 @@ public:
 	void DamageState();
 	// 죽음상태
 	void DieState();
-	// 죄수줍기상태
-	void SavePrisonerState();
 	// 기어가기 상태
 	void FastMoveState();
 
@@ -97,14 +94,11 @@ public:
 	float fastDelayTime =2;
 
 	UPROPERTY(EditAnywhere,Category= BFSM)
-	float fastRange = 100.0f;
+	float fastRange =  50.0f;
 
 	// animation
 	UPROPERTY()
 	class UBossAnim* anim;
-
-	// damage
-	void OnDamageProcess();
 
 	UPROPERTY(EditAnywhere,Category= BFSM)
 	float damageDelayTime = 2;
@@ -113,6 +107,17 @@ public:
 	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite,Category= BFSM)
 	int32 BossHp = 10;
 
+	// fast move중에 player와 mesh가 overlap되면 일어서기
+	UFUNCTION(BlueprintCallable)
+	void OnMeshBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
+	// damage and die
+	void OnMyTakeDamage(int32 damage);
+
+	// hp
+	UPROPERTY(EditAnywhere)
+	int32 MaxHP=10;
+	int32 HP;
 		
+	
 };

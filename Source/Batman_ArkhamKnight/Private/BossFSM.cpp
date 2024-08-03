@@ -10,6 +10,7 @@
 #include "EnemyPlayer.h"
 #include "Prisoner.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values for this component's properties
 UBossFSM::UBossFSM()
@@ -32,6 +33,12 @@ void UBossFSM::BeginPlay()
 
 	// animation
 	anim = Cast<UBossAnim>(me->GetMesh()->GetAnimInstance());
+
+	// fast move
+	me->GetMesh()->OnComponentBeginOverlap.AddDynamic(this, &UBossFSM::OnMeshBeginOverlap);
+
+	// hp	
+	HP = MaxHP;
 }
 
 
@@ -65,9 +72,6 @@ void UBossFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 		break;
 	case EBossState::Die:
 		DieState();
-		break;
-	case EBossState::SavePrisoner:
-		SavePrisonerState();
 		break;
 	case EBossState::FastMove:
 		FastMoveState();
@@ -118,7 +122,7 @@ void UBossFSM::MoveState() // boss move to player or idle
 			if (dir.Size() < attackRange)
 			{
 				int32 attackstatevalue = FMath::RandRange(0, 4);
-				if (attackstatevalue == 0)
+				if (attackstatevalue < 1)
 				{
 					if (FMath::RandBool()) {
 						mState = EBossState::DoubleRightAttack;
@@ -129,7 +133,7 @@ void UBossFSM::MoveState() // boss move to player or idle
 						anim->BanimState = mState;
 					}
 				}
-				if (attackstatevalue == 1 || attackstatevalue == 2)
+				else if (attackstatevalue == 1 || attackstatevalue == 2)
 				{
 					anim->bAttackPlay = true;
 					mState = EBossState::LeftAttack;
@@ -164,9 +168,9 @@ void UBossFSM::RightAttackState() // smash
 
 	if (currentTime > attackDelayTime)
 	{
-		currentTime = 0;
 		mState = EBossState::Move;
 		anim->BanimState = mState;
+		currentTime = 0;
 	}
 }
 
@@ -179,9 +183,9 @@ void UBossFSM::LeftAttackState() // smash
 	anim->bAttackPlay = true;
 	if (currentTime > attackDelayTime)
 	{
-		currentTime = 0;
 		mState = EBossState::Move;
 		anim->BanimState = mState;
+		currentTime = 0;
 	}
 	
 }
@@ -220,11 +224,28 @@ void UBossFSM::DoubleLeftAttackState() // double smash
 
 void UBossFSM::DamageState()
 {
+	FVector dir = me->GetActorLocation() - Ptarget->GetActorLocation();
+	float dis = dir.Size();
+	dir.Normalize();
+
+
+	if (dis < 120) {
+		me->GetCharacterMovement()->Velocity = dir * 2000;
+	}
+
 	currentTime += GetWorld()->GetDeltaSeconds();
 	if (currentTime > damageDelayTime)
 	{
-		mState = EBossState::Idle;
-		anim->BanimState = mState;
+		if (HP < 0)
+		{
+			mState = EBossState::Die;
+			anim->BanimState = mState;
+		}
+		else
+		{
+			mState = EBossState::Move;
+			anim->BanimState = mState;
+		}
 		currentTime = 0;
 	}
 }
@@ -233,12 +254,6 @@ void UBossFSM::DieState()
 {
 	me->Destroy();
 }
-
-void UBossFSM::SavePrisonerState()
-{
-
-}
-
 
 
 
@@ -260,27 +275,42 @@ void UBossFSM::FastMoveState()
 		anim->BanimState = mState;
 		currentTime = 0;
 	}
-	if (distance < fastRange) {
-	
-		mState = EBossState::Move;
-		anim->BanimState = mState;
-	}
 }
 
+void UBossFSM::OnMyTakeDamage(int32 damage)
 
-void UBossFSM::OnDamageProcess()
 {
-	// according to attack, hp change
-
-	BossHp--;
-
-	if (BossHp > 0)
+	if (mState == EBossState::Die)
+	{
+		return;
+	}
+	HP -= damage;
+	if (HP > 0)
 	{
 		mState = EBossState::Damage;
+		anim->BanimState = mState;
 	}
 	else
 	{
 		mState = EBossState::Die;
+		anim->BanimState = mState;
+	}
+
+}
+
+void UBossFSM::OnMeshBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	// fastmove상태에서 mesh가 overlap되면 player를 밀고 다시 move상태로 돌아온다.
+	auto* player = Cast<APlayerCharacter>(OtherActor);
+	if (mState == EBossState::FastMove)
+	{
+
+		if (player != nullptr)
+		{
+			// player가 밀리는 함수 추가
+			mState = EBossState::Move;
+			anim->BanimState = mState;
+		}
 	}
 }
 
