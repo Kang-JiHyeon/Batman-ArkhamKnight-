@@ -236,9 +236,6 @@ void APlayerCharacter::OnActionAttack(const FInputActionValue& Value)
 
 		// 최대 스피드 증가
 		GetCharacterMovement()->MaxWalkSpeed = AttackMaxSpeed;
-
-		// 매쉬 콜리전 활성화
-		SetMeshCollisionEnabled(true);
 	}
 	// 공격할 수 있는 대상이 없다면, 앞방향으로 일정거리만큼 이동
 	else
@@ -280,7 +277,7 @@ void APlayerCharacter::MoveToTarget(AActor* Target)
 	PlayerAnim->SetRun(true);
 	
 	// 목표 지점에 도달했는지 확인
-	if (dir.Size() < 100)
+	if (dir.Size() < 80)
 	{
 		PlayerAnim->SetRun(false);
 
@@ -299,6 +296,8 @@ void APlayerCharacter::MoveToTarget(AActor* Target)
 		{
 			// 애니메이션 실행
 			OnPlayAttackAnimation();
+			// 매쉬 콜리전 활성화
+			SetMeshCollisionEnabled(true);
 		}
 
 		// 최대 스피드 복구
