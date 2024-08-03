@@ -17,8 +17,8 @@ enum class EBossState :uint8
 	DoubleLeftAttack,
 	Damage,
 	Die,
-	SavePrisoner,
-	FastMove,
+	Crawl,
+	Yell,
 
 };
 
@@ -59,10 +59,10 @@ public:
 	void DamageState();
 	// 죽음상태
 	void DieState();
-	// 죄수줍기상태
-	void SavePrisonerState();
+	// 소리지르기 상태
+	void YellState();
 	// 기어가기 상태
-	void FastMoveState();
+	void CrawlState();
 
 	// 대기시간
 	UPROPERTY(EditAnywhere,Category= BFSM)
@@ -86,7 +86,7 @@ public:
 	float attackRange = 250.f;
 
 	UPROPERTY(EditAnywhere)
-	float attackDelayTime = 1.5f;
+	float attackDelayTime = 1.0f;
 
 	// move or idle
 	UPROPERTY(EditAnywhere,Category= BFSM)
@@ -97,14 +97,11 @@ public:
 	float fastDelayTime =2;
 
 	UPROPERTY(EditAnywhere,Category= BFSM)
-	float fastRange = 100.0f;
+	float fastRange =  50.0f;
 
 	// animation
 	UPROPERTY()
 	class UBossAnim* anim;
-
-	// damage
-	void OnDamageProcess();
 
 	UPROPERTY(EditAnywhere,Category= BFSM)
 	float damageDelayTime = 2;
@@ -113,6 +110,21 @@ public:
 	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite,Category= BFSM)
 	int32 BossHp = 10;
 
+	// fast move중에 player와 mesh가 overlap되면 일어서기
+	UFUNCTION(BlueprintCallable)
+	void OnMeshBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
+	// damage and die
+	void OnMyTakeDamage(int32 damage);
+
+	// hp
+	UPROPERTY(EditAnywhere)
+	int32 MaxHP=10;
+	int32 HP;
+
+	// crawl camera
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<class UCameraShakeBase> CrawlCameraShake;
 		
+	
 };
