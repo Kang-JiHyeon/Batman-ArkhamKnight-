@@ -17,7 +17,8 @@ enum class EBossState :uint8
 	DoubleLeftAttack,
 	Damage,
 	Die,
-	FastMove,
+	Crawl,
+	Yell,
 
 };
 
@@ -58,8 +59,10 @@ public:
 	void DamageState();
 	// 죽음상태
 	void DieState();
+	// 소리지르기 상태
+	void YellState();
 	// 기어가기 상태
-	void FastMoveState();
+	void CrawlState();
 
 	// 대기시간
 	UPROPERTY(EditAnywhere,Category= BFSM)
@@ -83,7 +86,7 @@ public:
 	float attackRange = 250.f;
 
 	UPROPERTY(EditAnywhere)
-	float attackDelayTime = 1.5f;
+	float attackDelayTime = 1.0f;
 
 	// move or idle
 	UPROPERTY(EditAnywhere,Category= BFSM)
@@ -118,6 +121,10 @@ public:
 	UPROPERTY(EditAnywhere)
 	int32 MaxHP=10;
 	int32 HP;
+
+	// crawl camera
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<class UCameraShakeBase> CrawlCameraShake;
 		
 	
 };

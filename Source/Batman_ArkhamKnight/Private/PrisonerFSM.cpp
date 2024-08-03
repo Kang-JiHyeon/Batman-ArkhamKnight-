@@ -354,7 +354,7 @@ void UPrisonerFSM::OnMeshBeginOverlap(UPrimitiveComponent* OverlappedComponent, 
 		Ptarget->OnDamageProcess(me, 1);
 
 		SetCollision(false);
-		SetState(EPrisonerState::BackMove); // 공격이 끝난 후의 back move 상태 (
+		SetState(EPrisonerState::BackMove); // 공격이 끝난 후의 back move 상태 
 		anim->PanimState = mState;
 	}
 }

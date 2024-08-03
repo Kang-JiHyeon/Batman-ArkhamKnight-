@@ -73,8 +73,11 @@ void UBossFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	case EBossState::Die:
 		DieState();
 		break;
-	case EBossState::FastMove:
-		FastMoveState();
+	case EBossState::Crawl:
+		CrawlState();
+		break;
+	case EBossState::Yell:
+		YellState();
 		break;
 	}
 	
@@ -115,7 +118,7 @@ void UBossFSM::MoveState() // boss move to player or idle
 		else if (statevalue > 0 && statevalue <3)
 		{
 			direction = Ptarget->GetActorLocation() - me->GetActorLocation();
-			mState = EBossState::FastMove;
+			mState = EBossState::Yell;
 		}
 		else {
 
@@ -198,7 +201,7 @@ void UBossFSM::DoubleRightAttackState() // double smash
 	float distance = FVector::Distance(Ptarget->GetActorLocation(), me->GetActorLocation());
 
 	// double attack 2 type
-	if (currentTime > attackDelayTime)
+	if (currentTime > 2)
 	{
 		currentTime = 0;
 		mState = EBossState::Move;
@@ -214,7 +217,7 @@ void UBossFSM::DoubleLeftAttackState() // double smash
 	float distance = FVector::Distance(Ptarget->GetActorLocation(), me->GetActorLocation());
 
 	// double attack 2 type
-	if (currentTime > attackDelayTime)
+	if (currentTime > 2)
 	{
 		currentTime = 0;
 		mState = EBossState::Move;
@@ -255,15 +258,28 @@ void UBossFSM::DieState()
 	me->Destroy();
 }
 
+void UBossFSM::YellState()
+{
+	currentTime += GetWorld()->GetDeltaSeconds();
+	if (currentTime > 1.4)
+	{
+		mState = EBossState::Crawl;
+		anim->BanimState = mState;
+		currentTime = 0;
+	}
+}
 
 
-void UBossFSM::FastMoveState()
+
+void UBossFSM::CrawlState()
 {
 // player first position remember and go to there
 // if player is there in boss root -> damage
-
-	
-
+	check(CrawlCameraShake);
+	if (CrawlCameraShake)
+	{
+		GetWorld()->GetFirstPlayerController()->PlayerCameraManager->StartCameraShake(CrawlCameraShake);
+	}
 	me->AddMovementInput(direction.GetSafeNormal(), 1.0f);
 	float distance = FVector::Distance(Ptarget->GetActorLocation(), me->GetActorLocation());
 
@@ -302,7 +318,7 @@ void UBossFSM::OnMeshBeginOverlap(UPrimitiveComponent* OverlappedComponent, AAct
 {
 	// fastmove상태에서 mesh가 overlap되면 player를 밀고 다시 move상태로 돌아온다.
 	auto* player = Cast<APlayerCharacter>(OtherActor);
-	if (mState == EBossState::FastMove)
+	if (mState == EBossState::Crawl)
 	{
 
 		if (player != nullptr)
