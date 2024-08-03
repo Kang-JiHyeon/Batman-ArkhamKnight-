@@ -88,7 +88,7 @@ public:
 	float attackDelayTime = 1;
 
 	UPROPERTY(EditAnywhere,Category= PFSM)
-	float attackDistance = 50.0f;
+	float attackDistance = 100.0f;
 
 	// damage
 	void OnMyTakeDamage(int32 damage);

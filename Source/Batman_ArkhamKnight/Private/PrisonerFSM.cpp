@@ -143,16 +143,16 @@ void UPrisonerFSM::MoveState(float& DeltaSeconds){
 	if (currentTime > moveDelayTime)
 	{
 		int32 value = FMath::RandRange(1, 100);
-		if (value<90)
+		if (value<95)
 		{
 			SetState(EPrisonerState::Move);
 			anim->PanimState = mState;
 		}
 		else
 		{
-			if (dir.Size() < 600)
+			if (dir.Size() < 130)
 			{
-				SetState(EPrisonerState::Move);
+				SetState(EPrisonerState::BackMove);
 				anim->PanimState = mState;
 			}
 			else
@@ -231,10 +231,10 @@ void UPrisonerFSM::RightAttackState(float& DeltaSeconds)
 		float dist = me->GetDistanceTo(Ptarget);
 		if (dist < attackDistance)
 		{
+			SetState(EPrisonerState::Move);
 			anim->PanimState = mState;
 		}
 	}
-
 }
 
 void UPrisonerFSM::LeftAttackState(float& DeltaSeconds)
@@ -248,10 +248,10 @@ void UPrisonerFSM::LeftAttackState(float& DeltaSeconds)
 		float dist = me->GetDistanceTo(Ptarget);
 		if (dist < attackDistance)
 		{
+			SetState(EPrisonerState::Move);
 			anim->PanimState = mState;
 		}
 	}
-
 }
 
 void UPrisonerFSM::DamageState(float& DeltaSeconds)
@@ -293,13 +293,14 @@ void UPrisonerFSM::DamageState(float& DeltaSeconds)
 void UPrisonerFSM::FaintState(float& DeltaSeconds)
 {
 
+	SetCollision(false);
 	currentTime += DeltaSeconds;
 	if (currentTime > FaintDelayTime)
 	{
+
 		SetState(EPrisonerState::Move);
 		anim->PanimState = mState;
 	}
-	SetCollision(false);
 }
 
 
@@ -351,8 +352,8 @@ void UPrisonerFSM::OnMeshBeginOverlap(UPrimitiveComponent* OverlappedComponent, 
 
 	if (player != nullptr)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Overlap with Player detected!"));
 		Ptarget->OnDamageProcess(me, 1);
-
 		SetCollision(false);
 		SetState(EPrisonerState::BackMove); // 공격이 끝난 후의 back move 상태 
 		anim->PanimState = mState;

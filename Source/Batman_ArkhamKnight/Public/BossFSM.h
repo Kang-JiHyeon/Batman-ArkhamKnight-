@@ -126,5 +126,6 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<class UCameraShakeBase> CrawlCameraShake;
 		
-	
+
+	void SetCollision(bool bvalue);
 };

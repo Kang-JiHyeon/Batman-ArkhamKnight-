@@ -308,6 +308,7 @@ void UBossFSM::OnMyTakeDamage(int32 damage)
 	}
 	else
 	{
+		SetCollision(false);
 		mState = EBossState::Die;
 		anim->BanimState = mState;
 	}
@@ -330,3 +331,18 @@ void UBossFSM::OnMeshBeginOverlap(UPrimitiveComponent* OverlappedComponent, AAct
 	}
 }
 
+void UBossFSM::SetCollision(bool bvalue)
+{
+	if (bvalue)
+	{
+		// collision을 켜야함
+		// 펀치가 먹는 상태
+		// 그러나 일반상태에서도 다가가면 튕김
+		me->GetMesh()->SetCollisionProfileName(TEXT("Boss"));
+	}
+	else {
+		// collision을 꺼야함
+		// 끈다는 것은 기절 또는 죽음 상태가 되어 collision이 먹지 않는 상태
+		me->GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+}
