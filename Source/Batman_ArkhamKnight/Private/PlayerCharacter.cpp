@@ -199,6 +199,9 @@ void APlayerCharacter::OnActionAttack(const FInputActionValue& Value)
 		return;
 	}
 
+	bIsSlow = false;
+
+
 	TArray<AActor*> targetActors;
 	float minDistance = AttackRange;
 
@@ -505,7 +508,7 @@ void APlayerCharacter::OnMeshBeginOverlap(UPrimitiveComponent* OverlappedCompone
 		auto* prisonerFSM = prisoner->GetComponentByClass<UPrisonerFSM>();
 		if (prisonerFSM != nullptr)
 		{
-			bIsSlow = prisonerFSM->isAttack();
+			bIsSlow = prisonerFSM->IsAttack();
 
 			// 공격 콤보 증가
 			SetAttackComboCount(AttackComboCount + 1);
