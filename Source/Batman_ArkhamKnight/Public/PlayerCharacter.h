@@ -90,7 +90,9 @@ public:
 	TSubclassOf<class AActor> PrisonerFactory;
 
 	UPROPERTY(VisibleDefaultsOnly)
-	class AActor* TargetActor;
+	class APrisoner* TargetPrisoner;
+	UPROPERTY()
+	class APrisoner* OverlapPrisoner;
 
 	// πÊ«‚
 	FVector Direction;
@@ -135,7 +137,11 @@ public:
 
 	// Level Sequence
 	UPROPERTY(EditDefaultsOnly)
-	class UPlayerBossAttackSequence* LevelSequence;
+	class UPlayerBossAttackSequence* LevelSequenceComp;
+
+	// Motion Warping
+	UPROPERTY(EditDefaultsOnly)
+	class UMotionWarpingComponent* MotionWarpingComp;
 
 private:
 	// Input
@@ -154,15 +160,14 @@ private:
 	EEnemyDirection GetTargetHorizontalDirection(AActor* TargetActor);
 
 	// Animation
-	void OnPlayAttackAnimation();
-	void OnPlayBossAttack();
+	void PlayAttackAnimation();
+	void PlayBossAttack();
 
 	void SetGlobalTimeDilation(float Value);
-
-	bool bIsSlow;
-
 	void SetAttackComboCount(float Value);
 public:
+	bool bIsSlow;
+
 	void ResetCombo();
 	void OnDamageProcess(AActor* OtherActor, int32 Damage);
 	void OnEndDamage();
@@ -170,6 +175,5 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void OnMeshBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-	void SetGlobalTimeDilation();
-	void SetGlobalTimeDilation(bool bSlow);
+
 };

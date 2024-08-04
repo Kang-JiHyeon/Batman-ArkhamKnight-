@@ -4,6 +4,7 @@
 #include "PlayerAnim.h"
 #include "PlayerCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 void UPlayerAnim::NativeInitializeAnimation()
 {
@@ -46,7 +47,7 @@ void UPlayerAnim::SetDodge(bool bValue)
 
 void UPlayerAnim::OnResetCombo()
 {
-    Player->ResetCombo();
+    //Player->ResetCombo();
 }
 
 
@@ -60,14 +61,17 @@ void UPlayerAnim::OnEndDamageAnimation()
     Player->OnEndDamage();
 }
 
-void APlayerCharacter::SetGlobalTimeDilation(bool bSlow)
+void UPlayerAnim::OnStartSlowMotion()
 {
-    //bIsSlow != bIsSlow;
+    if(Player->bIsSlow == false) return;
 
-    float dilation = bSlow ? 0.5f : 1;
-    GetWorldSettings()->SetTimeDilation(dilation);
+    UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 0.1f);
 
-    //GetWorld()->GetTimerManager().SetTimer(DamageTimerHandler, [this]() {
-    //    GetWorldSettings()->SetTimeDilation(1);
-    //    }, 1, false);
+}
+
+void UPlayerAnim::OnEndSlowMotion()
+{
+
+
+    UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1);
 }

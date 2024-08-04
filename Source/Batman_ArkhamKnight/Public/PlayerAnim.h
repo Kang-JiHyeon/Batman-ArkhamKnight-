@@ -48,4 +48,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void OnEndDamageAnimation();
+	UFUNCTION(BlueprintCallable)
+	void OnStartSlowMotion();
+	UFUNCTION(BlueprintCallable)
+	void OnEndSlowMotion();
+
 };
