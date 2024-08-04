@@ -136,8 +136,10 @@ public:
 	FTimerHandle DamageTimerHandler;
 
 	// Level Sequence
-	UPROPERTY(EditDefaultsOnly)
-	class UPlayerBossAttackSequence* LevelSequenceComp;
+	//UPROPERTY(EditDefaultsOnly)
+	//class UPlayerBossAttackSequence* LevelSequenceComp;
+
+	class APlayerGameModeBase* MyGameModeBase;
 
 	// Motion Warping
 	UPROPERTY(EditDefaultsOnly)

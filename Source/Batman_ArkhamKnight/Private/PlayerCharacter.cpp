@@ -15,9 +15,8 @@
 #include "Prisoner.h"
 #include "PrisonerFSM.h"
 #include "TimerManager.h"
-#include "PlayerBossAttackSequence.h"
 #include "../../../../Plugins/Animation/MotionWarping/Source/MotionWarping/Public/MotionWarpingComponent.h"
-
+#include "PlayerGameModeBase.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -39,9 +38,7 @@ APlayerCharacter::APlayerCharacter()
 	bUseControllerRotationYaw = false;
 
 	// 레벨 시퀀스
-	LevelSequenceComp = CreateDefaultSubobject<UPlayerBossAttackSequence>(TEXT("LevelSequenceComp"));
 	MotionWarpingComp = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComp"));
-
 }
 
 // Called when the game starts or when spawned
@@ -64,7 +61,9 @@ void APlayerCharacter::BeginPlay()
 			subSys->AddMappingContext(IMP_Player, 0);
 		}
 	}
-	
+	// GameModeBase
+	MyGameModeBase = Cast<APlayerGameModeBase>(GetWorld()->GetAuthGameMode());
+
 	// 애니메이션
 	PlayerAnim = Cast<UPlayerAnim>(GetMesh()->GetAnimInstance());
 
@@ -277,7 +276,7 @@ void APlayerCharacter::OnActionBossAttack(const FInputActionValue& Value)
 	// 몽타주 재생
 	PlayAnimMontage(BossAttackMontage);
 	// 시퀀스 재생
-	LevelSequenceComp->PlaySequence();
+	MyGameModeBase->PlaySequence();
 	// 보스 피격
 	TargetBoss->fsm->OnMyTakeDamage(5);
 	// 공격 콤보 초기화
@@ -304,7 +303,6 @@ void APlayerCharacter::MoveToTarget(AActor* Target)
 
 		bMovingToTarget = false;
 		bRotatingToTarget = true;
-
 		
 		// 매쉬 콜리전 활성화
 		SetMeshCollisionEnabled(true);
@@ -404,16 +402,6 @@ void APlayerCharacter::PlayAttackAnimation()
 		OverlapPrisoner->fsm->OnMyTakeDamage(1);
 		OverlapPrisoner = nullptr;
 	}
-	//SetGlobalTimeDilation(0.2f);
-}
-
-void APlayerCharacter::SetGlobalTimeDilation(float Value)
-{
-	GetWorldSettings()->SetTimeDilation(Value);
-
-    //GetWorld()->GetTimerManager().SetTimer(DamageTimerHandler, [this]() {
-    //    GetWorldSettings()->SetTimeDilation(1);
-    //    }, 1, false);
 }
 
 void APlayerCharacter::OnDamageProcess(AActor* OtherActor, int32 Damage)
@@ -480,8 +468,6 @@ void APlayerCharacter::SetAttackComboCount(float Value)
 	//GEngine->AddOnScreenDebugMessage(1, 1, FColor::Red, );
 }
 
-
-
 void APlayerCharacter::ResetCombo()
 {
 	SetMeshCollisionEnabled(false);
@@ -520,8 +506,6 @@ void APlayerCharacter::OnMeshBeginOverlap(UPrimitiveComponent* OverlappedCompone
 
 			//prisonerFSM->OnMyTakeDamage(1);
 
-			//SetGlobalTimeDilation(1);
-			// 
 			// 공격 콤보 증가
 			SetAttackComboCount(AttackComboCount + 1);
 
