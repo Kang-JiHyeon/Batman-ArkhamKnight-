@@ -86,7 +86,7 @@ public:
 	float attackRange = 250.f;
 
 	UPROPERTY(EditAnywhere)
-	float attackDelayTime = 1.0f;
+	float attackDelayTime = 1.5f;
 
 	// move or idle
 	UPROPERTY(EditAnywhere,Category= BFSM)
