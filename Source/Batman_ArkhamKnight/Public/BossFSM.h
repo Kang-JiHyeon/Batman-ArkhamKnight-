@@ -104,7 +104,7 @@ public:
 	class UBossAnim* anim;
 
 	UPROPERTY(EditAnywhere,Category= BFSM)
-	float damageDelayTime = 2;
+	float damageDelayTime = 0.5f;
 
 	// hp
 	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite,Category= BFSM)

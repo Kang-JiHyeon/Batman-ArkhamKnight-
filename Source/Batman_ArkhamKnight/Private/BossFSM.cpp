@@ -112,13 +112,12 @@ void UBossFSM::MoveState() // boss move to player or idle
 		int32 statevalue = FMath::RandRange(0, 9);
 		if (statevalue == 0)
 		{
-			mState = EBossState::Move;
-
-		}
-		else if (statevalue > 0 && statevalue <3)
-		{
 			direction = Ptarget->GetActorLocation() - me->GetActorLocation();
 			mState = EBossState::Yell;
+		}
+		else if (statevalue > 0 && statevalue <9)
+		{
+			mState = EBossState::Move;
 		}
 		else {
 
@@ -174,6 +173,7 @@ void UBossFSM::RightAttackState() // smash
 		mState = EBossState::Move;
 		anim->BanimState = mState;
 		currentTime = 0;
+		anim->bAttackPlay = false;
 	}
 }
 
@@ -189,6 +189,7 @@ void UBossFSM::LeftAttackState() // smash
 		mState = EBossState::Move;
 		anim->BanimState = mState;
 		currentTime = 0;
+		anim->bAttackPlay = false;
 	}
 	
 }
@@ -227,28 +228,13 @@ void UBossFSM::DoubleLeftAttackState() // double smash
 
 void UBossFSM::DamageState()
 {
-	FVector dir = me->GetActorLocation() - Ptarget->GetActorLocation();
-	float dis = dir.Size();
-	dir.Normalize();
-
-
-	if (dis < 120) {
-		me->GetCharacterMovement()->Velocity = dir * 2000;
-	}
-
+	currentTime = 0;
 	currentTime += GetWorld()->GetDeltaSeconds();
+
 	if (currentTime > damageDelayTime)
 	{
-		if (HP < 0)
-		{
-			mState = EBossState::Die;
-			anim->BanimState = mState;
-		}
-		else
-		{
-			mState = EBossState::Move;
-			anim->BanimState = mState;
-		}
+		mState = EBossState::Move;
+		anim->BanimState = mState;
 		currentTime = 0;
 	}
 }
@@ -305,6 +291,7 @@ void UBossFSM::OnMyTakeDamage(int32 damage)
 	{
 		mState = EBossState::Damage;
 		anim->BanimState = mState;
+
 	}
 	else
 	{
@@ -325,6 +312,7 @@ void UBossFSM::OnMeshBeginOverlap(UPrimitiveComponent* OverlappedComponent, AAct
 		if (player != nullptr)
 		{
 			// player가 밀리는 함수 추가
+			Ptarget->OnDamageProcess(me, 3);
 			mState = EBossState::Move;
 			anim->BanimState = mState;
 		}

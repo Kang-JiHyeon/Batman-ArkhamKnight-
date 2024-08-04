@@ -119,16 +119,9 @@ void UPrisonerFSM::IdleState(float& DeltaSeconds)
 	if (currentTime > idleDelayTime)
 	{
 
-		if (FMath::RandBool())
-		{
-			SetState(EPrisonerState::Move);
-			anim->PanimState = mState;
-		}
-		else
-		{
-			SetState(EPrisonerState::BackMove);
-			anim->PanimState = mState;
-		}
+		SetState(EPrisonerState::BackMove);
+		anim->PanimState = mState;
+		
 	}
 }
 
@@ -175,7 +168,7 @@ void UPrisonerFSM::RunState(float& DeltaSeconds)
 
 	currentTime += DeltaSeconds;
 	if (currentTime < 5 ) { // 최대 5초내에 player의 근처에 오기 때문에 5초로 설정
-		if (dist < 100) {
+		if (dist < 100 ) {
 			// 오른쪽 공격과 왼쪽 공격을 랜덤하게 나오게 하고 싶다.
 			if (FMath::RandBool()) {
 				SetCollision(true);
@@ -215,8 +208,16 @@ void UPrisonerFSM::BackMoveState(float& DeltaSeconds)
 	currentTime += DeltaSeconds;
 	if (currentTime > backmoveDelayTime)
 	{
-		SetState(EPrisonerState::Move);
-		anim->PanimState = mState;
+		if (FMath::RandBool())
+		{
+			SetState(EPrisonerState::Move);
+			anim->PanimState = mState;
+		}
+		else
+		{
+			SetState(EPrisonerState::Idle);
+			anim->PanimState = mState;
+		}
 	}
 }
 
@@ -231,7 +232,7 @@ void UPrisonerFSM::RightAttackState(float& DeltaSeconds)
 		float dist = me->GetDistanceTo(Ptarget);
 		if (dist < attackDistance)
 		{
-			SetState(EPrisonerState::Move);
+			SetState(EPrisonerState::BackMove);
 			anim->PanimState = mState;
 		}
 	}
@@ -248,7 +249,7 @@ void UPrisonerFSM::LeftAttackState(float& DeltaSeconds)
 		float dist = me->GetDistanceTo(Ptarget);
 		if (dist < attackDistance)
 		{
-			SetState(EPrisonerState::Move);
+			SetState(EPrisonerState::BackMove);
 			anim->PanimState = mState;
 		}
 	}
@@ -357,5 +358,17 @@ void UPrisonerFSM::OnMeshBeginOverlap(UPrimitiveComponent* OverlappedComponent, 
 		SetCollision(false);
 		SetState(EPrisonerState::BackMove); // 공격이 끝난 후의 back move 상태 
 		anim->PanimState = mState;
+	}
+}
+
+bool UPrisonerFSM::isAttack()
+{
+	if (mState == EPrisonerState::LeftAttack || mState == EPrisonerState::RightAttack || mState == EPrisonerState::Run)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
 	}
 }
