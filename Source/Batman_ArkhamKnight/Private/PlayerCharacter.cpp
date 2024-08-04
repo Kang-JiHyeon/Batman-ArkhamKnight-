@@ -276,13 +276,14 @@ void APlayerCharacter::OnActionBossAttack(const FInputActionValue& Value)
 	// 몽타주 재생
 	PlayAnimMontage(BossAttackMontage);
 	// 시퀀스 재생
+	// 매시 콜리전 활성화
+	SetMeshCollisionEnabled(true);
+
 	MyGameModeBase->PlaySequence();
 	//// 보스 피격
 	//TargetBoss->fsm->OnMyTakeDamage(5);
 	// 공격 콤보 초기화
 	SetAttackComboCount(0);
-	// 매시 콜리전 활성화
-	SetMeshCollisionEnabled(true);
 
 	PlayerAnim->SetIgnoreAttack(false);
 }
@@ -499,7 +500,7 @@ void APlayerCharacter::SetMeshCollisionEnabled(bool bValue)
 void APlayerCharacter::OnMeshBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	auto* prisoner = Cast<APrisoner>(OtherActor);
-	if (prisoner != nullptr || TargetPrisoner == prisoner)
+	if (prisoner != nullptr && TargetPrisoner == prisoner)
 	{
 		auto* prisonerFSM = prisoner->GetComponentByClass<UPrisonerFSM>();
 		if (prisonerFSM != nullptr)
@@ -518,11 +519,14 @@ void APlayerCharacter::OnMeshBeginOverlap(UPrimitiveComponent* OverlappedCompone
 			OverlapPrisoner = prisoner;
 		}
 	}
-
-	auto* boss = Cast<ABoss>(OtherActor);
-	if (boss != nullptr)
+	if (MyGameModeBase->IsPlayingSequence())
 	{
-		boss->fsm->OnMyTakeDamage(5);
+        auto* boss = Cast<ABoss>(OtherActor);
+        if (boss != nullptr)
+        {
+			UE_LOG(LogTemp, Warning, TEXT("Player->Boss Attack!!"));
+            boss->fsm->OnMyTakeDamage(5);
+        }
 	}
 
 	SetMeshCollisionEnabled(false);
