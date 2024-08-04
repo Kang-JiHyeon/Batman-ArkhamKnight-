@@ -505,13 +505,7 @@ void APlayerCharacter::OnMeshBeginOverlap(UPrimitiveComponent* OverlappedCompone
 		auto* prisonerFSM = prisoner->GetComponentByClass<UPrisonerFSM>();
 		if (prisonerFSM != nullptr)
 		{
-			bIsSlow = false;
-			// 적이 공격 중이였다면?
-			EPrisonerState prisonerState = prisonerFSM->mState;
-			if (prisonerState == EPrisonerState::Run || prisonerState == EPrisonerState::LeftAttack || prisonerState == EPrisonerState::RightAttack)
-			{
-				bIsSlow = true;
-			}
+			bIsSlow = prisonerFSM->isAttack();
 
 			// 공격 콤보 증가
 			SetAttackComboCount(AttackComboCount + 1);
