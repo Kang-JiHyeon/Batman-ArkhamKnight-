@@ -25,15 +25,19 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 private:
-    //// 레벨 시퀀스 애셋
-    //UPROPERTY(EditAnywhere, Category = "Camera")
-    //class ULevelSequence* CameraAttackSequence;
+    // 레벨 시퀀스 애셋
+    UPROPERTY(EditAnywhere, Category = "Camera")
+    class ULevelSequence* AttackSequence;
 
-    //// 레벨 시퀀스 플레이어
-    //UPROPERTY()
-    //class ULevelSequencePlayer* SequencePlayer;
+    // 레벨 시퀀스 플레이어
+    UPROPERTY()
+    class ULevelSequencePlayer* SequencePlayer;
 
-    //// 레벨 시퀀스 액터
-    //UPROPERTY()
-    //class ALevelSequenceActor* SequenceActor;
+    // 레벨 시퀀스 액터
+    UPROPERTY()
+    class ALevelSequenceActor* SequenceActor;
+
+
+public:
+    void PlaySequence();
 };

@@ -82,14 +82,17 @@ public:
 	class UAnimMontage* BossAttackMontage;
 
 	// 보스
-	UPROPERTY()
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
 	class ABoss* TargetBoss;
 	
 	// 죄수
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<class AActor> PrisonerFactory;
+
+	UPROPERTY(VisibleDefaultsOnly)
+	class APrisoner* TargetPrisoner;
 	UPROPERTY()
-	class AActor* TargetActor;
+	class APrisoner* OverlapPrisoner;
 
 	// 방향
 	FVector Direction;
@@ -132,6 +135,14 @@ public:
 	// TimerHandler
 	FTimerHandle DamageTimerHandler;
 
+	// Level Sequence
+	UPROPERTY(EditDefaultsOnly)
+	class UPlayerBossAttackSequence* LevelSequenceComp;
+
+	// Motion Warping
+	UPROPERTY(EditDefaultsOnly)
+	class UMotionWarpingComponent* MotionWarpingComp;
+
 private:
 	// Input
 	void OnActionMove(const FInputActionValue& Value);
@@ -149,15 +160,14 @@ private:
 	EEnemyDirection GetTargetHorizontalDirection(AActor* TargetActor);
 
 	// Animation
-	void OnPlayAttackAnimation();
-	void OnPlayBossAttack();
+	void PlayAttackAnimation();
+	void PlayBossAttack();
 
 	void SetGlobalTimeDilation(float Value);
-
-	bool bIsSlow;
-
 	void SetAttackComboCount(float Value);
 public:
+	bool bIsSlow;
+
 	void ResetCombo();
 	void OnDamageProcess(AActor* OtherActor, int32 Damage);
 	void OnEndDamage();
@@ -165,6 +175,5 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void OnMeshBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-	void SetGlobalTimeDilation();
-	void SetGlobalTimeDilation(bool bSlow);
+
 };

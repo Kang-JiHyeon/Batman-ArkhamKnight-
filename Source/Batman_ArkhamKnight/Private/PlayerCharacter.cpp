@@ -11,9 +11,12 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "TestEnemy.h"
 #include "Boss.h"
+#include "BossFSM.h"
 #include "Prisoner.h"
 #include "PrisonerFSM.h"
 #include "TimerManager.h"
+#include "PlayerBossAttackSequence.h"
+#include "../../../../Plugins/Animation/MotionWarping/Source/MotionWarping/Public/MotionWarpingComponent.h"
 
 
 // Sets default values
@@ -34,6 +37,11 @@ APlayerCharacter::APlayerCharacter()
 	// 회전 설정
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	bUseControllerRotationYaw = false;
+
+	// 레벨 시퀀스
+	LevelSequenceComp = CreateDefaultSubobject<UPlayerBossAttackSequence>(TEXT("LevelSequenceComp"));
+	MotionWarpingComp = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComp"));
+
 }
 
 // Called when the game starts or when spawned
@@ -84,7 +92,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 	if (bMovingToTarget)
 	{
-		MoveToTarget(TargetActor);
+		MoveToTarget(TargetPrisoner);
 	}
 	else
 	{
@@ -100,7 +108,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 	if (bRotatingToTarget)
 	{
-		RotateToTarget(TargetActor);
+		RotateToTarget(TargetPrisoner);
 	}
 }
 
@@ -169,7 +177,7 @@ void APlayerCharacter::OnActionDodge(const FInputActionValue& Value)
         Jump();
 
 		// 구르기 시 공격 콤보 초기화
-		SetAttackComboCount(0);
+		SetAttackComboCount(0);	
 	}
 	LastDodgeInputPressTime = currtime;
 }
@@ -206,7 +214,7 @@ void APlayerCharacter::OnActionAttack(const FInputActionValue& Value)
 	}
 
 	// 기존의 이동 대상을 초기화
-	TargetActor = nullptr;
+	TargetPrisoner = nullptr;
 
 	//UE_LOG(LogTemp, Warning, TEXT("최단 거리의 적 탐색 중.."));
 	for (AActor* targetActor : targetActors)
@@ -223,49 +231,59 @@ void APlayerCharacter::OnActionAttack(const FInputActionValue& Value)
 		float distance = FVector::Distance(enemy->GetActorLocation(), GetActorLocation());
 		if (distance < minDistance)
 		{
-			TargetActor = enemy;
+			TargetPrisoner = enemy;
 			minDistance = distance;
 		}
 	}
 
 	// 공격할 대상이 있다면
-	if (TargetActor != nullptr)
+	if (TargetPrisoner != nullptr)
 	{
 		// 대상 위치로 이동
 		bMovingToTarget = true;
 
 		// 최대 스피드 증가
 		GetCharacterMovement()->MaxWalkSpeed = AttackMaxSpeed;
-
-		// 매쉬 콜리전 활성화
-		SetMeshCollisionEnabled(true);
 	}
 	// 공격할 수 있는 대상이 없다면, 앞방향으로 일정거리만큼 이동
 	else
 	{
-		OnPlayAttackAnimation();
+		// 콤보 카운트 증가
+		FString section = FString::FromInt((AnimComboCount % 3));
+		// 애니메이션 실행
+		PlayAnimMontage(FrontAttackMontage, 1, FName(section));
+		AnimComboCount++;
+		
+		//PlayAttackAnimation();
 		GetCharacterMovement()->Velocity = GetActorForwardVector() * 2000;
+
 	}
 }
 
 void APlayerCharacter::OnActionBossAttack(const FInputActionValue& Value)
 {
-	if (TargetBoss == nullptr)
-		return;
+	if (TargetBoss == nullptr) return;
+    if (AttackComboCount < MaxBossAttackComboCount) return;
 
-	if (AttackComboCount >= MaxBossAttackComboCount)
-	{
-		// 보스를 향해 뛰어간다.
-		TargetActor = TargetBoss;
-	
-		bMovingToTarget = true;
-		GetCharacterMovement()->MaxWalkSpeed = AttackMaxSpeed;
+	// 이동할 위치 설정
+	FVector offset = UKismetMathLibrary::GetDirectionUnitVector(TargetBoss->GetActorLocation(), GetActorLocation()) * 100;
+	FVector targetLoc = TargetBoss->GetActorLocation() + offset;
+	// 회전 설정
+	FVector targetDir = UKismetMathLibrary::GetDirectionUnitVector(GetActorLocation(), TargetBoss->GetActorLocation());
+	FRotator targetRot = UKismetMathLibrary::MakeRotFromX(targetDir);
+	// 모션 워핑 실행
+	MotionWarpingComp->AddOrUpdateWarpTargetFromLocationAndRotation(FName("AttactPoint"), targetLoc, targetRot);
 
-		//PlayAnimMontage(BossAttackMontage);
+	// 몽타주 재생
+	PlayAnimMontage(BossAttackMontage);
+	// 시퀀스 재생
+	LevelSequenceComp->PlaySequence();
+	// 보스 피격
+	TargetBoss->fsm->OnMyTakeDamage(5);
+	// 공격 콤보 초기화
+	SetAttackComboCount(0);
 
-		UE_LOG(LogTemp, Warning, TEXT("Boss Attack!!"));
-		AttackComboCount = 0;
-	}
+	PlayerAnim->SetIgnoreAttack(false);
 }
 
 void APlayerCharacter::MoveToTarget(AActor* Target)
@@ -280,27 +298,19 @@ void APlayerCharacter::MoveToTarget(AActor* Target)
 	PlayerAnim->SetRun(true);
 	
 	// 목표 지점에 도달했는지 확인
-	if (dir.Size() < 100)
+	if (dir.Size() < 80)
 	{
 		PlayerAnim->SetRun(false);
 
 		bMovingToTarget = false;
 		bRotatingToTarget = true;
 
-		//SetGlobalTimeDilation(0.2f);
 		
-		// 보스 공격 애니메이션
-		if (Target == TargetBoss)
-		{
-			OnPlayBossAttack();
-		}
-		// 죄수 공격 애니메이션
-		else
-		{
-			// 애니메이션 실행
-			OnPlayAttackAnimation();
-		}
-
+		// 매쉬 콜리전 활성화
+		SetMeshCollisionEnabled(true);
+		// 애니메이션 실행
+		PlayAttackAnimation();
+		
 		// 최대 스피드 복구
 		GetCharacterMovement()->MaxWalkSpeed = DefaultMaxSpeed;
 	}
@@ -365,13 +375,12 @@ EEnemyDirection APlayerCharacter::GetTargetHorizontalDirection(AActor* Target)
 		return EEnemyDirection::Left;
 }
 
-
-void APlayerCharacter::OnPlayAttackAnimation()
+void APlayerCharacter::PlayAttackAnimation()
 {
-	if(TargetActor == nullptr) return;
-	
+	if(TargetPrisoner == nullptr) return;
+
 	// 앞, 뒤 방향 확인
-	EEnemyDirection enemyDir = GetTargetVerticalDirection(TargetActor);
+	EEnemyDirection enemyDir = GetTargetVerticalDirection(TargetPrisoner);
 
 	// 적이 앞에 있다면 콤보 애니메이션 실행
 	if (enemyDir == EEnemyDirection::Front)
@@ -384,24 +393,19 @@ void APlayerCharacter::OnPlayAttackAnimation()
 	// 적이 뒤에 있다면 왼쪽, 오른쪽 구분해서 애니메이션 실행
 	else
 	{
-		FString dirName = GetTargetHorizontalDirection(TargetActor) == EEnemyDirection::Left ? "Left" : "Right";
+		FString dirName = GetTargetHorizontalDirection(TargetPrisoner) == EEnemyDirection::Left ? "Left" : "Right";
 		PlayAnimMontage(BackAttackMontage, 1, FName(dirName));
 	}
-	AnimComboCount++;
 
+	AnimComboCount++;
+	
+	if (OverlapPrisoner != nullptr)
+	{
+		OverlapPrisoner->fsm->OnMyTakeDamage(1);
+		OverlapPrisoner = nullptr;
+	}
 	//SetGlobalTimeDilation(0.2f);
 }
-
-void APlayerCharacter::OnPlayBossAttack()
-{
-	// 애니메이션 실행
-	PlayAnimMontage(BossAttackMontage);
-
-	// 카메라 이동
-
-}
-
-
 
 void APlayerCharacter::SetGlobalTimeDilation(float Value)
 {
@@ -446,7 +450,6 @@ void APlayerCharacter::OnDamageProcess(AActor* OtherActor, int32 Damage)
 			PlayAnimMontage(DamageMontage, 1, FName("BackDamage"));
 			//UE_LOG(LogTemp, Warning, TEXT("적이 [뒤]에서 때렸습니다!!"));
 		}
-
 		// 일정 시간 뒤 Damage 상태 해제
 		GetWorld()->GetTimerManager().SetTimer(DamageTimerHandler, this, &APlayerCharacter::OnEndDamage, DamageIdleTime, false);
 
@@ -456,10 +459,8 @@ void APlayerCharacter::OnDamageProcess(AActor* OtherActor, int32 Damage)
 	else
 	{
 		bDamageState = true;
-
 		PlayerAnim->bDie = true;
 
-		//PlayAnimMontage(DamageMontage, 1, FName("Die"));
 		SetMeshCollisionEnabled(false);
 		UE_LOG(LogTemp, Warning, TEXT("Player Die!!"), HP);
 	}
@@ -504,22 +505,29 @@ void APlayerCharacter::SetMeshCollisionEnabled(bool bValue)
 void APlayerCharacter::OnMeshBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	auto* prisoner = Cast<APrisoner>(OtherActor);
-
-	if (prisoner != nullptr)
+	if (prisoner != nullptr || TargetPrisoner == prisoner)
 	{
 		auto* prisonerFSM = prisoner->GetComponentByClass<UPrisonerFSM>();
 		if (prisonerFSM != nullptr)
 		{
-			prisonerFSM->OnMyTakeDamage(1);
+			bIsSlow = false;
+			// 적이 공격 중이였다면?
+			EPrisonerState prisonerState = prisonerFSM->mState;
+			if (prisonerState == EPrisonerState::Run || prisonerState == EPrisonerState::LeftAttack || prisonerState == EPrisonerState::RightAttack)
+			{
+				bIsSlow = true;
+			}
+
+			//prisonerFSM->OnMyTakeDamage(1);
 
 			//SetGlobalTimeDilation(1);
 			// 
 			// 공격 콤보 증가
 			SetAttackComboCount(AttackComboCount + 1);
 
+			OverlapPrisoner = prisoner;
 			//UE_LOG(LogTemp, Warning, TEXT("Player->Prisoner Attack!!"));
 		}
 	}
-
 	SetMeshCollisionEnabled(false);
 }

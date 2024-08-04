@@ -13,6 +13,7 @@ class BATMAN_ARKHAMKNIGHT_API UPlayerAnim : public UAnimInstance
 	
 
 public:
+	virtual void NativeInitializeAnimation() override;
 	virtual void NativeUpdateAnimation(float DeltaTime) override;
 
 public:
@@ -47,4 +48,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void OnEndDamageAnimation();
+	UFUNCTION(BlueprintCallable)
+	void OnStartSlowMotion();
+	UFUNCTION(BlueprintCallable)
+	void OnEndSlowMotion();
+
 };
