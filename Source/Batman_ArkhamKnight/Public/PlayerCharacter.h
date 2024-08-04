@@ -167,11 +167,13 @@ private:
 
 	void SetGlobalTimeDilation(float Value);
 	void SetAttackComboCount(float Value);
+
+	void CallDelegateLevelSequnce();
 public:
 	bool bIsSlow;
 
 	void ResetCombo();
-	void OnDamageProcess(AActor* OtherActor, int32 Damage);
+	void OnTakeDamage(AActor* OtherActor, int32 Damage);
 	void OnEndDamage();
 	void SetMeshCollisionEnabled(bool bValue);
 

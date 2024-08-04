@@ -354,7 +354,7 @@ void UPrisonerFSM::OnMeshBeginOverlap(UPrimitiveComponent* OverlappedComponent, 
 	if (player != nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Overlap with Player detected!"));
-		Ptarget->OnDamageProcess(me, 1);
+		Ptarget->OnTakeDamage(me, 1);
 		SetCollision(false);
 		SetState(EPrisonerState::BackMove); // 공격이 끝난 후의 back move 상태 
 		anim->PanimState = mState;
