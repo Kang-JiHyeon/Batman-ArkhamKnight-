@@ -78,7 +78,7 @@ public:
 
 	// move or idle
 	UPROPERTY(EditAnywhere,Category= PFSM)
-	float moveDelayTime = 3;
+	float moveDelayTime = 5;
 
 	UPROPERTY(EditAnywhere,Category= PFSM)
 	float backmoveDelayTime = 6;
