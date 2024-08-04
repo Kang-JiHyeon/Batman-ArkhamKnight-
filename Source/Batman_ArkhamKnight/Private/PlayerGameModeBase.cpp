@@ -22,6 +22,8 @@ void APlayerGameModeBase::PlaySequence()
 {
 	if (SequencePlayer == nullptr) return;
 
+	//OnStartedLevelSequence.AddDynamic(this, &);
+	//OnStartedLevelSequence.Broadcast();
     SequencePlayer->Play();
 }
 

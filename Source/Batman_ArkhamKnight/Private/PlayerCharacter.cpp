@@ -277,10 +277,12 @@ void APlayerCharacter::OnActionBossAttack(const FInputActionValue& Value)
 	PlayAnimMontage(BossAttackMontage);
 	// 시퀀스 재생
 	MyGameModeBase->PlaySequence();
-	// 보스 피격
-	TargetBoss->fsm->OnMyTakeDamage(5);
+	//// 보스 피격
+	//TargetBoss->fsm->OnMyTakeDamage(5);
 	// 공격 콤보 초기화
 	SetAttackComboCount(0);
+	// 매시 콜리전 활성화
+	SetMeshCollisionEnabled(true);
 
 	PlayerAnim->SetIgnoreAttack(false);
 }
@@ -318,7 +320,7 @@ bool APlayerCharacter::IsLockedMove() const
 {
 	bool bIsMontagePlaying = PlayerAnim->IsAnyMontagePlaying();
 
-	return bMovingToTarget || bDamageState || PlayerAnim->bDodge || bIsMontagePlaying;
+	return bMovingToTarget || bDamageState || PlayerAnim->bDodge || bIsMontagePlaying || MyGameModeBase->IsPlayingSequence();
 
 }
 
@@ -404,15 +406,19 @@ void APlayerCharacter::PlayAttackAnimation()
 	}
 }
 
-void APlayerCharacter::OnDamageProcess(AActor* OtherActor, int32 Damage)
+void APlayerCharacter::OnTakeDamage(AActor* OtherActor, int32 Damage)
 {
 	if(HP <= 0) return;
 	if(bDamageState) return;
+	if(MyGameModeBase->IsPlayingSequence()) return;
 
 	HP -= Damage;
 	
 	// 공격 콤보 초기화
 	SetAttackComboCount(0);
+
+	// 슬로우 해제
+	bIsSlow = false;
 
 	// Damage 처리
 	if (HP > 0)
@@ -468,6 +474,10 @@ void APlayerCharacter::SetAttackComboCount(float Value)
 	//GEngine->AddOnScreenDebugMessage(1, 1, FColor::Red, );
 }
 
+void APlayerCharacter::CallDelegateLevelSequnce()
+{
+}
+
 void APlayerCharacter::ResetCombo()
 {
 	SetMeshCollisionEnabled(false);
@@ -479,12 +489,10 @@ void APlayerCharacter::SetMeshCollisionEnabled(bool bValue)
 	if (bValue)
 	{
 		GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		//UE_LOG(LogTemp, Warning, TEXT("Collision Enable : QueryAndPhysics!"));
 	}
 	else
 	{
 		GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		//UE_LOG(LogTemp, Warning, TEXT("Collision Enable : NoCollision"));
 	}
 }
 
@@ -504,14 +512,18 @@ void APlayerCharacter::OnMeshBeginOverlap(UPrimitiveComponent* OverlappedCompone
 				bIsSlow = true;
 			}
 
-			//prisonerFSM->OnMyTakeDamage(1);
-
 			// 공격 콤보 증가
 			SetAttackComboCount(AttackComboCount + 1);
 
 			OverlapPrisoner = prisoner;
-			//UE_LOG(LogTemp, Warning, TEXT("Player->Prisoner Attack!!"));
 		}
 	}
+
+	auto* boss = Cast<ABoss>(OtherActor);
+	if (boss != nullptr)
+	{
+		boss->fsm->OnMyTakeDamage(5);
+	}
+
 	SetMeshCollisionEnabled(false);
 }

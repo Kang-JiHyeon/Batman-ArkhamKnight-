@@ -27,7 +27,7 @@ void ATestEnemy::NotifyActorBeginOverlap(AActor* OtherActor)
 
 	if (player != nullptr)
 	{
-		player->OnDamageProcess(this, 1);
+		player->OnTakeDamage(this, 1);
 
 		UE_LOG(LogTemp, Warning, TEXT("Enemy->Player Attack!!"));
 	}

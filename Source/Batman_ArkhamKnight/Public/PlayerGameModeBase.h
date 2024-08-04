@@ -6,9 +6,8 @@
 #include "GameFramework/GameModeBase.h"
 #include "PlayerGameModeBase.generated.h"
 
-/**
- * 
- */
+DECLARE_MULTICAST_DELEGATE(FPlayerGameModeBaseOnStartedLevelSequence);
+
 UCLASS()
 class BATMAN_ARKHAMKNIGHT_API APlayerGameModeBase : public AGameModeBase
 {
@@ -16,6 +15,9 @@ class BATMAN_ARKHAMKNIGHT_API APlayerGameModeBase : public AGameModeBase
 	
 public:
     virtual void StartPlay() override;
+
+public:
+    FPlayerGameModeBaseOnStartedLevelSequence OnStartedLevelSequence;
 
 private:
 	// 레벨 시퀀스 애셋

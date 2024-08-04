@@ -314,7 +314,7 @@ void UBossFSM::OnMeshBeginOverlap(UPrimitiveComponent* OverlappedComponent, AAct
 		if (player != nullptr)
 		{
 			// player가 밀리는 함수 추가
-			Ptarget->OnDamageProcess(me, 3);
+			Ptarget->OnTakeDamage(me, 3);
 			mState = EBossState::Move;
 			anim->BanimState = mState;
 		}
