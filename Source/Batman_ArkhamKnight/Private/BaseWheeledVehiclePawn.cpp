@@ -13,42 +13,54 @@
 #include "Missile.h"
 #include "Components/ArrowComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "NiagaraComponent.h"
+#include "NiagaraSystem.h"
 
 /**
  *	Writer : Lee Dong Geun
- *	Last Modified : 2024-07-30
+ *	Last Modified : 2024-08-04
  */
 
 ABaseWheeledVehiclePawn::ABaseWheeledVehiclePawn()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	BackSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("BackSpringArm"));
+	BackSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Back SpringArm"));
 	BackSpringArm->SetupAttachment(RootComponent);
 	BackSpringArm->SetRelativeLocation(FVector(0.f, 0.f, 75.f));
-	BackSpringArm->TargetArmLength = 650.f;
+	BackSpringArm->TargetArmLength = 800.f;
 	BackSpringArm->SocketOffset = FVector(0.f, 0.f, 150.f);
 
-	BackCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("BackCamera"));
+	BackCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Back Camera"));
 	BackCamera->SetupAttachment(BackSpringArm);
 
-	FrontSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("FrontSpringArm"));
+	FrontSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Front SpringArm"));
 	FrontSpringArm->SetupAttachment(RootComponent);
 	FrontSpringArm->SetRelativeLocation(FVector(30.f, 0.f, 120.f));
 	FrontSpringArm->TargetArmLength = 0.f;
 
-	FrontCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FrontCamera"));
+	FrontCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Front Camera"));
 	FrontCamera->SetupAttachment(FrontSpringArm);
 
-	MissileSpawnLocationLeft = CreateDefaultSubobject<UArrowComponent>(TEXT("MissileSpawnLocationLeft"));
+	MissileSpawnLocationLeft = CreateDefaultSubobject<UArrowComponent>(TEXT("Missile SpawnLocation Left"));
 	MissileSpawnLocationLeft->SetupAttachment(RootComponent);
 	MissileSpawnLocationLeft->SetRelativeLocation(FVector(0.f, -140.f, 100.f));
 	MissileSpawnLocationLeft->SetRelativeRotation(FRotator(26.5f, 14.5f, -26.5f));
 	
-	MissileSpawnLocationRight = CreateDefaultSubobject<UArrowComponent>(TEXT("MissileSpawnLocationRight"));
+	MissileSpawnLocationRight = CreateDefaultSubobject<UArrowComponent>(TEXT("Missile SpawnLocation Right"));
 	MissileSpawnLocationRight->SetupAttachment(RootComponent);
 	MissileSpawnLocationRight->SetRelativeLocation(FVector(0.f, 140.f, 100.f));
 	MissileSpawnLocationRight->SetRelativeRotation(FRotator(-26.5f, 14.5f, 26.5f));
+
+	LeftBoostVFXComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Left Boost"));
+	LeftBoostVFXComponent->SetupAttachment(RootComponent);
+	LeftBoostVFXComponent->SetRelativeLocation(FVector(-210.f, -70.f, 36.f));
+	LeftBoostVFXComponent->SetRelativeRotation(FRotator(0.f, -180.f, 0.f));
+
+	RightBoostVFXComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Right Boost"));
+	RightBoostVFXComponent->SetupAttachment(RootComponent);
+	RightBoostVFXComponent->SetRelativeLocation(FVector(-210.f, 70.f, 36.f));
+	RightBoostVFXComponent->SetRelativeRotation(FRotator(0.f, -180.f, 0.f));
 
 }
 
@@ -67,6 +79,18 @@ void ABaseWheeledVehiclePawn::BeginPlay()
 	}
 
 	ChaosVehicleMovementComponent = Cast<UChaosWheeledVehicleMovementComponent>(GetVehicleMovementComponent());
+
+	if(BoostVFXSystem)
+	{
+		LeftBoostVFXComponent -> SetAsset(BoostVFXSystem);
+		RightBoostVFXComponent -> SetAsset(BoostVFXSystem);
+		
+		LeftBoostVFXComponent -> ActivateSystem();
+		RightBoostVFXComponent -> ActivateSystem();
+		
+		LeftBoostVFXComponent -> Deactivate();
+		RightBoostVFXComponent -> Deactivate();
+	}
 }
 
 void ABaseWheeledVehiclePawn::Tick(float DeltaTime)
@@ -167,11 +191,15 @@ void ABaseWheeledVehiclePawn::SteeringComplete(const FInputActionValue& Value)
 void ABaseWheeledVehiclePawn::BoostTrigger(const FInputActionValue& Value)
 {
 	ChaosVehicleMovementComponent-> SetMaxEngineTorque(BoostSpeed);
+	LeftBoostVFXComponent -> Activate();
+	RightBoostVFXComponent -> Activate();
 }
 
 void ABaseWheeledVehiclePawn::BoostComplete(const FInputActionValue& Value)
 {
 	ChaosVehicleMovementComponent-> SetMaxEngineTorque(BaseSpeed);
+	LeftBoostVFXComponent -> Deactivate();
+	RightBoostVFXComponent -> Deactivate();
 }
 
 void ABaseWheeledVehiclePawn::ToggleCamera()

@@ -9,7 +9,7 @@
 
 /**
  *	Writer : Lee Dong Geun
- *	Last Modified : 2024-07-30
+ *	Last Modified : 2024-08-04
  */
 
 class USpringArmComponent;
@@ -19,6 +19,8 @@ class UInputMappingContext;
 class UInputAction;
 class UChaosWheeledVehicleMovementComponent;
 class AMissile;
+class UNiagaraSystem;
+class UNiagaraComponent;
 
 UCLASS()
 class BATMAN_ARKHAMKNIGHT_API ABaseWheeledVehiclePawn : public AWheeledVehiclePawn
@@ -46,6 +48,15 @@ class BATMAN_ARKHAMKNIGHT_API ABaseWheeledVehiclePawn : public AWheeledVehiclePa
 	UArrowComponent* MissileSpawnLocationRight;
 
 	TArray<UArrowComponent*> MissileSpawnLocations;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UNiagaraSystem* BoostVFXSystem;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Boost", meta = (AllowPrivateAccess = "true"))
+	UNiagaraComponent* LeftBoostVFXComponent;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Boost", meta = (AllowPrivateAccess = "true"))
+	UNiagaraComponent* RightBoostVFXComponent;
 
 	/** Input Actions */
 
