@@ -78,7 +78,7 @@ public:
 
 	// move or idle
 	UPROPERTY(EditAnywhere,Category= PFSM)
-	float moveDelayTime = 2;
+	float moveDelayTime = 3;
 
 	UPROPERTY(EditAnywhere,Category= PFSM)
 	float backmoveDelayTime = 6;
@@ -116,4 +116,7 @@ public:
 
 	// player에게 attack을 하고 있는 상태를 알리기 위한 함수
 	bool isAttack();
+
+	class APlayerGameModeBase* MyGameModeBase;
+
 };

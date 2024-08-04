@@ -9,6 +9,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "PlayerGameModeBase.h"
 
 // Sets default values for this component's properties
 UPrisonerFSM::UPrisonerFSM()
@@ -38,6 +39,9 @@ void UPrisonerFSM::BeginPlay()
 	
 	me->GetMesh()->OnComponentBeginOverlap.AddDynamic(this, &UPrisonerFSM::OnMeshBeginOverlap);
 	SetCollision(false);
+
+	// GameModeBase
+	MyGameModeBase = Cast<APlayerGameModeBase>(GetWorld()->GetAuthGameMode());
 }
 
 
@@ -121,7 +125,7 @@ void UPrisonerFSM::IdleState(float& DeltaSeconds)
 
 		SetState(EPrisonerState::BackMove);
 		anim->PanimState = mState;
-		
+
 	}
 }
 
@@ -135,31 +139,37 @@ void UPrisonerFSM::MoveState(float& DeltaSeconds){
 	currentTime += DeltaSeconds;
 	if (currentTime > moveDelayTime)
 	{
-		int32 value = FMath::RandRange(1, 100);
-		if (value<95)
+		if (dir.Size() < 200 && MyGameModeBase->IsPlayingSequence() == true)
 		{
-			SetState(EPrisonerState::Move);
+			SetState(EPrisonerState::BackMove);
 			anim->PanimState = mState;
 		}
 		else
 		{
-			if (dir.Size() < 130)
-			{
-				SetState(EPrisonerState::BackMove);
-				anim->PanimState = mState;
-			}
-			else
+			int value = FMath::RandRange(0, 100);
+			if (value < 4)
 			{
 				SetState(EPrisonerState::Run);
 				anim->PanimState = mState;
 			}
+			else
+			{
+				SetState(EPrisonerState::BackMove);
+				anim->PanimState = mState;
+			}
 		}
+
 	}
 
 }
 
 void UPrisonerFSM::RunState(float& DeltaSeconds)
 {
+	if (MyGameModeBase->IsPlayingSequence() == true)
+	{
+		SetState(EPrisonerState::BackMove);
+		anim->PanimState = mState;
+	}
 	// 플레이어를 향해 달리고 싶다.
 	FVector destination = Ptarget->GetActorLocation();
 	FVector dir = destination - me->GetActorLocation();
@@ -168,7 +178,7 @@ void UPrisonerFSM::RunState(float& DeltaSeconds)
 
 	currentTime += DeltaSeconds;
 	if (currentTime < 5 ) { // 최대 5초내에 player의 근처에 오기 때문에 5초로 설정
-		if (dist < 100 ) {
+		if (dist < 100) {
 			// 오른쪽 공격과 왼쪽 공격을 랜덤하게 나오게 하고 싶다.
 			if (FMath::RandBool()) {
 				SetCollision(true);
@@ -182,6 +192,7 @@ void UPrisonerFSM::RunState(float& DeltaSeconds)
 			}
 			anim->PanimState = mState;
 		}
+
 	}
 	else {
 		SetState(EPrisonerState::Move);

@@ -11,6 +11,7 @@
 #include "Prisoner.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "PlayerGameModeBase.h"
 
 // Sets default values for this component's properties
 UBossFSM::UBossFSM()
@@ -39,6 +40,9 @@ void UBossFSM::BeginPlay()
 
 	// hp	
 	HP = MaxHP;
+
+	// GameModeBase
+	MyGameModeBase = Cast<APlayerGameModeBase>(GetWorld()->GetAuthGameMode());
 }
 
 
@@ -119,7 +123,7 @@ void UBossFSM::MoveState() // boss move to player or idle
 		{
 			mState = EBossState::Move;
 		}
-		else {
+		else if(MyGameModeBase->IsPlayingSequence()== false) {
 
 			if (dir.Size() < attackRange)
 			{
@@ -228,9 +232,7 @@ void UBossFSM::DoubleLeftAttackState() // double smash
 
 void UBossFSM::DamageState()
 {
-	currentTime = 0;
 	currentTime += GetWorld()->GetDeltaSeconds();
-
 	if (currentTime > damageDelayTime)
 	{
 		mState = EBossState::Move;
@@ -241,7 +243,6 @@ void UBossFSM::DamageState()
 
 void UBossFSM::DieState()
 {
-	me->Destroy();
 }
 
 void UBossFSM::YellState()
@@ -289,6 +290,7 @@ void UBossFSM::OnMyTakeDamage(int32 damage)
 	HP -= damage;
 	if (HP > 0)
 	{
+		currentTime = 0;
 		mState = EBossState::Damage;
 		anim->BanimState = mState;
 

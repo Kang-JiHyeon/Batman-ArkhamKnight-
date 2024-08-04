@@ -104,7 +104,7 @@ public:
 	class UBossAnim* anim;
 
 	UPROPERTY(EditAnywhere,Category= BFSM)
-	float damageDelayTime = 0.5f;
+	float damageDelayTime = 1;
 
 	// hp
 	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite,Category= BFSM)
@@ -128,4 +128,6 @@ public:
 		
 
 	void SetCollision(bool bvalue);
+
+	class APlayerGameModeBase* MyGameModeBase;
 };
