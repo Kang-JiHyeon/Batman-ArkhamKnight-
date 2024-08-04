@@ -303,7 +303,6 @@ void UBossFSM::OnMyTakeDamage(int32 damage)
 		return;
 	}
 	HP -= damage;
-	UE_LOG(LogTemp, Warning, TEXT("Boss Damage!! : Hp = %d"), HP);
 
 	if (HP > 0)
 	{
@@ -318,6 +317,7 @@ void UBossFSM::OnMyTakeDamage(int32 damage)
 		mState = EBossState::Die;
 		anim->BanimState = mState;
 	}
+	UE_LOG(LogTemp, Warning, TEXT("Boss Damage!! : Hp = %d"), HP);
 
 }
 

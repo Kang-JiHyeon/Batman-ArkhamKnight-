@@ -115,7 +115,7 @@ public:
 	void OnMeshBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	// player에게 attack을 하고 있는 상태를 알리기 위한 함수
-	bool isAttack();
+	bool IsAttack();
 
 	class APlayerGameModeBase* MyGameModeBase;
 

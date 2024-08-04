@@ -147,7 +147,7 @@ void UPrisonerFSM::MoveState(float& DeltaSeconds){
 		else
 		{
 			int value = FMath::RandRange(0, 100);
-			if (value < 5)
+			if (value < 25)
 			{
 				SetState(EPrisonerState::Run);
 				anim->PanimState = mState;
@@ -326,13 +326,20 @@ void UPrisonerFSM::OnMyTakeDamage(int32 damage)
 // 데미지를 입다가 일정 HP 이하가 되면 기절상태에 들어가고 싶다.
 // 기절상태에 들어가고 나서 일정 시간이후에 다시 이동 상태로 전이하고 싶다.
 {
+
 	if (mState == EPrisonerState::Die || mState == EPrisonerState::Faint)
 	{
 		return;
 	}
-	HP -= damage;
+	if (IsAttack() == true)
+	{
+		HP -= 2*damage;
+	}
+	else {
+		HP -= damage;
+	}
 
-
+	UE_LOG(LogTemp, Warning, TEXT("Prisoner Damage!! : Hp = %f"), HP);
 	SetState(EPrisonerState::Damage);
 	anim->PanimState = mState;
 
@@ -372,7 +379,7 @@ void UPrisonerFSM::OnMeshBeginOverlap(UPrimitiveComponent* OverlappedComponent, 
 	}
 }
 
-bool UPrisonerFSM::isAttack()
+bool UPrisonerFSM::IsAttack()
 {
 	if (mState == EPrisonerState::LeftAttack || mState == EPrisonerState::RightAttack || mState == EPrisonerState::Run)
 	{
