@@ -62,7 +62,7 @@ public:
 
 	// 대기시간
 	UPROPERTY(EditAnywhere,Category=PFSM)
-	float idleDelayTime = 2;
+	float idleDelayTime = 3;
 
 	// 경과시간(추가되어 대기시간을 초과할 시간)
 	float currentTime = 0;
@@ -78,17 +78,17 @@ public:
 
 	// move or idle
 	UPROPERTY(EditAnywhere,Category= PFSM)
-	float moveDelayTime = 2;
+	float moveDelayTime = 4;
 
 	UPROPERTY(EditAnywhere,Category= PFSM)
-	float backmoveDelayTime = 4;
+	float backmoveDelayTime = 5;
 
 	// attack
 	UPROPERTY(EditAnywhere,Category= PFSM)
 	float attackDelayTime = 1;
 
 	UPROPERTY(EditAnywhere,Category= PFSM)
-	float attackDistance = 50.0f;
+	float attackDistance = 100.0f;
 
 	// damage
 	void OnMyTakeDamage(int32 damage);
@@ -97,12 +97,12 @@ public:
 
 	// faint
 	UPROPERTY(EditAnywhere,Category= PFSM)
-	float FaintDelayTime = 10.0f;
+	float FaintDelayTime = 8.0f;
 
 	// HP
 	
 	UPROPERTY(EditAnywhere,Category= PFSM)
-	float MaxHp = 5;
+	float MaxHp = 4;
 	float HP;
 
 	// Die
@@ -113,5 +113,10 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void OnMeshBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	// player에게 attack을 하고 있는 상태를 알리기 위한 함수
+	bool IsAttack();
+
+	class APlayerGameModeBase* MyGameModeBase;
 
 };

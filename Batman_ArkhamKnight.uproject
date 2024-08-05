@@ -22,15 +22,11 @@
 			]
 		},
 		{
-			"Name": "ChaosVehiclesPlugin",
-			"Enabled": true
-		},
-		{
-			"Name": "AnimationWarping",
-			"Enabled": true
-		},
-		{
 			"Name": "MotionWarping",
+			"Enabled": true
+		},
+		{
+			"Name": "ChaosVehiclesPlugin",
 			"Enabled": true
 		}
 	]

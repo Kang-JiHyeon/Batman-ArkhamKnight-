@@ -6,14 +6,6 @@
 #include "Animation/AnimInstance.h"
 #include "PlayerAnim.generated.h"
 
-UENUM(BlueprintType)
-enum class EComboAttackState : uint8
-{
-	Punching_Right,
-	Punching_Left,
-	Hook_Right
-};
-
 UCLASS()
 class BATMAN_ARKHAMKNIGHT_API UPlayerAnim : public UAnimInstance
 {
@@ -21,8 +13,8 @@ class BATMAN_ARKHAMKNIGHT_API UPlayerAnim : public UAnimInstance
 	
 
 public:
+	virtual void NativeInitializeAnimation() override;
 	virtual void NativeUpdateAnimation(float DeltaTime) override;
-
 
 public:
 
@@ -36,17 +28,16 @@ public:
 	bool bDodge = false;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	bool bAttack = false;
+	bool bRun = false;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	bool bDie = false;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	EComboAttackState ComboAttackState;
 
 public:
 	bool bIgnoreInputAttack = false;
 	
+	void SetRun(bool bValue);
 	void SetDodge(bool bValue);
 
 	UFUNCTION(BlueprintCallable)
@@ -55,7 +46,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetIgnoreAttack(bool bValue);
 
-
 	UFUNCTION(BlueprintCallable)
 	void OnEndDamageAnimation();
+	UFUNCTION(BlueprintCallable)
+	void OnStartSlowMotion();
+	UFUNCTION(BlueprintCallable)
+	void OnEndSlowMotion();
+
 };

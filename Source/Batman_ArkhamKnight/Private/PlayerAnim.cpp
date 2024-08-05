@@ -4,13 +4,22 @@
 #include "PlayerAnim.h"
 #include "PlayerCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
+
+void UPlayerAnim::NativeInitializeAnimation()
+{
+    Super::NativeInitializeAnimation();
+
+    auto ownerPawn = TryGetPawnOwner();
+    Player = Cast<APlayerCharacter>(ownerPawn);
+}
 
 void UPlayerAnim::NativeUpdateAnimation(float DeltaTime)
 {
     Super::NativeUpdateAnimation(DeltaTime);
 
-    auto ownerPawn = TryGetPawnOwner();
-    Player = Cast<APlayerCharacter>(ownerPawn);
+    //auto ownerPawn = TryGetPawnOwner();
+    //Player = Cast<APlayerCharacter>(ownerPawn);
 
     if (Player != nullptr)
     {
@@ -20,7 +29,14 @@ void UPlayerAnim::NativeUpdateAnimation(float DeltaTime)
 
         auto movement = Player->GetCharacterMovement();
         bDodge = movement->IsFalling();
+
+        //UE_LOG(LogTemp, Warning, TEXT("bDodge : %d"), bDodge);
     }
+}
+
+void UPlayerAnim::SetRun(bool bValue)
+{
+    bRun = bValue;
 }
 
 void UPlayerAnim::SetDodge(bool bValue)
@@ -31,7 +47,7 @@ void UPlayerAnim::SetDodge(bool bValue)
 
 void UPlayerAnim::OnResetCombo()
 {
-    Player->ResetCombo();
+    //Player->ResetCombo();
 }
 
 
@@ -43,4 +59,19 @@ void UPlayerAnim::SetIgnoreAttack(bool bValue)
 void UPlayerAnim::OnEndDamageAnimation()
 {
     Player->OnEndDamage();
+}
+
+void UPlayerAnim::OnStartSlowMotion()
+{
+    if(Player->bIsSlow == false) return;
+
+    UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 0.1f);
+
+}
+
+void UPlayerAnim::OnEndSlowMotion()
+{
+
+
+    UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1);
 }

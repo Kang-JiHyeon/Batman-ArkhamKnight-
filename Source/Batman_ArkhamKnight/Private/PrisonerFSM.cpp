@@ -9,6 +9,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "PlayerGameModeBase.h"
 
 // Sets default values for this component's properties
 UPrisonerFSM::UPrisonerFSM()
@@ -36,7 +37,11 @@ void UPrisonerFSM::BeginPlay()
 	// HP
 	HP = MaxHp;
 	
-	me-> GetMesh()->OnComponentBeginOverlap.AddDynamic(this, &UPrisonerFSM::OnMeshBeginOverlap);
+	me->GetMesh()->OnComponentBeginOverlap.AddDynamic(this, &UPrisonerFSM::OnMeshBeginOverlap);
+	SetCollision(false);
+
+	// GameModeBase
+	MyGameModeBase = Cast<APlayerGameModeBase>(GetWorld()->GetAuthGameMode());
 }
 
 
@@ -44,7 +49,8 @@ void UPrisonerFSM::BeginPlay()
 void UPrisonerFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
+	//FString myState = UEnum::GetValueAsString(mState);
+	//DrawDebugString(GetWorld(), GetOwner()->GetActorLocation(), myState, nullptr, FColor::Yellow, 0);
 	switch (mState)
 	{
 	case EPrisonerState::Idle:
@@ -75,8 +81,8 @@ void UPrisonerFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 		DieState(DeltaTime);
 		break;
 	}
-	FString logMsg = UEnum::GetValueAsString(mState);
-	GEngine->AddOnScreenDebugMessage(0, 1, FColor::Cyan, logMsg);
+	//FString logMsg = UEnum::GetValueAsString(mState);
+	//GEngine->AddOnScreenDebugMessage(0, 1, FColor::Cyan, logMsg);
 }
 
 void UPrisonerFSM::SetState(EPrisonerState NextState)
@@ -117,16 +123,9 @@ void UPrisonerFSM::IdleState(float& DeltaSeconds)
 	if (currentTime > idleDelayTime)
 	{
 
-		if (FMath::RandBool())
-		{
-			SetState(EPrisonerState::Move);
-			anim->PanimState = mState;
-		}
-		else
-		{
-			SetState(EPrisonerState::BackMove);
-			anim->PanimState = mState;
-		}
+		SetState(EPrisonerState::BackMove);
+		anim->PanimState = mState;
+
 	}
 }
 
@@ -137,44 +136,68 @@ void UPrisonerFSM::MoveState(float& DeltaSeconds){
 	FVector dir = destination - me->GetActorLocation();
 	// 플레이어 방향으로 이동
 	me->AddMovementInput(dir.GetSafeNormal(), 0.05f);
-
 	currentTime += DeltaSeconds;
-	// 공격범위내에 플레이어가 들어오면 공격하고 싶다. 
 	if (currentTime > moveDelayTime)
 	{
-		int32 value = FMath::RandRange(0, 5);
-		if (value<5)
+		if (dir.Size() < 200 && MyGameModeBase->IsPlayingSequence() == true)
 		{
-			SetState(EPrisonerState::Move);
+			SetState(EPrisonerState::BackMove);
 			anim->PanimState = mState;
 		}
 		else
 		{
-			SetState(EPrisonerState::Run);
-			anim->PanimState = mState;
+			int value = FMath::RandRange(0, 100);
+			if (value < 40)
+			{
+				SetState(EPrisonerState::Run);
+				anim->PanimState = mState;
+			}
+			else
+			{
+				SetState(EPrisonerState::BackMove);
+				anim->PanimState = mState;
+			}
 		}
+
 	}
 
 }
 
 void UPrisonerFSM::RunState(float& DeltaSeconds)
 {
+	if (MyGameModeBase->IsPlayingSequence() == true)
+	{
+		SetState(EPrisonerState::BackMove);
+		anim->PanimState = mState;
+	}
 	// 플레이어를 향해 달리고 싶다.
 	FVector destination = Ptarget->GetActorLocation();
 	FVector dir = destination - me->GetActorLocation();
 	float dist = me->GetDistanceTo(Ptarget);
-	me->AddMovementInput(dir.GetSafeNormal(), 0.7f);
+	me->AddMovementInput(dir.GetSafeNormal(), 0.5f);
 
 	currentTime += DeltaSeconds;
-	if (currentTime > 1.3) {
-		if (dist < 100)
-		{
+	if (currentTime < 5 ) { // 최대 5초내에 player의 근처에 오기 때문에 5초로 설정
+		if (dist < 100) {
 			// 오른쪽 공격과 왼쪽 공격을 랜덤하게 나오게 하고 싶다.
-
-			if (FMath::RandBool()) SetState(EPrisonerState::LeftAttack);
-			else SetState(EPrisonerState::RightAttack);
+			if (FMath::RandBool()) {
+				SetCollision(true);
+				SetState(EPrisonerState::RightAttack);
+				anim->attack = true;
+			}
+			else {
+				SetCollision(true);
+				SetState(EPrisonerState::LeftAttack);
+				anim->attack = false;
+			}
 			anim->PanimState = mState;
 		}
+
+	}
+	else {
+		SetState(EPrisonerState::Move);
+		anim->PanimState = mState;
+
 	}
 }
 
@@ -187,20 +210,26 @@ void UPrisonerFSM::BackMoveState(float& DeltaSeconds)
 	// 방향으로 회전 (보간 사용)
 	FRotator currentRotation = me->GetActorRotation();
 	FRotator targetRotation = dir.Rotation();
-	FRotator newRotation = FMath::RInterpTo(currentRotation, targetRotation, DeltaSeconds, 10.0f); // 10.0f는 회전 속도, 필요에 따라 조절 가능
+	FRotator newRotation = FMath::RInterpTo(currentRotation, targetRotation, DeltaSeconds, 15.0f);
 	me->SetActorRotation(newRotation);
 
 	// 플레이어의 반대 방향으로 이동
 	FVector backwardDir = -dir.GetSafeNormal();
-	me->AddMovementInput(backwardDir,0.1f);
+	me->AddMovementInput(backwardDir,0.05f);
 	currentTime += DeltaSeconds;
 	if (currentTime > backmoveDelayTime)
 	{
-		SetState(EPrisonerState::Move);
-		anim->PanimState = mState;
+		if (FMath::RandBool())
+		{
+			SetState(EPrisonerState::Move);
+			anim->PanimState = mState;
+		}
+		else
+		{
+			SetState(EPrisonerState::Idle);
+			anim->PanimState = mState;
+		}
 	}
-
-	float distance = dir.Size();
 }
 
 void UPrisonerFSM::RightAttackState(float& DeltaSeconds)
@@ -214,26 +243,10 @@ void UPrisonerFSM::RightAttackState(float& DeltaSeconds)
 		float dist = me->GetDistanceTo(Ptarget);
 		if (dist < attackDistance)
 		{
-			SetCollision(true);
-			anim->PanimState = mState;
-		}
-		else
-		{
-			SetCollision(false);
-			if (FMath::RandBool())
-			{
-				SetState(EPrisonerState::Move);
-			}
-			else
-			{
-				SetState(EPrisonerState::BackMove);
-			}
-			
+			SetState(EPrisonerState::BackMove);
 			anim->PanimState = mState;
 		}
 	}
-	
-
 }
 
 void UPrisonerFSM::LeftAttackState(float& DeltaSeconds)
@@ -247,21 +260,7 @@ void UPrisonerFSM::LeftAttackState(float& DeltaSeconds)
 		float dist = me->GetDistanceTo(Ptarget);
 		if (dist < attackDistance)
 		{
-			SetCollision(true);
-			anim->PanimState = mState;
-		}
-		else
-		{
-			SetCollision(false);
-			if (FMath::RandBool())
-			{
-				SetState(EPrisonerState::Move);
-			}
-			else
-			{
-				SetState(EPrisonerState::BackMove);
-			}
-
+			SetState(EPrisonerState::BackMove);
 			anim->PanimState = mState;
 		}
 	}
@@ -275,8 +274,8 @@ void UPrisonerFSM::DamageState(float& DeltaSeconds)
 	dir.Normalize();
 
 
-	if (dis < 150) {
-		me->GetCharacterMovement()->Velocity = dir * 1500;
+	if (dis < 120) {
+		me->GetCharacterMovement()->Velocity = dir * 2000;
 	}
 
 	currentTime += DeltaSeconds;
@@ -288,7 +287,12 @@ void UPrisonerFSM::DamageState(float& DeltaSeconds)
 			SetState(EPrisonerState::Faint);
 			anim->PanimState = mState;
 		}
-
+		else if (HP < 0)
+		{
+			SetCollision(false);
+			SetState(EPrisonerState::Die);
+			anim->PanimState = mState;
+		}
 		else
 		{
 			SetState(EPrisonerState::Move);
@@ -301,10 +305,11 @@ void UPrisonerFSM::DamageState(float& DeltaSeconds)
 void UPrisonerFSM::FaintState(float& DeltaSeconds)
 {
 
+	SetCollision(false);
 	currentTime += DeltaSeconds;
 	if (currentTime > FaintDelayTime)
 	{
-		SetCollision(true);
+
 		SetState(EPrisonerState::Move);
 		anim->PanimState = mState;
 	}
@@ -313,7 +318,7 @@ void UPrisonerFSM::FaintState(float& DeltaSeconds)
 
 void UPrisonerFSM::DieState(float& DeltaSeconds)
 {
-
+	
 }
 
 void UPrisonerFSM::OnMyTakeDamage(int32 damage)
@@ -321,23 +326,23 @@ void UPrisonerFSM::OnMyTakeDamage(int32 damage)
 // 데미지를 입다가 일정 HP 이하가 되면 기절상태에 들어가고 싶다.
 // 기절상태에 들어가고 나서 일정 시간이후에 다시 이동 상태로 전이하고 싶다.
 {
+
 	if (mState == EPrisonerState::Die || mState == EPrisonerState::Faint)
 	{
 		return;
 	}
-	HP -= damage;
+	if (IsAttack() == true)
+	{
+		HP -= 2*damage;
+	}
+	else {
+		HP -= damage;
+	}
 
-	if(HP> 0)
-	{
-		SetState(EPrisonerState::Damage);
-		anim->PanimState = mState;
-	}
-	else
-	{
-		SetState(EPrisonerState::Die);
-		anim->PanimState = mState;
-		SetCollision(false);
-	}
+	UE_LOG(LogTemp, Warning, TEXT("Prisoner Damage!! : Hp = %f"), HP);
+	SetState(EPrisonerState::Damage);
+	anim->PanimState = mState;
+
 }
 
 void UPrisonerFSM::SetCollision(bool bvalue)
@@ -345,13 +350,20 @@ void UPrisonerFSM::SetCollision(bool bvalue)
 	if (bvalue)
 	{
 		// collision을 켜야함
-		me->GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		// 펀치가 먹는 상태
+		// 그러나 일반상태에서도 다가가면 튕김
+		me->GetMesh()->SetCollisionProfileName(TEXT("Prisoner"));
 	}
 	else {
 		// collision을 꺼야함
+		// 끈다는 것은 기절 또는 죽음 상태가 되어 collision이 먹지 않는 상태
 		me->GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
 }
+// begin play에서 false로 시작하여 collision이 없는 상태였다가
+// damage를 받고 기절하거나 죽으면 true로 바꿔야한다
+// attack을 할 때도 켜야하고 attack이 끝나면 꺼야한다.
+
 
 void UPrisonerFSM::OnMeshBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
@@ -359,6 +371,22 @@ void UPrisonerFSM::OnMeshBeginOverlap(UPrimitiveComponent* OverlappedComponent, 
 
 	if (player != nullptr)
 	{
-		player->OnDamageProcess(me, 1);
+		UE_LOG(LogTemp, Warning, TEXT("Overlap with Player detected!"));
+		Ptarget->OnTakeDamage(me, 1);
+		SetCollision(false);
+		SetState(EPrisonerState::BackMove); // 공격이 끝난 후의 back move 상태 
+		anim->PanimState = mState;
+	}
+}
+
+bool UPrisonerFSM::IsAttack()
+{
+	if (mState == EPrisonerState::LeftAttack || mState == EPrisonerState::RightAttack || mState == EPrisonerState::Run)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
 	}
 }

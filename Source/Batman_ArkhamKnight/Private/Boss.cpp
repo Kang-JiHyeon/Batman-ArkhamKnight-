@@ -50,7 +50,7 @@ void ABoss::NotifyActorBeginOverlap(AActor* OtherActor)
 	Super:: NotifyActorBeginOverlap(OtherActor);
 
 	APrisoner* prisoner = Cast<APrisoner>(OtherActor);
-	if (prisoner && fsm->mState == EBossState::FastMove)
+	if (prisoner && fsm->mState == EBossState::Crawl)
 	{
 		FVector velo = prisoner->GetActorLocation() - GetActorLocation();
 		velo.Normalize();
