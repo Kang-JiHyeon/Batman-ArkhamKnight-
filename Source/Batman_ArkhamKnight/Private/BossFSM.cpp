@@ -115,14 +115,14 @@ void UBossFSM::MoveState() // boss move to player or idle
 	currentTime += GetWorld()->DeltaTimeSeconds;
 	if (currentTime > moveDelayTime)
 	{
-		int32 statevalue = FMath::RandRange(0, 20);
+		int32 statevalue = FMath::RandRange(0, 12);
 		if (statevalue == 0 && MyGameModeBase->IsPlayingSequence()==false)
 		{
 			direction = Ptarget->GetActorLocation() - me->GetActorLocation();
 			mState = EBossState::Yell;
 			anim->BanimState = mState;
 		}
-		else if (statevalue > 0 && statevalue <5 && MyGameModeBase->IsPlayingSequence() == false)
+		else if (statevalue > 0 && statevalue <2 && MyGameModeBase->IsPlayingSequence() == false)
 		{
 			mState = EBossState::Move;
 			anim->BanimState = mState;
@@ -277,6 +277,7 @@ void UBossFSM::CrawlState()
 {
 // player first position remember and go to there
 // if player is there in boss root -> damage
+	SetCollision(true);
 	check(CrawlCameraShake);
 	if (CrawlCameraShake)
 	{
