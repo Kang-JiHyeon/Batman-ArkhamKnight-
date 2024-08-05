@@ -147,7 +147,7 @@ void UPrisonerFSM::MoveState(float& DeltaSeconds){
 		else
 		{
 			int value = FMath::RandRange(0, 100);
-			if (value < 30)
+			if (value < 40)
 			{
 				SetState(EPrisonerState::Run);
 				anim->PanimState = mState;

@@ -115,7 +115,7 @@ void UBossFSM::MoveState() // boss move to player or idle
 	currentTime += GetWorld()->DeltaTimeSeconds;
 	if (currentTime > moveDelayTime)
 	{
-		int32 statevalue = FMath::RandRange(0, 12);
+		int32 statevalue = FMath::RandRange(0, 10);
 		if (statevalue == 0 && MyGameModeBase->IsPlayingSequence()==false)
 		{
 			direction = Ptarget->GetActorLocation() - me->GetActorLocation();
