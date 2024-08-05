@@ -78,10 +78,10 @@ public:
 
 	// move or idle
 	UPROPERTY(EditAnywhere,Category= PFSM)
-	float moveDelayTime = 5;
+	float moveDelayTime = 4;
 
 	UPROPERTY(EditAnywhere,Category= PFSM)
-	float backmoveDelayTime = 6;
+	float backmoveDelayTime = 5;
 
 	// attack
 	UPROPERTY(EditAnywhere,Category= PFSM)
@@ -97,7 +97,7 @@ public:
 
 	// faint
 	UPROPERTY(EditAnywhere,Category= PFSM)
-	float FaintDelayTime = 10.0f;
+	float FaintDelayTime = 8.0f;
 
 	// HP
 	
