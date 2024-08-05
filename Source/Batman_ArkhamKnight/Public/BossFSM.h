@@ -17,8 +17,8 @@ enum class EBossState :uint8
 	DoubleLeftAttack,
 	Damage,
 	Die,
-	//SaveEnemy,
-	FastMove,
+	Crawl,
+	Yell,
 
 };
 
@@ -40,7 +40,7 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 public:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = FSM)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = BFSM)
 	EBossState mState = EBossState::Idle;
 
 	// 대기상태
@@ -59,19 +59,19 @@ public:
 	void DamageState();
 	// 죽음상태
 	void DieState();
-	// 죄수줍기상태
-	//void SavePrisonerState();
+	// 소리지르기 상태
+	void YellState();
 	// 기어가기 상태
-	void FastMoveState();
+	void CrawlState();
 
 	// 대기시간
-	UPROPERTY(EditAnywhere,Category=FSM)
+	UPROPERTY(EditAnywhere,Category= BFSM)
 	float idleDelayTime = 2;
 	// 경과시간(추가되어 대기시간을 초과할 시간)
 	float currentTime = 0;
 
 	// 타깃 플레이어
-	UPROPERTY(EditAnywhere,Category=FSM)
+	UPROPERTY(EditAnywhere,Category= BFSM)
 	class APlayerCharacter* Ptarget;
 
 	// 타깃 위치
@@ -86,28 +86,48 @@ public:
 	float attackRange = 250.f;
 
 	UPROPERTY(EditAnywhere)
-	float attackDelayTime = 2.0f;
+	float attackDelayTime = 1.5f;
 
 	// move or idle
-	UPROPERTY(EditAnywhere,Category=FSM)
-	float moveDelayTime = 4;
+	UPROPERTY(EditAnywhere,Category= BFSM)
+	float moveDelayTime = 2;
 
 	// fastmove
-	UPROPERTY(EditAnywhere,Category=FSM)
+	UPROPERTY(EditAnywhere,Category= BFSM)
 	float fastDelayTime =2;
+
+	UPROPERTY(EditAnywhere,Category= BFSM)
+	float fastRange =  50.0f;
 
 	// animation
 	UPROPERTY()
 	class UBossAnim* anim;
 
-	// damage
-	void OnDamageProcess();
-
-	UPROPERTY(EditAnywhere,Category=FSM)
-	float damageDelayTime = 2;
+	UPROPERTY(EditAnywhere,Category= BFSM)
+	float damageDelayTime = 1;
 
 	// hp
-	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite,Category=FSM)
+	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite,Category= BFSM)
 	int32 BossHp = 10;
+
+	// fast move중에 player와 mesh가 overlap되면 일어서기
+	UFUNCTION(BlueprintCallable)
+	void OnMeshBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	// damage and die
+	void OnMyTakeDamage(int32 damage);
+
+	// hp
+	UPROPERTY(EditAnywhere)
+	int32 MaxHP=10;
+	int32 HP;
+
+	// crawl camera
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<class UCameraShakeBase> CrawlCameraShake;
 		
+
+	void SetCollision(bool bvalue);
+
+	class APlayerGameModeBase* MyGameModeBase;
 };

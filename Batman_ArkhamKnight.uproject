@@ -9,8 +9,7 @@
 			"Type": "Runtime",
 			"LoadingPhase": "Default",
 			"AdditionalDependencies": [
-				"Engine",
-				"ChaosVehicles"
+				"Engine"
 			]
 		}
 	],
@@ -21,6 +20,10 @@
 			"TargetAllowList": [
 				"Editor"
 			]
+		},
+		{
+			"Name": "MotionWarping",
+			"Enabled": true
 		},
 		{
 			"Name": "ChaosVehiclesPlugin",

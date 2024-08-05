@@ -2,6 +2,7 @@
 
 
 #include "TestEnemy.h"
+#include "PlayerCharacter.h"
 
 // Sets default values
 ATestEnemy::ATestEnemy()
@@ -16,6 +17,22 @@ void ATestEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 	
+}
+
+void ATestEnemy::NotifyActorBeginOverlap(AActor* OtherActor)
+{
+	Super::NotifyActorBeginOverlap(OtherActor);
+
+	auto* player = Cast<APlayerCharacter>(OtherActor);
+
+	if (player != nullptr)
+	{
+		player->OnTakeDamage(this, 1);
+
+		UE_LOG(LogTemp, Warning, TEXT("Enemy->Player Attack!!"));
+	}
+	UE_LOG(LogTemp, Warning, TEXT("Enemy NotifyActorBeginOverlap"));
+
 }
 
 // Called every frame
