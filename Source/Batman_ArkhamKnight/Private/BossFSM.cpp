@@ -39,7 +39,7 @@ void UBossFSM::BeginPlay()
 	me->GetMesh()->OnComponentBeginOverlap.AddDynamic(this, &UBossFSM::OnMeshBeginOverlap);
 
 	// hp	
-	HP = MaxHP;
+	HP = BossHp;
 
 	// GameModeBase
 	MyGameModeBase = Cast<APlayerGameModeBase>(GetWorld()->GetAuthGameMode());
@@ -263,7 +263,7 @@ void UBossFSM::DieState()
 void UBossFSM::YellState()
 {
 	currentTime += GetWorld()->GetDeltaSeconds();
-	if (currentTime > 1.4)
+	if (currentTime > 1.4 && MyGameModeBase->IsPlayingSequence() == false)
 	{
 		mState = EBossState::Crawl;
 		anim->BanimState = mState;

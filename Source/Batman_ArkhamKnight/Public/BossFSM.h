@@ -109,6 +109,7 @@ public:
 	// hp
 	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite,Category= BFSM)
 	int32 BossHp = 10;
+	int32 HP;
 
 	// fast move중에 player와 mesh가 overlap되면 일어서기
 	UFUNCTION(BlueprintCallable)
@@ -116,11 +117,6 @@ public:
 
 	// damage and die
 	void OnMyTakeDamage(int32 damage);
-
-	// hp
-	UPROPERTY(EditAnywhere)
-	int32 MaxHP=10;
-	int32 HP;
 
 	// crawl camera
 	UPROPERTY(EditDefaultsOnly)
