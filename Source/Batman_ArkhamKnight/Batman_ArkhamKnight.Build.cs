@@ -8,7 +8,7 @@ public class Batman_ArkhamKnight : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "LevelSequence", "MovieScene", "MotionWarping", "UMG", "Niagara" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "LevelSequence", "MovieScene", "MotionWarping", "UMG", "Niagara", "ChaosVehicles" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 

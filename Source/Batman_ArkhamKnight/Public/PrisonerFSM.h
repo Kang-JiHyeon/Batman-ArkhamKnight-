@@ -97,7 +97,7 @@ public:
 
 	// faint
 	UPROPERTY(EditAnywhere,Category= PFSM)
-	float FaintDelayTime = 10.0f;
+	float FaintDelayTime = 8.0f;
 
 	// HP
 	
