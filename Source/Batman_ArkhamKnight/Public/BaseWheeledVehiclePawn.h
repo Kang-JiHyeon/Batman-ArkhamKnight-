@@ -17,10 +17,15 @@ class UCameraComponent;
 class UArrowComponent;
 class UInputMappingContext;
 class UInputAction;
+class UCameraShakeBase;
 class UChaosWheeledVehicleMovementComponent;
 class AMissile;
+class AMachineGunBullet;
+class ACannonBall;
 class UNiagaraSystem;
 class UNiagaraComponent;
+
+struct FTimerHandle;
 
 UCLASS()
 class BATMAN_ARKHAMKNIGHT_API ABaseWheeledVehiclePawn : public AWheeledVehiclePawn
@@ -79,6 +84,9 @@ class BATMAN_ARKHAMKNIGHT_API ABaseWheeledVehiclePawn : public AWheeledVehiclePa
 	UInputAction * IA_Boost;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	UInputAction * IA_SwitchMode;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputAction * IA_ToggleCamera;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
@@ -86,6 +94,9 @@ class BATMAN_ARKHAMKNIGHT_API ABaseWheeledVehiclePawn : public AWheeledVehiclePa
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputAction * IA_Missile;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	UInputAction * IA_CannonShot;
 
 	/** Chaos Vehicle Movement Component */
 	
@@ -99,6 +110,9 @@ class BATMAN_ARKHAMKNIGHT_API ABaseWheeledVehiclePawn : public AWheeledVehiclePa
 	//* Camera State*/
 
 	bool bCameraState; // false => BackCamera, true => FrontCamera
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CameraShake", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<UCameraShakeBase> CrackCameraShake;
 
 	//* Target Info*/
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
@@ -114,6 +128,22 @@ class BATMAN_ARKHAMKNIGHT_API ABaseWheeledVehiclePawn : public AWheeledVehiclePa
 	float TargetDistance;
 	bool bIsLockOn;
 
+	//* Vehicle State */
+	bool bIsBattle;
+
+	//* Battle Mode Machine Gun Timer */
+	FTimerHandle MachineGunTimerHandle;
+
+	//* Battle Mode Machine Gun */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "MachineGun", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<AMachineGunBullet> MachineGunBulletClass;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="MachineGun", meta=(AllowPrivateAccess="true"))
+	float MachineGunFireRate = 0.1f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Cannon", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<ACannonBall> CannonBallClass;
+
 public:
 	ABaseWheeledVehiclePawn();
 
@@ -126,16 +156,32 @@ public:
 
 	void ThrottleTrigger(const FInputActionValue& Value);
 	void ThrottleComplete(const FInputActionValue& Value);
+	
 	void BrakeTrigger(const FInputActionValue& Value);
 	void BrakeStart(const FInputActionValue& Value);
 	void BrakeComplete(const FInputActionValue& Value);
+	
 	void Look(const FInputActionValue& Value);
+	
 	void SteeringTrigger(const FInputActionValue& Value);
 	void SteeringComplete(const FInputActionValue& Value);
-	void BoostTrigger(const FInputActionValue& Value);
-	void BoostComplete(const FInputActionValue& Value);
-	void ToggleCamera();
-	void LockOn(const FInputActionValue& Value);
-	void Shot(const FInputActionValue& Value);
-	void FireMissile();
+	
+	void MouseLeftTrigger(const FInputActionValue& Value);		// * Boost, Machine Gun */
+	void MouseLeftComplete(const FInputActionValue& Value);		// * Boost, Machine Gun */
+	void MouseMiddleTrigger(const FInputActionValue& Value);	// * On BattleMode, Shot Cannon */
+	void MouseRight(const FInputActionValue& Value);			// * Mode Switch */
+	UFUNCTION(BlueprintImplementableEvent)
+	void CameraLerp();											// * Camera Lerp */
+	
+	void ToggleCamera();										// * Camera Switching */
+	
+	void LockOn(const FInputActionValue& Value);				// * On DriveMode, Lock On */
+	void Shot(const FInputActionValue& Value);					// * On DriveMode, Execute FireMissile */	
+	void FireMissile();											// * On DriveMode, Shot Missile */
+
+	void FireMachineGun();										// * On BattleMode, Fire Machine Gun */
+	void FireCannon();											// * On BattleMode, Fire Cannon */
+
+	UFUNCTION()
+	void OnComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 };
