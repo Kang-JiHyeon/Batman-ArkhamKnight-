@@ -33,6 +33,12 @@ class BATMAN_ARKHAMKNIGHT_API ABaseWheeledVehiclePawn : public AWheeledVehiclePa
 	GENERATED_BODY()
 
 	/** Components */
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BattleModeWeapon", meta = (AllowPrivateAccess = "true"))
+	UStaticMeshComponent* MachineGun;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BattleModeWeapon", meta = (AllowPrivateAccess = "true"))
+	UStaticMeshComponent* Cannon;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BackCamera", meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* BackSpringArm;
@@ -134,15 +140,20 @@ class BATMAN_ARKHAMKNIGHT_API ABaseWheeledVehiclePawn : public AWheeledVehiclePa
 	//* Battle Mode Machine Gun Timer */
 	FTimerHandle MachineGunTimerHandle;
 
+	// * Battle Mode TargetPoint */
+	FVector TargetPoint;
+
 	//* Battle Mode Machine Gun */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "MachineGun", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<AMachineGunBullet> MachineGunBulletClass;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="MachineGun", meta=(AllowPrivateAccess="true"))
-	float MachineGunFireRate = 0.1f;
+	float MachineGunFireRate = 0.15f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Cannon", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<ACannonBall> CannonBallClass;
+
+	
 
 public:
 	ABaseWheeledVehiclePawn();

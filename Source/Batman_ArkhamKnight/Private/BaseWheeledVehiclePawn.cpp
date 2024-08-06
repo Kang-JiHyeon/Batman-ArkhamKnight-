@@ -28,10 +28,19 @@ ABaseWheeledVehiclePawn::ABaseWheeledVehiclePawn()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	MachineGun = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MachineGun"));
+	MachineGun -> SetupAttachment(RootComponent, "MachineGun");
+	MachineGun -> SetRelativeLocation(FVector(-53.f, -90.f, 136.f));
+
+	Cannon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Cannon"));
+	Cannon -> SetupAttachment(RootComponent, "Cannon");
+	Cannon -> SetRelativeLocation(FVector(-45.f, 0.f, 155.f));
+	
+
 	BackSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Back SpringArm"));
 	BackSpringArm->SetupAttachment(RootComponent);
 	BackSpringArm->SetRelativeLocation(FVector(0.f, 0.f, 75.f));
-	BackSpringArm->TargetArmLength = 700.f;
+	BackSpringArm->TargetArmLength = 750.f;
 	BackSpringArm->SocketOffset = FVector(0.f, 0.f, 150.f);
 
 	BackCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Back Camera"));
@@ -102,6 +111,28 @@ void ABaseWheeledVehiclePawn::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	GetMesh() -> SetAngularDamping(UKismetMathLibrary::SelectFloat(0, 3, ChaosVehicleMovementComponent -> IsMovingOnGround()));
+
+	FHitResult HitResult;
+	FVector Start = BackCamera -> GetComponentLocation();
+	FVector End = Start + BackCamera -> GetForwardVector() * 10000;
+	FCollisionQueryParams CollisionQueryParams;
+	CollisionQueryParams.AddIgnoredActor(this);
+	GetWorld() -> LineTraceSingleByChannel(HitResult, Start, End, ECollisionChannel::ECC_Visibility);
+
+	if(HitResult.bBlockingHit)
+	{
+		TargetPoint = HitResult.Location;
+	}
+	else
+	{
+		TargetPoint = End;
+	}
+
+	MachineGun -> SetWorldRotation(UKismetMathLibrary::FindLookAtRotation(MachineGun -> GetComponentLocation(), TargetPoint));
+	Cannon -> SetWorldRotation(UKismetMathLibrary::FindLookAtRotation(Cannon -> GetComponentLocation(), TargetPoint));
+
+	UKismetSystemLibrary::DrawDebugLine(GetWorld(), Start, TargetPoint, FLinearColor::Red, 0.f, 1.f);
+	
 
 	if(TargetActor)
 	{
@@ -202,7 +233,8 @@ void ABaseWheeledVehiclePawn::MouseLeftTrigger(const FInputActionValue& Value)
 			this,
 			&ABaseWheeledVehiclePawn::FireMachineGun,
 			MachineGunFireRate,
-			false);
+			false,
+			0.f);
 	}
 	else
 	{
@@ -216,7 +248,7 @@ void ABaseWheeledVehiclePawn::MouseLeftComplete(const FInputActionValue& Value)
 {
 	if(bIsBattle)
 	{
-		
+		FireMachineGun();
 	}
 	else
 	{
@@ -303,12 +335,12 @@ void ABaseWheeledVehiclePawn::FireMissile()
 
 void ABaseWheeledVehiclePawn::FireMachineGun()
 {
-	GetWorld() -> SpawnActor<AMachineGunBullet>(MachineGunBulletClass, MissileSpawnLocationLeft->GetComponentTransform());
+	GetWorld() -> SpawnActor<AMachineGunBullet>(MachineGunBulletClass, MachineGun->GetComponentTransform());
 }
 
 void ABaseWheeledVehiclePawn::FireCannon()
 {
-	GetWorld() -> SpawnActor<ACannonBall>(CannonBallClass, MissileSpawnLocationRight->GetComponentTransform());
+	GetWorld() -> SpawnActor<ACannonBall>(CannonBallClass, Cannon->GetComponentTransform());
 }
 
 
