@@ -265,7 +265,7 @@ void APlayerCharacter::OnActionAttack(const FInputActionValue& Value)
 void APlayerCharacter::OnActionBossAttack(const FInputActionValue& Value)
 {
 	if (TargetBoss == nullptr) return;
-    if (AttackComboCount < MaxBossAttackComboCount) return;
+    //if (AttackComboCount < MaxBossAttackComboCount) return;
 
 	// 이동할 위치 설정
 	FVector offset = UKismetMathLibrary::GetDirectionUnitVector(TargetBoss->GetActorLocation(), GetActorLocation()) * 100;
