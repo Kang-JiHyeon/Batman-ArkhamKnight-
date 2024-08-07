@@ -216,9 +216,10 @@ void APlayerCharacter::OnActionAttack(const FInputActionValue& Value)
 	{
 		// 대상 위치로 이동
 		bMovingToTarget = true;
-
 		// 최대 스피드 증가
 		GetCharacterMovement()->MaxWalkSpeed = AttackMaxSpeed;
+		// 반격 상태라면 슬로우
+		bIsSlow = TargetPrisoner->fsm->IsAttack();
 	}
 	// 공격할 수 있는 대상이 없다면, 앞방향으로 일정거리만큼 이동
 	else
@@ -282,13 +283,13 @@ void APlayerCharacter::MoveToTarget(AActor* Target)
 
 		bMovingToTarget = false;
 		bRotatingToTarget = true;
-		
-		// 매쉬 콜리전 활성화
-		SetMeshCollisionEnabled(true);
+
 		// 애니메이션 실행
 		PlayAttackAnimation();
 		// 최대 스피드 복구
 		GetCharacterMovement()->MaxWalkSpeed = DefaultMaxSpeed;
+
+
 	}
 }
 
