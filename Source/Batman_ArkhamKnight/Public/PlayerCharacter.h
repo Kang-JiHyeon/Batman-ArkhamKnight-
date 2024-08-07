@@ -111,8 +111,6 @@ public:
 	int32 DefaultMaxSpeed;
 	int32 AnimComboCount = 0;
 
-	FVector TargetPrisonerLocation;
-
 	// 보스 공격
 	UPROPERTY(EditDefaultsOnly)
 	int32 MaxBossAttackComboCount = 12;
@@ -166,10 +164,7 @@ private:
 
 	// Animation
 	void PlayAttackAnimation();
-	void PlayBossAttack();
 
-
-	void SetGlobalTimeDilation(float Value);
 	void SetAttackComboCount(float Value);
 
 	void CallDelegateLevelSequnce();

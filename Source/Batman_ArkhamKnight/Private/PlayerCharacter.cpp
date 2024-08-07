@@ -206,8 +206,6 @@ void APlayerCharacter::OnActionAttack(const FInputActionValue& Value)
 		// 대상 위치로 이동
 		bMovingToTarget = true;
 
-		TargetPrisonerLocation = TargetPrisoner->GetActorLocation();
-
 		// 최대 스피드 증가
 		GetCharacterMovement()->MaxWalkSpeed = AttackMaxSpeed;
 	}
@@ -260,8 +258,7 @@ void APlayerCharacter::MoveToTarget(AActor* Target)
 	if (!Target) return;
 	if (!bMovingToTarget) return;
 
-	//FVector dir = Target->GetActorLocation() - GetActorLocation();
-	FVector dir = TargetPrisonerLocation - GetActorLocation();
+	FVector dir = Target->GetActorLocation() - GetActorLocation();
 	dir.Z = 0;
 	AddMovementInput(dir.GetSafeNormal());
 
@@ -406,17 +403,12 @@ void APlayerCharacter::PlayAttackAnimation()
 	}
 
 	AnimComboCount++;
-	
-	if (OverlapPrisoner != nullptr)
-	{
-		OverlapPrisoner->fsm->OnMyTakeDamage(1);
-		OverlapPrisoner = nullptr;
-	}
 }
 
 void APlayerCharacter::OnHitPrisoner()
 {
 	if(TargetPrisoner == nullptr) return;
+
 	// hit 대상이 거리 내에 있다면 데미지 입히기
 	float distance = FVector::Distance(TargetPrisoner->GetActorLocation(), GetActorLocation());
 	if (distance < 150)
@@ -429,11 +421,7 @@ void APlayerCharacter::OnHitBoss()
 {
 	if (TargetBoss == nullptr) return;
 
-	//float distance = FVector::Distance(TargetBoss->GetActorLocation(), GetActorLocation());
-	//if (distance < 150)
-	//{
-		TargetBoss->fsm->OnMyTakeDamage(5);
-	//}
+	TargetBoss->fsm->OnMyTakeDamage(5);
 }
 
 void APlayerCharacter::OnTakeDamage(AActor* OtherActor, int32 Damage)
@@ -515,14 +503,14 @@ void APlayerCharacter::ResetCombo()
 
 void APlayerCharacter::SetMeshCollisionEnabled(bool bValue)
 {
-	if (bValue)
-	{
-		GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	}
-	else
-	{
-		GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	}
+	//if (bValue)
+	//{
+	//	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	//}
+	//else
+	//{
+	//	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	//}
 }
 
 void APlayerCharacter::OnMeshBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
