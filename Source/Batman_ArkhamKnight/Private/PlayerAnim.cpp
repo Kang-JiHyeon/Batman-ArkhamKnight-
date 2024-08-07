@@ -71,7 +71,19 @@ void UPlayerAnim::OnStartSlowMotion()
 
 void UPlayerAnim::OnEndSlowMotion()
 {
-
-
     UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1);
+}
+
+void UPlayerAnim::AnimNotify_OnHit()
+{
+    if(Player == nullptr) return;
+
+    Player->OnHitPrisoner();
+}
+
+void UPlayerAnim::AnimNotify_OnHitBoss()
+{
+    if (Player == nullptr) return;
+
+    Player->OnHitBoss();
 }

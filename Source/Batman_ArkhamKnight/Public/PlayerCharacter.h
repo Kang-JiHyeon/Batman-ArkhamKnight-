@@ -80,6 +80,8 @@ public:
 	class UAnimMontage* DamageMontage;
 	UPROPERTY(EditAnywhere)
 	class UAnimMontage* BossAttackMontage;
+	UPROPERTY(EditAnywhere)
+	class UAnimMontage* DodgeMontage;
 
 	// 보스
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
@@ -109,6 +111,8 @@ public:
 	int32 DefaultMaxSpeed;
 	int32 AnimComboCount = 0;
 
+	FVector TargetPrisonerLocation;
+
 	// 보스 공격
 	UPROPERTY(EditDefaultsOnly)
 	int32 MaxBossAttackComboCount = 12;
@@ -135,10 +139,6 @@ public:
 	// TimerHandler
 	FTimerHandle DamageTimerHandler;
 
-	// Level Sequence
-	//UPROPERTY(EditDefaultsOnly)
-	//class UPlayerBossAttackSequence* LevelSequenceComp;
-
 	class APlayerGameModeBase* MyGameModeBase;
 
 	// Motion Warping
@@ -161,9 +161,13 @@ private:
 	EEnemyDirection GetTargetVerticalDirection(AActor* TargetActor);
 	EEnemyDirection GetTargetHorizontalDirection(AActor* TargetActor);
 
+	// Find Target
+	APrisoner* FindTargetPrisoner();
+
 	// Animation
 	void PlayAttackAnimation();
 	void PlayBossAttack();
+
 
 	void SetGlobalTimeDilation(float Value);
 	void SetAttackComboCount(float Value);
@@ -175,6 +179,10 @@ public:
 	void ResetCombo();
 	void OnTakeDamage(AActor* OtherActor, int32 Damage);
 	void OnEndDamage();
+	
+	void OnHitPrisoner();
+	void OnHitBoss();
+
 	void SetMeshCollisionEnabled(bool bValue);
 
 	UFUNCTION(BlueprintCallable)
