@@ -93,6 +93,9 @@ class BATMAN_ARKHAMKNIGHT_API ABaseWheeledVehiclePawn : public AWheeledVehiclePa
 	UInputAction * IA_SwitchMode;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	UInputAction * IA_BoostCamera;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputAction * IA_ToggleCamera;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
@@ -119,6 +122,9 @@ class BATMAN_ARKHAMKNIGHT_API ABaseWheeledVehiclePawn : public AWheeledVehiclePa
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CameraShake", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<UCameraShakeBase> CrackCameraShake;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CameraShake", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<UCameraShakeBase> BoostCameraShake;
 
 	//* Target Info*/
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
@@ -181,8 +187,12 @@ public:
 	void MouseLeftComplete(const FInputActionValue& Value);		// * Boost, Machine Gun */
 	void MouseMiddleTrigger(const FInputActionValue& Value);	// * On BattleMode, Shot Cannon */
 	void MouseRight(const FInputActionValue& Value);			// * Mode Switch */
+	void BoostStart(const FInputActionValue& Value);			// * Boost Start */
+	void BoostEnd(const FInputActionValue& Value);				// * Boost End */
 	UFUNCTION(BlueprintImplementableEvent)
-	void CameraLerp();											// * Camera Lerp */
+	void ModeSwitchCameraLerp();								// * ModeSwitch Camera Lerp */
+	UFUNCTION(BlueprintImplementableEvent)
+	void BoostCameraLerp();										// * Boost Camera Lerp */
 	
 	void ToggleCamera();										// * Camera Switching */
 	
@@ -192,7 +202,7 @@ public:
 
 	void FireMachineGun();										// * On BattleMode, Fire Machine Gun */
 	void FireCannon();											// * On BattleMode, Fire Cannon */
-
+	
 	UFUNCTION()
 	void OnComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 };

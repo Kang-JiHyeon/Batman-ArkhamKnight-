@@ -4,6 +4,7 @@
 #include "VehicleEnemy.h"
 
 #include "Missile.h"
+#include "Components/ArrowComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/SplineComponent.h"
 #include "Components/TimelineComponent.h"
@@ -31,6 +32,11 @@ AVehicleEnemy::AVehicleEnemy()
 	VehicleMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("VehicleMesh"));
 	VehicleMesh->SetupAttachment(Collision);
 
+	MissileSpawnLocation = CreateDefaultSubobject<UArrowComponent>(TEXT("MissileSpawnLocation"));
+	MissileSpawnLocation->SetupAttachment(VehicleMesh);
+	MissileSpawnLocation->SetRelativeLocation(FVector(-50.f, 0.f, 140.f));
+	MissileSpawnLocation->SetRelativeRotation(FRotator(10.f, 0.f, 0.f));
+
 	OnSplineTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("Timeline"));
 
 	MoveOnSpline.BindUFunction(this, FName("Move"));
@@ -48,6 +54,13 @@ void AVehicleEnemy::BeginPlay()
 
 	Move();
 	Health = 6;
+
+	GetWorld() -> GetTimerManager().SetTimer(MissileTimerHandle,
+		this,
+		&AVehicleEnemy::FireMissile,
+		5.f,
+		true,
+		4.f);
 }
 
 // Called every frame
@@ -68,4 +81,19 @@ void AVehicleEnemy::Move()
 	FRotator newRotation = TrackSpline -> GetRotationAtDistanceAlongSpline(distance, ESplineCoordinateSpace::World);
 	
 	SetActorTransform(FTransform(newRotation, newLocation, FVector(1.f)));
+}
+
+void AVehicleEnemy::FireMissile()
+{
+	AMissile* Missile = GetWorld() -> SpawnActor<AMissile>(MissileClass, MissileSpawnLocation -> GetComponentTransform());
+	Missile -> SetTarget(GetWorld() -> GetFirstPlayerController() -> GetPawn());
+}
+
+void AVehicleEnemy::OnDamage(int Amount)
+{
+	Health -= Amount;
+	if(Health <= 0)
+	{
+		Destroy();
+	}
 }

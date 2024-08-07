@@ -2,10 +2,13 @@
 
 
 #include "Missile.h"
+
+#include "BaseWheeledVehiclePawn.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "TimerManager.h"
 #include "VehicleEnemy.h"
 #include "Components/CapsuleComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 
@@ -82,12 +85,15 @@ void AMissile::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 {
 	if(AVehicleEnemy* EnemyVehicle = Cast<AVehicleEnemy>(OtherActor))
 	{
-		UKismetSystemLibrary::PrintString(GetWorld(), TEXT("Hit"));
+		UKismetSystemLibrary::PrintString(GetWorld(), TEXT("Enemy Hit"));
 		Destroy();
-		EnemyVehicle -> SetHealth(EnemyVehicle -> GetHealth() - 1);
-		if(EnemyVehicle -> GetHealth() <= 0)
-		{
-			EnemyVehicle -> Destroy();
-		}
+		EnemyVehicle -> OnDamage(1);
+	}
+
+	else if(ABaseWheeledVehiclePawn* BatMobile = Cast<ABaseWheeledVehiclePawn>(OtherActor))
+	{
+		UKismetSystemLibrary::PrintString(GetWorld(), TEXT("BatMobile Hit"));
+		UGameplayStatics::GetPlayerController(GetWorld(), 0) -> PlayerCameraManager -> PlayWorldCameraShake(GetWorld(), DamageCameraShake, GetActorLocation(), 10.f, 1000.f, 1.f, false);
+		Destroy();
 	}
 }

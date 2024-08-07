@@ -18,6 +18,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "NiagaraComponent.h"
 #include "NiagaraSystem.h"
+#include "Kismet/GameplayStatics.h"
 
 /**
  *	Writer : Lee Dong Geun
@@ -131,7 +132,7 @@ void ABaseWheeledVehiclePawn::Tick(float DeltaTime)
 	MachineGun -> SetWorldRotation(UKismetMathLibrary::FindLookAtRotation(MachineGun -> GetComponentLocation(), TargetPoint));
 	Cannon -> SetWorldRotation(UKismetMathLibrary::FindLookAtRotation(Cannon -> GetComponentLocation(), TargetPoint));
 
-	UKismetSystemLibrary::DrawDebugLine(GetWorld(), Start, TargetPoint, FLinearColor::Red, 0.f, 1.f);
+	//UKismetSystemLibrary::DrawDebugLine(GetWorld(), Start, TargetPoint, FLinearColor::Red, 0.f, 1.f);
 	
 
 	if(TargetActor)
@@ -174,6 +175,9 @@ void ABaseWheeledVehiclePawn::SetupPlayerInputComponent(UInputComponent* PlayerI
 		EnhancedInputComponent->BindAction(IA_LockOn, ETriggerEvent::Started, this, &ABaseWheeledVehiclePawn::LockOn);
 		EnhancedInputComponent->BindAction(IA_Missile, ETriggerEvent::Triggered, this, &ABaseWheeledVehiclePawn::Shot);
 		EnhancedInputComponent->BindAction(IA_CannonShot, ETriggerEvent::Triggered, this, &ABaseWheeledVehiclePawn::MouseMiddleTrigger);
+
+		EnhancedInputComponent->BindAction(IA_BoostCamera, ETriggerEvent::Started, this, &ABaseWheeledVehiclePawn::BoostStart);
+		EnhancedInputComponent->BindAction(IA_BoostCamera, ETriggerEvent::Completed, this, &ABaseWheeledVehiclePawn::BoostEnd);
 	}
 }
 
@@ -241,6 +245,7 @@ void ABaseWheeledVehiclePawn::MouseLeftTrigger(const FInputActionValue& Value)
 		ChaosVehicleMovementComponent-> SetMaxEngineTorque(BoostSpeed);
 		LeftBoostVFXComponent -> Activate();
 		RightBoostVFXComponent -> Activate();
+		UGameplayStatics::GetPlayerController(GetWorld(), 0) -> PlayerCameraManager -> PlayWorldCameraShake(GetWorld(), BoostCameraShake, GetActorLocation(), 10.f, 1000.f, 1.f, false);
 	}
 }
 
@@ -258,6 +263,16 @@ void ABaseWheeledVehiclePawn::MouseLeftComplete(const FInputActionValue& Value)
 	}
 }
 
+void ABaseWheeledVehiclePawn::BoostStart(const FInputActionValue& Value)
+{
+	if(!bIsBattle)	BoostCameraLerp();
+}
+
+void ABaseWheeledVehiclePawn::BoostEnd(const FInputActionValue& Value)
+{
+	if(!bIsBattle)	BoostCameraLerp();
+}
+
 void ABaseWheeledVehiclePawn::MouseMiddleTrigger(const FInputActionValue& Value)
 {
 	if(bIsBattle)
@@ -273,13 +288,13 @@ void ABaseWheeledVehiclePawn::MouseRight(const FInputActionValue& Value)
 	{
 		UKismetSystemLibrary::PrintString(GetWorld(), TEXT("Battle Mode On"));
 		ChaosVehicleMovementComponent -> SetMaxEngineTorque(750.f);
-		CameraLerp();
+		ModeSwitchCameraLerp();
 	}
 	else
 	{
 		UKismetSystemLibrary::PrintString(GetWorld(), TEXT("Battle Mode Off"));
 		ChaosVehicleMovementComponent -> SetMaxEngineTorque(BaseSpeed);
-		CameraLerp();
+		ModeSwitchCameraLerp();
 	}
 }
 

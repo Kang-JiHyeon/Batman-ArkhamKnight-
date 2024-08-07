@@ -12,6 +12,7 @@
  */
 
 class USkeletalMeshComponent;
+class UCameraShakeBase;
 class UCapsuleComponent;
 
 struct FTimerHandle;
@@ -26,6 +27,9 @@ class BATMAN_ARKHAMKNIGHT_API AMissile : public AActor
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "MissileMesh", meta = (AllowPrivateAccess = "true"))
 	USkeletalMeshComponent* MissileMesh;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CameraShake", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<UCameraShakeBase> DamageCameraShake;
 
 	UPROPERTY()
 	AActor* TargetActor;
