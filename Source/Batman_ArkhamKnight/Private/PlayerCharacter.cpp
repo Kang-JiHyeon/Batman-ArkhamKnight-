@@ -39,6 +39,17 @@ APlayerCharacter::APlayerCharacter()
 
 	// 레벨 시퀀스
 	MotionWarpingComp = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComp"));
+
+	// 망토 Static Mesh
+	CapeMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CapeMeshComp"));
+	CapeMeshComp->SetupAttachment(GetMesh(), TEXT("neck_01"));
+	CapeMeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	ConstructorHelpers::FObjectFinder<UStaticMesh> CapeMeshFinder(TEXT("/Script/Engine.StaticMesh'/Game/KJH/Models/Batman_cape/Batman_Cape.Batman_Cape'"));
+	if (CapeMeshFinder.Succeeded())
+	{
+		CapeMeshComp->SetStaticMesh(CapeMeshFinder.Object);
+	}
 }
 
 // Called when the game starts or when spawned

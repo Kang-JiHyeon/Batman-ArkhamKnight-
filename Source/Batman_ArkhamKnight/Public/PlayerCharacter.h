@@ -54,6 +54,9 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	class UCameraComponent* CameraComp;
 
+	UPROPERTY(EditDefaultsOnly)
+	class UStaticMeshComponent* CapeMeshComp;
+
 	// е╟ ют╥б
 	UPROPERTY(EditDefaultsOnly)
 	class UInputMappingContext* IMP_Player;
