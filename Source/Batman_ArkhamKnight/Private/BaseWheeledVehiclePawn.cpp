@@ -3,7 +3,6 @@
 
 #include "BaseWheeledVehiclePawn.h"
 
-#include "CannonBall.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "ChaosVehicleMovementComponent.h"
@@ -22,7 +21,7 @@
 
 /**
  *	Writer : Lee Dong Geun
- *	Last Modified : 2024-08-04
+ *	Last Modified : 2024-08-08
  */
 
 ABaseWheeledVehiclePawn::ABaseWheeledVehiclePawn()
@@ -31,13 +30,8 @@ ABaseWheeledVehiclePawn::ABaseWheeledVehiclePawn()
 
 	MachineGun = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MachineGun"));
 	MachineGun -> SetupAttachment(RootComponent, "MachineGun");
-	MachineGun -> SetRelativeLocation(FVector(-53.f, -90.f, 136.f));
-
-	Cannon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Cannon"));
-	Cannon -> SetupAttachment(RootComponent, "Cannon");
-	Cannon -> SetRelativeLocation(FVector(-45.f, 0.f, 155.f));
+	MachineGun -> SetRelativeLocation(FVector(-45.f, 0.f, 155.f));
 	
-
 	BackSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Back SpringArm"));
 	BackSpringArm->SetupAttachment(RootComponent);
 	BackSpringArm->SetRelativeLocation(FVector(0.f, 0.f, 75.f));
@@ -130,7 +124,6 @@ void ABaseWheeledVehiclePawn::Tick(float DeltaTime)
 	}
 
 	MachineGun -> SetWorldRotation(UKismetMathLibrary::FindLookAtRotation(MachineGun -> GetComponentLocation(), TargetPoint));
-	Cannon -> SetWorldRotation(UKismetMathLibrary::FindLookAtRotation(Cannon -> GetComponentLocation(), TargetPoint));
 
 	//UKismetSystemLibrary::DrawDebugLine(GetWorld(), Start, TargetPoint, FLinearColor::Red, 0.f, 1.f);
 	
@@ -158,7 +151,6 @@ void ABaseWheeledVehiclePawn::SetupPlayerInputComponent(UInputComponent* PlayerI
 		EnhancedInputComponent->BindAction(IA_Throttle, ETriggerEvent::Completed, this, &ABaseWheeledVehiclePawn::ThrottleComplete);
 		
 		EnhancedInputComponent->BindAction(IA_Brake, ETriggerEvent::Triggered, this, &ABaseWheeledVehiclePawn::BrakeTrigger);
-		EnhancedInputComponent->BindAction(IA_Brake, ETriggerEvent::Started, this, &ABaseWheeledVehiclePawn::BrakeStart);
 		EnhancedInputComponent->BindAction(IA_Brake, ETriggerEvent::Completed, this, &ABaseWheeledVehiclePawn::BrakeComplete);
 
 		EnhancedInputComponent->BindAction(IA_Look, ETriggerEvent::Triggered, this, &ABaseWheeledVehiclePawn::Look);
@@ -170,11 +162,10 @@ void ABaseWheeledVehiclePawn::SetupPlayerInputComponent(UInputComponent* PlayerI
 		EnhancedInputComponent->BindAction(IA_Boost, ETriggerEvent::Completed, this, &ABaseWheeledVehiclePawn::MouseLeftComplete);
 
 		EnhancedInputComponent->BindAction(IA_ToggleCamera, ETriggerEvent::Triggered, this, &ABaseWheeledVehiclePawn::ToggleCamera);
-		EnhancedInputComponent->BindAction(IA_SwitchMode, ETriggerEvent::Started, this, &ABaseWheeledVehiclePawn::MouseRight);
+		EnhancedInputComponent->BindAction(IA_MachineGun, ETriggerEvent::Triggered, this, &ABaseWheeledVehiclePawn::MouseRight);
 
 		EnhancedInputComponent->BindAction(IA_LockOn, ETriggerEvent::Started, this, &ABaseWheeledVehiclePawn::LockOn);
 		EnhancedInputComponent->BindAction(IA_Missile, ETriggerEvent::Triggered, this, &ABaseWheeledVehiclePawn::Shot);
-		EnhancedInputComponent->BindAction(IA_CannonShot, ETriggerEvent::Triggered, this, &ABaseWheeledVehiclePawn::MouseMiddleTrigger);
 
 		EnhancedInputComponent->BindAction(IA_BoostCamera, ETriggerEvent::Started, this, &ABaseWheeledVehiclePawn::BoostStart);
 		EnhancedInputComponent->BindAction(IA_BoostCamera, ETriggerEvent::Completed, this, &ABaseWheeledVehiclePawn::BoostEnd);
@@ -184,7 +175,6 @@ void ABaseWheeledVehiclePawn::SetupPlayerInputComponent(UInputComponent* PlayerI
 void ABaseWheeledVehiclePawn::ThrottleTrigger(const FInputActionValue& Value)
 {
 	ChaosVehicleMovementComponent->SetThrottleInput(Value.Get<float>());
-	//UKismetSystemLibrary::PrintString(GetWorld(), FString::Format(TEXT("Speed : {0}"), {ChaosVehicleMovementComponent -> GetForwardSpeed()}));
 }
 
 void ABaseWheeledVehiclePawn::ThrottleComplete(const FInputActionValue& Value)
@@ -195,11 +185,6 @@ void ABaseWheeledVehiclePawn::ThrottleComplete(const FInputActionValue& Value)
 void ABaseWheeledVehiclePawn::BrakeTrigger(const FInputActionValue& Value)
 {
 	ChaosVehicleMovementComponent->SetBrakeInput(Value.Get<float>());
-}
-
-void ABaseWheeledVehiclePawn::BrakeStart(const FInputActionValue& Value)
-{
-	
 }
 
 void ABaseWheeledVehiclePawn::BrakeComplete(const FInputActionValue& Value)
@@ -231,88 +216,54 @@ void ABaseWheeledVehiclePawn::SteeringComplete(const FInputActionValue& Value)
 
 void ABaseWheeledVehiclePawn::MouseLeftTrigger(const FInputActionValue& Value)
 {
-	if(bIsBattle)
-	{
-		GetWorld() -> GetTimerManager().SetTimer(MachineGunTimerHandle,
+	
+	ChaosVehicleMovementComponent-> SetMaxEngineTorque(BoostSpeed);
+	LeftBoostVFXComponent -> Activate();
+	RightBoostVFXComponent -> Activate();
+	UGameplayStatics::GetPlayerController(GetWorld(), 0) -> PlayerCameraManager -> PlayWorldCameraShake(GetWorld(), BoostCameraShake, GetActorLocation(), 10.f, 1000.f, 1.f, false);
+	
+}
+
+void ABaseWheeledVehiclePawn::MouseLeftComplete(const FInputActionValue& Value)
+{
+	ChaosVehicleMovementComponent-> SetMaxEngineTorque(BaseSpeed);
+	LeftBoostVFXComponent -> Deactivate();
+	RightBoostVFXComponent -> Deactivate();
+}
+
+void ABaseWheeledVehiclePawn::BoostStart(const FInputActionValue& Value)
+{
+	BoostCameraLerp();
+}
+
+void ABaseWheeledVehiclePawn::BoostEnd(const FInputActionValue& Value)
+{
+	BoostCameraLerp();
+}
+
+void ABaseWheeledVehiclePawn::MouseRight(const FInputActionValue& Value)
+{
+	GetWorld() -> GetTimerManager().SetTimer(MachineGunTimerHandle,
 			this,
 			&ABaseWheeledVehiclePawn::FireMachineGun,
 			MachineGunFireRate,
 			false,
 			0.f);
-	}
-	else
-	{
-		ChaosVehicleMovementComponent-> SetMaxEngineTorque(BoostSpeed);
-		LeftBoostVFXComponent -> Activate();
-		RightBoostVFXComponent -> Activate();
-		UGameplayStatics::GetPlayerController(GetWorld(), 0) -> PlayerCameraManager -> PlayWorldCameraShake(GetWorld(), BoostCameraShake, GetActorLocation(), 10.f, 1000.f, 1.f, false);
-	}
-}
-
-void ABaseWheeledVehiclePawn::MouseLeftComplete(const FInputActionValue& Value)
-{
-	if(bIsBattle)
-	{
-		FireMachineGun();
-	}
-	else
-	{
-		ChaosVehicleMovementComponent-> SetMaxEngineTorque(BaseSpeed);
-		LeftBoostVFXComponent -> Deactivate();
-		RightBoostVFXComponent -> Deactivate();
-	}
-}
-
-void ABaseWheeledVehiclePawn::BoostStart(const FInputActionValue& Value)
-{
-	if(!bIsBattle)	BoostCameraLerp();
-}
-
-void ABaseWheeledVehiclePawn::BoostEnd(const FInputActionValue& Value)
-{
-	if(!bIsBattle)	BoostCameraLerp();
-}
-
-void ABaseWheeledVehiclePawn::MouseMiddleTrigger(const FInputActionValue& Value)
-{
-	if(bIsBattle)
-	{
-		FireCannon();
-	}
-}
-
-void ABaseWheeledVehiclePawn::MouseRight(const FInputActionValue& Value)
-{
-	bIsBattle = !bIsBattle;
-	if(bIsBattle)
-	{
-		UKismetSystemLibrary::PrintString(GetWorld(), TEXT("Battle Mode On"));
-		ChaosVehicleMovementComponent -> SetMaxEngineTorque(750.f);
-		ModeSwitchCameraLerp();
-	}
-	else
-	{
-		UKismetSystemLibrary::PrintString(GetWorld(), TEXT("Battle Mode Off"));
-		ChaosVehicleMovementComponent -> SetMaxEngineTorque(BaseSpeed);
-		ModeSwitchCameraLerp();
-	}
 }
 
 void ABaseWheeledVehiclePawn::LockOn(const FInputActionValue& Value)
 {
-	if(!bIsBattle)
-	{
-		FHitResult HitResult;
-		FVector Start = GetActorLocation() + FVector(700.f, 0.f, 200.f);
-		FVector End = Start + GetActorForwardVector() * 10000;
-		bool bHit = UKismetSystemLibrary::SphereTraceSingleForObjects(GetWorld(), Start, End, 800.f, TArray<TEnumAsByte<EObjectTypeQuery>>{UEngineTypes::ConvertToObjectType(ECC_Pawn)}, false, TArray<AActor*>{this}, EDrawDebugTrace::ForDuration, HitResult, true, FLinearColor::Red, FLinearColor::Green, 1.f);
+	FHitResult HitResult;
+	FVector Start = GetActorLocation() + FVector(700.f, 0.f, 200.f);
+	FVector End = Start + GetActorForwardVector() * 10000;
+	bool bHit = UKismetSystemLibrary::SphereTraceSingleForObjects(GetWorld(), Start, End, 800.f, TArray<TEnumAsByte<EObjectTypeQuery>>{UEngineTypes::ConvertToObjectType(ECC_Pawn)}, false, TArray<AActor*>{this}, EDrawDebugTrace::ForDuration, HitResult, true, FLinearColor::Red, FLinearColor::Green, 1.f);
 
-		if(bHit)
-		{
-			TargetActor = HitResult.GetActor();
-			bIsLockOn = true;
-		}
+	if(bHit)
+	{
+		TargetActor = HitResult.GetActor();
+		bIsLockOn = true;
 	}
+	
 }
 
 
@@ -352,13 +303,6 @@ void ABaseWheeledVehiclePawn::FireMachineGun()
 {
 	GetWorld() -> SpawnActor<AMachineGunBullet>(MachineGunBulletClass, MachineGun->GetComponentTransform());
 }
-
-void ABaseWheeledVehiclePawn::FireCannon()
-{
-	GetWorld() -> SpawnActor<ACannonBall>(CannonBallClass, Cannon->GetComponentTransform());
-}
-
-
 
 void ABaseWheeledVehiclePawn::OnComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
 {

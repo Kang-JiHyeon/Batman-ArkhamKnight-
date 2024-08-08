@@ -9,6 +9,11 @@
 class USphereComponent;
 class UStaticMeshComponent;
 
+/**
+ *	Writer : Lee Dong Geun
+ *	Last Modified : 2024-08-08
+ */
+
 
 UCLASS()
 class BATMAN_ARKHAMKNIGHT_API AMachineGunBullet : public AActor
@@ -22,7 +27,7 @@ class BATMAN_ARKHAMKNIGHT_API AMachineGunBullet : public AActor
 	UStaticMeshComponent* BulletMesh;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
-	float Speed = 1000.f;
+	float Speed = 30000.f;
 
 	// * Particle */
 	

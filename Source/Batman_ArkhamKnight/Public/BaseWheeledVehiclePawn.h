@@ -9,7 +9,7 @@
 
 /**
  *	Writer : Lee Dong Geun
- *	Last Modified : 2024-08-04
+ *	Last Modified : 2024-08-08
  */
 
 class USpringArmComponent;
@@ -36,9 +36,6 @@ class BATMAN_ARKHAMKNIGHT_API ABaseWheeledVehiclePawn : public AWheeledVehiclePa
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BattleModeWeapon", meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* MachineGun;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BattleModeWeapon", meta = (AllowPrivateAccess = "true"))
-	UStaticMeshComponent* Cannon;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BackCamera", meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* BackSpringArm;
@@ -90,7 +87,7 @@ class BATMAN_ARKHAMKNIGHT_API ABaseWheeledVehiclePawn : public AWheeledVehiclePa
 	UInputAction * IA_Boost;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
-	UInputAction * IA_SwitchMode;
+	UInputAction * IA_MachineGun;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputAction * IA_BoostCamera;
@@ -103,9 +100,6 @@ class BATMAN_ARKHAMKNIGHT_API ABaseWheeledVehiclePawn : public AWheeledVehiclePa
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputAction * IA_Missile;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
-	UInputAction * IA_CannonShot;
 
 	/** Chaos Vehicle Movement Component */
 	
@@ -139,10 +133,7 @@ class BATMAN_ARKHAMKNIGHT_API ABaseWheeledVehiclePawn : public AWheeledVehiclePa
 	FVector TargetLocation;
 	float TargetDistance;
 	bool bIsLockOn;
-
-	//* Vehicle State */
-	bool bIsBattle;
-
+	
 	//* Battle Mode Machine Gun Timer */
 	FTimerHandle MachineGunTimerHandle;
 
@@ -155,11 +146,6 @@ class BATMAN_ARKHAMKNIGHT_API ABaseWheeledVehiclePawn : public AWheeledVehiclePa
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="MachineGun", meta=(AllowPrivateAccess="true"))
 	float MachineGunFireRate = 0.15f;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Cannon", meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<ACannonBall> CannonBallClass;
-
-	
 
 public:
 	ABaseWheeledVehiclePawn();
@@ -175,7 +161,6 @@ public:
 	void ThrottleComplete(const FInputActionValue& Value);
 	
 	void BrakeTrigger(const FInputActionValue& Value);
-	void BrakeStart(const FInputActionValue& Value);
 	void BrakeComplete(const FInputActionValue& Value);
 	
 	void Look(const FInputActionValue& Value);
@@ -185,12 +170,9 @@ public:
 	
 	void MouseLeftTrigger(const FInputActionValue& Value);		// * Boost, Machine Gun */
 	void MouseLeftComplete(const FInputActionValue& Value);		// * Boost, Machine Gun */
-	void MouseMiddleTrigger(const FInputActionValue& Value);	// * On BattleMode, Shot Cannon */
 	void MouseRight(const FInputActionValue& Value);			// * Mode Switch */
 	void BoostStart(const FInputActionValue& Value);			// * Boost Start */
 	void BoostEnd(const FInputActionValue& Value);				// * Boost End */
-	UFUNCTION(BlueprintImplementableEvent)
-	void ModeSwitchCameraLerp();								// * ModeSwitch Camera Lerp */
 	UFUNCTION(BlueprintImplementableEvent)
 	void BoostCameraLerp();										// * Boost Camera Lerp */
 	
@@ -201,7 +183,6 @@ public:
 	void FireMissile();											// * On DriveMode, Shot Missile */
 
 	void FireMachineGun();										// * On BattleMode, Fire Machine Gun */
-	void FireCannon();											// * On BattleMode, Fire Cannon */
 	
 	UFUNCTION()
 	void OnComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);

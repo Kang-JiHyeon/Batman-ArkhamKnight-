@@ -9,7 +9,7 @@
 
 /**
  *	Writer : Lee Dong Geun
- *	Last Modified : 2024-07-30
+ *	Last Modified : 2024-08-08
  */
 
 class UArrowComponent;
@@ -45,6 +45,7 @@ class BATMAN_ARKHAMKNIGHT_API AVehicleEnemy : public AActor
 	TSubclassOf<class AMissile> MissileClass;
 
 	FTimerHandle MissileTimerHandle;
+	FTimerHandle TimeSleepHandle;
 
 	//* Track and Spline */
 
@@ -87,7 +88,7 @@ public:
 
 	void FireMissile();
 	void OnDamage(int Amount);
-
+	
 	FORCEINLINE void SetHealth(int NewHealth) { Health = NewHealth; }
 	FORCEINLINE int GetHealth() const { return Health; }
 };

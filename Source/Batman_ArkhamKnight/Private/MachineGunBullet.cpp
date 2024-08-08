@@ -7,6 +7,12 @@
 #include "Components/SphereComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 
+/**
+ *	Writer : Lee Dong Geun
+ *	Last Modified : 2024-08-08
+ */
+
+
 // Sets default values
 AMachineGunBullet::AMachineGunBullet()
 {

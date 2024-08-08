@@ -8,11 +8,12 @@
 #include "Components/BoxComponent.h"
 #include "Components/SplineComponent.h"
 #include "Components/TimelineComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 
 /**
  *	Writer : Lee Dong Geun
- *	Last Modified : 2024-07-30
+ *	Last Modified : 2024-08-08
  */
 
 // Sets default values
@@ -94,6 +95,13 @@ void AVehicleEnemy::OnDamage(int Amount)
 	Health -= Amount;
 	if(Health <= 0)
 	{
+		UGameplayStatics::SetGlobalTimeDilation(GetWorld(), .2f);
+		GetWorld() -> GetTimerManager().SetTimer(TimeSleepHandle, FTimerDelegate::CreateLambda(
+			[this]() -> void
+			{
+				UGameplayStatics::SetGlobalTimeDilation(GetWorld(), .7f);
+			}),
+			.2f,false, 1.f);
 		Destroy();
 	}
 }
