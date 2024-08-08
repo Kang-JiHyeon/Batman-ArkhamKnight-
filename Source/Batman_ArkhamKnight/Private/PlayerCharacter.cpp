@@ -42,7 +42,8 @@ APlayerCharacter::APlayerCharacter()
 
 	// 망토 Static Mesh
 	CapeMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CapeMeshComp"));
-	CapeMeshComp->SetupAttachment(GetMesh(), TEXT("neck_01"));
+	//CapeMeshComp->SetupAttachment(GetMesh(), TEXT("neck_01"));
+	CapeMeshComp->SetupAttachment(GetMesh(), TEXT("spine_03"));
 	CapeMeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	ConstructorHelpers::FObjectFinder<UStaticMesh> CapeMeshFinder(TEXT("/Script/Engine.StaticMesh'/Game/KJH/Models/Batman_cape/Batman_Cape.Batman_Cape'"));
@@ -50,6 +51,7 @@ APlayerCharacter::APlayerCharacter()
 	{
 		CapeMeshComp->SetStaticMesh(CapeMeshFinder.Object);
 	}
+
 }
 
 // Called when the game starts or when spawned
@@ -251,7 +253,8 @@ void APlayerCharacter::OnActionBossAttack(const FInputActionValue& Value)
 	MotionWarpingComp->AddOrUpdateWarpTargetFromLocationAndRotation(FName("AttactPoint"), targetLoc, targetRot);
 
 	// 몽타주 재생
-	PlayAnimMontage(BossAttackMontage);
+	PlayAnimMontage(BossAttackMotages[bossAttackIndex]);
+	bossAttackIndex = (bossAttackIndex + 1) % BossAttackMotages.Num();
 	//// 매시 콜리전 활성화
 	//SetMeshCollisionEnabled(true);
 
