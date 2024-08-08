@@ -54,6 +54,9 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	class UCameraComponent* CameraComp;
 
+	UPROPERTY(EditDefaultsOnly)
+	class UStaticMeshComponent* CapeMeshComp;
+
 	// 키 입력
 	UPROPERTY(EditDefaultsOnly)
 	class UInputMappingContext* IMP_Player;
@@ -80,6 +83,8 @@ public:
 	class UAnimMontage* DamageMontage;
 	UPROPERTY(EditAnywhere)
 	class UAnimMontage* BossAttackMontage;
+	UPROPERTY(EditAnywhere)
+	class UAnimMontage* DodgeMontage;
 
 	// 보스
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
@@ -135,10 +140,6 @@ public:
 	// TimerHandler
 	FTimerHandle DamageTimerHandler;
 
-	// Level Sequence
-	//UPROPERTY(EditDefaultsOnly)
-	//class UPlayerBossAttackSequence* LevelSequenceComp;
-
 	class APlayerGameModeBase* MyGameModeBase;
 
 	// Motion Warping
@@ -161,11 +162,12 @@ private:
 	EEnemyDirection GetTargetVerticalDirection(AActor* TargetActor);
 	EEnemyDirection GetTargetHorizontalDirection(AActor* TargetActor);
 
+	// Find Target
+	APrisoner* FindTargetPrisoner();
+
 	// Animation
 	void PlayAttackAnimation();
-	void PlayBossAttack();
 
-	void SetGlobalTimeDilation(float Value);
 	void SetAttackComboCount(float Value);
 
 	void CallDelegateLevelSequnce();
@@ -175,6 +177,10 @@ public:
 	void ResetCombo();
 	void OnTakeDamage(AActor* OtherActor, int32 Damage);
 	void OnEndDamage();
+	
+	void OnHitPrisoner();
+	void OnHitBoss();
+
 	void SetMeshCollisionEnabled(bool bValue);
 
 	UFUNCTION(BlueprintCallable)
