@@ -12,6 +12,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "PlayerGameModeBase.h"
+#include "Components/StaticMeshComponent.h"
 
 // Sets default values for this component's properties
 UBossFSM::UBossFSM()
@@ -19,7 +20,7 @@ UBossFSM::UBossFSM()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-	// ...
+	
 }
 
 
@@ -116,7 +117,7 @@ void UBossFSM::MoveState() // boss move to player or idle
 	if (currentTime > moveDelayTime)
 	{
 		int32 statevalue = FMath::RandRange(0, 10);
-		if (statevalue == 0 && MyGameModeBase->IsPlayingSequence()==false)
+		if (statevalue <=10 && MyGameModeBase->IsPlayingSequence()==false)
 		{
 			direction = Ptarget->GetActorLocation() - me->GetActorLocation();
 			mState = EBossState::Yell;

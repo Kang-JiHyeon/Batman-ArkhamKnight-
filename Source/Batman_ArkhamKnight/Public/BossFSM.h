@@ -126,4 +126,5 @@ public:
 	void SetCollision(bool bvalue);
 
 	class APlayerGameModeBase* MyGameModeBase;
+
 };

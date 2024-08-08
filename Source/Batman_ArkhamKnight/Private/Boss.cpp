@@ -5,6 +5,7 @@
 #include "BossFSM.h"
 #include "EnemyPlayer.h"
 #include "Prisoner.h"
+#include "Engine/StaticMesh.h"
 
 
 // Sets default values
@@ -21,6 +22,17 @@ ABoss::ABoss()
 	{
 		GetMesh()->SetAnimInstanceClass(animClass.Class);
 	}
+
+	TailComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TailComp"));
+	TailComp->SetupAttachment(GetMesh(),TEXT("spine_01"));
+
+	ConstructorHelpers::FObjectFinder<UStaticMesh> TempTailMesh(TEXT("/Script/Engine.StaticMesh'/Game/SYH/Characters/KillerCroc/TestKiller-Tail.TestKiller-Tail'"));
+	if (TempTailMesh.Succeeded())
+	{
+		TailComp->SetStaticMesh(TempTailMesh.Object);
+		TailComp->SetRelativeLocationAndRotation(FVector(-409.198095, 294.424819, 29.297073),FRotator((2.033529, 67.198997, -96.366017)));
+	}
+
 }	
 
 // Called when the game starts or when spawned
@@ -34,7 +46,22 @@ void ABoss::BeginPlay()
 // Called every frame
 void ABoss::Tick(float DeltaTime)
 {
+	FRotator InitialTailRotation;
+	FVector InitialTailLocation;
 	Super::Tick(DeltaTime);
+	if (fsm->mState == EBossState::Crawl)
+	{
+
+		// 기어가는 상태에서 꼬리를 회전시키고 싶다.
+		TailComp->SetRelativeLocationAndRotation(FVector(0.045342, 381.207363, 9.576032), FRotator(-2.524381, 7.448579, -96.188432));
+		time += DeltaTime;
+
+	}
+	if (time > 2)
+	{
+		TailComp->SetRelativeLocationAndRotation(FVector(-409.198095, 294.424819, 29.297073), FRotator(2.033529, 67.198997, -96.366017));
+		time = 0;
+	}
 
 }
 

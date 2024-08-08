@@ -32,6 +32,9 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	class ABoss* me;
-
-
+	
+	// boss tail
+	UPROPERTY(EditDefaultsOnly)
+	class UStaticMeshComponent* TailComp;
+	float time = 0.0f;
 };
