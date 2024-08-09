@@ -86,6 +86,11 @@ public:
 	UPROPERTY(EditAnywhere)
 	class UAnimMontage* DodgeMontage;
 
+	UPROPERTY(EditAnywhere)
+	TArray<class UAnimMontage*> BossAttackMotages;
+
+	int32 bossAttackIndex;
+
 	// º¸½º
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
 	class ABoss* TargetBoss;
