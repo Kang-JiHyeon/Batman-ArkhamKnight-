@@ -6,14 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "PlayerAttackPointComponent.h"
 #include "PlayerMotionWarpingComponent.generated.h"
-//
-//UENUM()
-//enum class EWarpingPoint : uint8
-//{
-//	Origin,
-//	Front,
-//	Right,
-//};
+
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class BATMAN_ARKHAMKNIGHT_API UPlayerMotionWarpingComponent : public UActorComponent
@@ -44,7 +37,7 @@ public:
 
 	void OnInitialize(AActor* OtherActor);
 
-	//void AddMotionWarping(EWarpingPoint TargetPoint);
-	//void RemoveMotionWarping(EWarpingPoint TargetPoint);
+	void AddAndUpdateMotionWarping(EAttackType AttackType);
+	void RemoveMotionWarping();
 
 };

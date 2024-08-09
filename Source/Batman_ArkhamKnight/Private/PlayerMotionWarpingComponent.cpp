@@ -6,7 +6,6 @@
 #include "Boss.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "../../../../Plugins/Animation/MotionWarping/Source/MotionWarping/Public/MotionWarpingComponent.h"
-//#include "PlayerAttackPointComponent.h"
 
 
 // Sets default values for this component's properties
@@ -59,33 +58,7 @@ void UPlayerMotionWarpingComponent::OnInitialize(AActor* OtherActor)
 	}
 }
 
-//void UPlayerMotionWarpingComponent::AddMotionWarping(EWarpingPoint TargetPoint)
-//{
-	//FVector targetDir = UKismetMathLibrary::GetDirectionUnitVector(Me->GetActorLocation(), Me->TargetBoss->GetActorLocation());
-	//FRotator targetRot = UKismetMathLibrary::MakeRotFromX(targetDir);
-
-	//const UEnum* CharStateEnum = FindObject<UEnum>(ANY_PACKAGE, TEXT("EWarpingPoint"), true);
-
-	//FName EnumToName = FName(TEXT("Invalid"));
-	//FString EnumToString = TEXT("Invalid");
-	//if (CharStateEnum)
-	//{
-	//	EnumToName = CharStateEnum->GetNameByValue((int64)TargetPoint);
-	//	EnumToString = CharStateEnum->GetNameStringByValue((int64)TargetPoint);
-	//}
-
-
-	//FVector targetLoc = Me->TargetBoss->GetActorLocation()+ WarpingInfos[TargetPoint].RelativeLocation;
-	////FRotator targetRot = WarpingInfos[TargetPoint].RelativeRotation;
-
- //   //FName pointName = UEnum::GetValueAsName(TargetPoint);
-	//UE_LOG(LogTemp, Warning, TEXT("AddMotionWarping : %s"), *EnumToString);
-
- //   Me->MotionWarpingComp->AddOrUpdateWarpTargetFromLocationAndRotation(FName(EnumToString), targetLoc, targetRot);
-    
-//}
-//
-//void UPlayerMotionWarpingComponent::RemoveMotionWarping(EWarpingPoint TargetPoint)
-//{
-//}
+void UPlayerMotionWarpingComponent::AddAndUpdateMotionWarping(EAttackType AttackType)
+{
+}
 
