@@ -6,6 +6,7 @@
 #include "EnemyPlayer.h"
 #include "Prisoner.h"
 #include "Engine/StaticMesh.h"
+#include "Components/SphereComponent.h"
 
 
 // Sets default values
@@ -33,6 +34,10 @@ ABoss::ABoss()
 		TailComp->SetRelativeLocationAndRotation(FVector(-409.198095, 294.424819, 29.297073),FRotator((2.033529, 67.198997, -96.366017)));
 	}
 
+	SphereComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
+	SphereComp->SetupAttachment(GetMesh());
+	SphereComp->SetRelativeLocation(FVector(0.000009, -170.206918, 743.073657));
+	SphereComp->SetRelativeScale3D(FVector(5));
 }	
 
 // Called when the game starts or when spawned

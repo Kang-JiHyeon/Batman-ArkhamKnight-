@@ -37,4 +37,7 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	class UStaticMeshComponent* TailComp;
 	float time = 0.0f;
+
+	UPROPERTY(EditAnywhere)
+	class USphereComponent* SphereComp;
 };

@@ -78,7 +78,7 @@ public:
 	UPROPERTY(EditAnywhere)
 	FVector direction;
 
-	// 나의 위치 기억
+	// 나의 위치 기억        
 	UPROPERTY(EditAnywhere)
 	class ABoss* me;
 	
@@ -111,9 +111,16 @@ public:
 	int32 BossHp = 10;
 	int32 HP;
 
-	// fast move중에 player와 mesh가 overlap되면 일어서기
+	// damage를 입히기 위해
+	UFUNCTION()
+	void OnPlayerHit();
+
 	UFUNCTION(BlueprintCallable)
 	void OnMeshBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	// fast move중에 player와 sphere가 overlap되면 일어서기
+	UFUNCTION(BlueprintCallable)
+	void OnSphereCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	// damage and die
 	void OnMyTakeDamage(int32 damage);
