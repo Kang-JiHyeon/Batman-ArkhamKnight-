@@ -4,24 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "PlayerAttackPointComponent.h"
 #include "PlayerMotionWarpingComponent.generated.h"
-
-UENUM()
-enum class EWarpingPoint : uint8
-{
-	Origin,
-	Front,
-	Right,
-};
-
-USTRUCT(Atomic)
-struct FWarpingTransform
-{
-	GENERATED_USTRUCT_BODY()
-public:
-	FVector RelativeLocation;
-	FRotator RelativeRotation;
-};
+//
+//UENUM()
+//enum class EWarpingPoint : uint8
+//{
+//	Origin,
+//	Front,
+//	Right,
+//};
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class BATMAN_ARKHAMKNIGHT_API UPlayerMotionWarpingComponent : public UActorComponent
@@ -44,11 +36,15 @@ public:
 	UPROPERTY()
 	class APlayerCharacter* Me;
 
-	TMap<EWarpingPoint, FWarpingTransform> WarpingInfos;
+	UPROPERTY()
+	class AActor* TargetActor;
 
-	void OnInitialize();
+	TMap<EAttackType, class UPlayerAttackPointComponent*> AttackPoints;
 
-	void AddMotionWarping(EWarpingPoint TargetPoint);
-	void RemoveMotionWarping(EWarpingPoint TargetPoint);
+
+	void OnInitialize(AActor* OtherActor);
+
+	//void AddMotionWarping(EWarpingPoint TargetPoint);
+	//void RemoveMotionWarping(EWarpingPoint TargetPoint);
 
 };

@@ -108,11 +108,11 @@ void APlayerCharacter::BeginPlay()
 //	// 모션 워핑 실행
 //	MotionWarpingComp->AddOrUpdateWarpTargetFromLocationAndRotation(FName("AttactPoint"), targetLoc, targetRot);
 	
-	PlayerMotionWarpingComp->OnInitialize();
+	PlayerMotionWarpingComp->OnInitialize(TargetBoss);
 
-	PlayerMotionWarpingComp->AddMotionWarping(EWarpingPoint::Origin);
-	PlayerMotionWarpingComp->AddMotionWarping(EWarpingPoint::Front);
-	PlayerMotionWarpingComp->AddMotionWarping(EWarpingPoint::Right);
+	//PlayerMotionWarpingComp->AddMotionWarping(EWarpingPoint::Origin);
+	//PlayerMotionWarpingComp->AddMotionWarping(EWarpingPoint::Front);
+	//PlayerMotionWarpingComp->AddMotionWarping(EWarpingPoint::Right);
 
 }
 

@@ -6,6 +6,8 @@
 #include "Boss.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "../../../../Plugins/Animation/MotionWarping/Source/MotionWarping/Public/MotionWarpingComponent.h"
+//#include "PlayerAttackPointComponent.h"
+
 
 // Sets default values for this component's properties
 UPlayerMotionWarpingComponent::UPlayerMotionWarpingComponent()
@@ -24,17 +26,6 @@ void UPlayerMotionWarpingComponent::BeginPlay()
 
 	Me = Cast<APlayerCharacter>(GetOwner());
 
-	//FVector targetDir = UKismetMathLibrary::GetDirectionUnitVector(Me->GetActorLocation(), Me->TargetBoss->GetActorLocation());
-	//FRotator targetRot = UKismetMathLibrary::MakeRotFromX(targetDir);
-
-	//WarpingInfos[EWarpingPoint::Origin].RelativeLocation = FVector::ZeroVector;
-	//WarpingInfos[EWarpingPoint::Origin].RelativeRotation = targetRot;
-
-	//WarpingInfos[EWarpingPoint::Front].RelativeLocation = Me->TargetBoss->GetActorForwardVector() * 50;
-	//WarpingInfos[EWarpingPoint::Front].RelativeRotation = targetRot;
-
-	//WarpingInfos[EWarpingPoint::Right].RelativeLocation = Me->TargetBoss->GetActorRightVector() * 50;
-	//WarpingInfos[EWarpingPoint::Origin].RelativeRotation = targetRot;
 }
 
 
@@ -47,55 +38,54 @@ void UPlayerMotionWarpingComponent::TickComponent(float DeltaTime, ELevelTick Ti
 	
 }
 
-void UPlayerMotionWarpingComponent::OnInitialize()
+void UPlayerMotionWarpingComponent::OnInitialize(AActor* OtherActor)
 {
-	if(Me == nullptr || Me->TargetBoss == nullptr) return;
+	if(OtherActor == nullptr) return;
 
-	FVector targetDir = UKismetMathLibrary::GetDirectionUnitVector(Me->GetActorLocation(), Me->TargetBoss->GetActorLocation());
-	FRotator targetRot = UKismetMathLibrary::MakeRotFromX(targetDir);
+	TargetActor = OtherActor;
 
-	FWarpingTransform warpingTr;
-	WarpingInfos.Add(EWarpingPoint::Origin, warpingTr);
-	WarpingInfos.Add(EWarpingPoint::Front, warpingTr);
-	WarpingInfos.Add(EWarpingPoint::Right, warpingTr);
+	TArray<UActorComponent*> components = TargetActor->K2_GetComponentsByClass(UPlayerAttackPointComponent::StaticClass());
 
-	WarpingInfos[EWarpingPoint::Origin].RelativeLocation = FVector::ZeroVector;
-	WarpingInfos[EWarpingPoint::Origin].RelativeRotation = targetRot;
+	if (components.Num() <= 0) return;
 
-	WarpingInfos[EWarpingPoint::Front].RelativeLocation = Me->TargetBoss->GetActorForwardVector() * 50;
-	WarpingInfos[EWarpingPoint::Front].RelativeRotation = targetRot;
-
-	WarpingInfos[EWarpingPoint::Right].RelativeLocation = Me->TargetBoss->GetActorRightVector() * 50;
-	WarpingInfos[EWarpingPoint::Right].RelativeRotation = targetRot;
-}
-
-void UPlayerMotionWarpingComponent::AddMotionWarping(EWarpingPoint TargetPoint)
-{
-	FVector targetDir = UKismetMathLibrary::GetDirectionUnitVector(Me->GetActorLocation(), Me->TargetBoss->GetActorLocation());
-	FRotator targetRot = UKismetMathLibrary::MakeRotFromX(targetDir);
-
-	const UEnum* CharStateEnum = FindObject<UEnum>(ANY_PACKAGE, TEXT("EWarpingPoint"), true);
-
-	FName EnumToName = FName(TEXT("Invalid"));
-	FString EnumToString = TEXT("Invalid");
-	if (CharStateEnum)
+	for (auto component : components)
 	{
-		EnumToName = CharStateEnum->GetNameByValue((int64)TargetPoint);
-		EnumToString = CharStateEnum->GetNameStringByValue((int64)TargetPoint);
+		auto* attackPointComp = Cast<UPlayerAttackPointComponent>(component);
+
+		if (attackPointComp != nullptr)
+		{
+			AttackPoints.Add(attackPointComp->AttackType, attackPointComp);
+		}
 	}
+}
+
+//void UPlayerMotionWarpingComponent::AddMotionWarping(EWarpingPoint TargetPoint)
+//{
+	//FVector targetDir = UKismetMathLibrary::GetDirectionUnitVector(Me->GetActorLocation(), Me->TargetBoss->GetActorLocation());
+	//FRotator targetRot = UKismetMathLibrary::MakeRotFromX(targetDir);
+
+	//const UEnum* CharStateEnum = FindObject<UEnum>(ANY_PACKAGE, TEXT("EWarpingPoint"), true);
+
+	//FName EnumToName = FName(TEXT("Invalid"));
+	//FString EnumToString = TEXT("Invalid");
+	//if (CharStateEnum)
+	//{
+	//	EnumToName = CharStateEnum->GetNameByValue((int64)TargetPoint);
+	//	EnumToString = CharStateEnum->GetNameStringByValue((int64)TargetPoint);
+	//}
 
 
-	FVector targetLoc = Me->TargetBoss->GetActorLocation()+ WarpingInfos[TargetPoint].RelativeLocation;
-	//FRotator targetRot = WarpingInfos[TargetPoint].RelativeRotation;
+	//FVector targetLoc = Me->TargetBoss->GetActorLocation()+ WarpingInfos[TargetPoint].RelativeLocation;
+	////FRotator targetRot = WarpingInfos[TargetPoint].RelativeRotation;
 
-    //FName pointName = UEnum::GetValueAsName(TargetPoint);
-	UE_LOG(LogTemp, Warning, TEXT("AddMotionWarping : %s"), *EnumToString);
+ //   //FName pointName = UEnum::GetValueAsName(TargetPoint);
+	//UE_LOG(LogTemp, Warning, TEXT("AddMotionWarping : %s"), *EnumToString);
 
-    Me->MotionWarpingComp->AddOrUpdateWarpTargetFromLocationAndRotation(FName(EnumToString), targetLoc, targetRot);
+ //   Me->MotionWarpingComp->AddOrUpdateWarpTargetFromLocationAndRotation(FName(EnumToString), targetLoc, targetRot);
     
-}
-
-void UPlayerMotionWarpingComponent::RemoveMotionWarping(EWarpingPoint TargetPoint)
-{
-}
+//}
+//
+//void UPlayerMotionWarpingComponent::RemoveMotionWarping(EWarpingPoint TargetPoint)
+//{
+//}
 
