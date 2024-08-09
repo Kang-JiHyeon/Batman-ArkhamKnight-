@@ -17,12 +17,14 @@
 #include "TimerManager.h"
 #include "../../../../Plugins/Animation/MotionWarping/Source/MotionWarping/Public/MotionWarpingComponent.h"
 #include "PlayerGameModeBase.h"
+#include "PlayerMotionWarpingComponent.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	
 
 	// 스프링암
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
@@ -37,8 +39,6 @@ APlayerCharacter::APlayerCharacter()
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	bUseControllerRotationYaw = false;
 
-	// 레벨 시퀀스
-	MotionWarpingComp = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComp"));
 
 	// 망토 Static Mesh
 	CapeMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CapeMeshComp"));
@@ -52,6 +52,8 @@ APlayerCharacter::APlayerCharacter()
 		CapeMeshComp->SetStaticMesh(CapeMeshFinder.Object);
 	}
 
+	MotionWarpingComp = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComp"));
+	PlayerMotionWarpingComp = CreateDefaultSubobject<UPlayerMotionWarpingComponent>(TEXT("PlayerMotionWarpingComp"));
 }
 
 // Called when the game starts or when spawned
@@ -95,6 +97,23 @@ void APlayerCharacter::BeginPlay()
 	// 보스
 	AActor* boss = UGameplayStatics::GetActorOfClass(GetWorld(), ABoss::StaticClass());
 	TargetBoss = Cast<ABoss>(boss);
+
+//	// 타켓의 위치에서 150 앞에 있는 위치
+//// 이동할 위치 설정
+//	FVector offset = UKismetMathLibrary::GetDirectionUnitVector(TargetBoss->GetActorLocation(), GetActorLocation()) * 150;
+//	FVector targetLoc = TargetBoss->GetActorLocation() + offset;
+//	// 회전 설정
+//	FVector targetDir = UKismetMathLibrary::GetDirectionUnitVector(GetActorLocation(), TargetBoss->GetActorLocation());
+//	FRotator targetRot = UKismetMathLibrary::MakeRotFromX(targetDir);
+//	// 모션 워핑 실행
+//	MotionWarpingComp->AddOrUpdateWarpTargetFromLocationAndRotation(FName("AttactPoint"), targetLoc, targetRot);
+	
+	PlayerMotionWarpingComp->OnInitialize();
+
+	PlayerMotionWarpingComp->AddMotionWarping(EWarpingPoint::Origin);
+	PlayerMotionWarpingComp->AddMotionWarping(EWarpingPoint::Front);
+	PlayerMotionWarpingComp->AddMotionWarping(EWarpingPoint::Right);
+
 }
 
 // Called every frame
@@ -243,25 +262,32 @@ void APlayerCharacter::OnActionBossAttack(const FInputActionValue& Value)
 	if(IsLockedMove()) return;
     //if (AttackComboCount < MaxBossAttackComboCount) return;
 
+	// 타켓의 위치에서 150 앞에 있는 위치
 	// 이동할 위치 설정
 	FVector offset = UKismetMathLibrary::GetDirectionUnitVector(TargetBoss->GetActorLocation(), GetActorLocation()) * 150;
 	FVector targetLoc = TargetBoss->GetActorLocation() + offset;
 	// 회전 설정
 	FVector targetDir = UKismetMathLibrary::GetDirectionUnitVector(GetActorLocation(), TargetBoss->GetActorLocation());
 	FRotator targetRot = UKismetMathLibrary::MakeRotFromX(targetDir);
-	// 모션 워핑 실행
-	MotionWarpingComp->AddOrUpdateWarpTargetFromLocationAndRotation(FName("AttactPoint"), targetLoc, targetRot);
+	
+	//FVector offset = TargetBoss->GetActorRightVector() * 150;
+
+	//FVector targetLoc = TargetBoss->GetActorLocation() + offset;
+	//// 회전 설정
+	//FVector targetDir = UKismetMathLibrary::GetDirectionUnitVector(offset, TargetBoss->GetActorLocation());
+	//FRotator targetRot = UKismetMathLibrary::MakeRotFromX(targetDir);
+	
+	
+	//// 모션 워핑 실행
+	//MotionWarpingComp->AddOrUpdateWarpTargetFromLocationAndRotation(FName("AttactPoint"), targetLoc, targetRot);
 
 	// 몽타주 재생
 	PlayAnimMontage(BossAttackMotages[bossAttackIndex]);
 	bossAttackIndex = (bossAttackIndex + 1) % BossAttackMotages.Num();
-	//// 매시 콜리전 활성화
-	//SetMeshCollisionEnabled(true);
 
 	// 시퀀스 재생
 	MyGameModeBase->PlaySequence();
-	// 보스 피격
-	//TargetBoss->fsm->OnMyTakeDamage(5);
+	
 	// 공격 콤보 초기화
 	SetAttackComboCount(0);
 
@@ -291,7 +317,6 @@ void APlayerCharacter::MoveToTarget(AActor* Target)
 		PlayAttackAnimation();
 		// 최대 스피드 복구
 		GetCharacterMovement()->MaxWalkSpeed = DefaultMaxSpeed;
-
 
 	}
 }

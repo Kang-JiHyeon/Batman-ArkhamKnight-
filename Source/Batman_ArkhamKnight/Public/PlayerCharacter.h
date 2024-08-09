@@ -150,6 +150,8 @@ public:
 	// Motion Warping
 	UPROPERTY(EditDefaultsOnly)
 	class UMotionWarpingComponent* MotionWarpingComp;
+	UPROPERTY()
+	class UPlayerMotionWarpingComponent* PlayerMotionWarpingComp;
 
 private:
 	// Input

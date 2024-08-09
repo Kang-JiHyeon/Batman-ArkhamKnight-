@@ -57,5 +57,4 @@ public:
 	void AnimNotify_OnHit();
 	UFUNCTION(BlueprintCallable)
 	void AnimNotify_OnHitBoss();
-
 };
