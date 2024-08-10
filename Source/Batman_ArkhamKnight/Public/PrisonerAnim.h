@@ -25,4 +25,17 @@ public:
 
 	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite,Category=PrisonerFSM)
 	float Speed;
+
+	UPROPERTY()
+	class APlayerCharacter* player;
+
+	UPROPERTY()
+	class APrisoner* prisoner;
+
+
+	UFUNCTION()
+	void AnimNotify_AttackStart();
+
+	UPROPERTY()
+	class UPrisonerFSM* fsm;
 };

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
+#include "PlayerAttackPointComponent.h"
 #include "PlayerCharacter.generated.h"
 
 UENUM()
@@ -18,14 +19,6 @@ enum class EPlayerState
 	Die
 };
 
-UENUM()
-enum class EEnemyDirection
-{
-	Front,
-	Back,
-	Left,
-	Right
-};
 
 
 UCLASS()
@@ -54,6 +47,10 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	class UCameraComponent* CameraComp;
 
+	// 매쉬-망토
+	UPROPERTY(EditDefaultsOnly)
+	class UStaticMeshComponent* CapeMeshComp;
+
 	// 키 입력
 	UPROPERTY(EditDefaultsOnly)
 	class UInputMappingContext* IMP_Player;
@@ -80,6 +77,13 @@ public:
 	class UAnimMontage* DamageMontage;
 	UPROPERTY(EditAnywhere)
 	class UAnimMontage* BossAttackMontage;
+	UPROPERTY(EditAnywhere)
+	class UAnimMontage* DodgeMontage;
+
+	UPROPERTY(EditAnywhere)
+	TArray<class UAnimMontage*> BossAttackMotages;
+
+	int32 bossAttackIndex;
 
 	// 보스
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
@@ -102,18 +106,25 @@ public:
 	bool bMovingToTarget;
 	bool bRotatingToTarget;
 
-	// 공격 
+	// 죄수 공격 
+	UPROPERTY()
+	class UCheckTargetDirectionComponent* CheckTargetDirComp;
+
 	UPROPERTY(EditDefaultsOnly)
 	float AttackRange = 1000;
 	int32 AttackMaxSpeed = 3000;
 	int32 DefaultMaxSpeed;
 	int32 AnimComboCount = 0;
+	UPROPERTY(EditDefaultsOnly)
+	int32 MaxHitCount = 12;
+	int32 HitCount = 0;
 
 	// 보스 공격
 	UPROPERTY(EditDefaultsOnly)
-	int32 MaxBossAttackComboCount = 12;
-	int32 AttackComboCount = 0;
-	
+	int32 MaxBossAttackCount = 8;
+	int32 BossAttackCount = 0;
+	EAttackType CurrAttackType;
+
 
 	// 회피
 	UPROPERTY(EditDefaultsOnly)
@@ -135,15 +146,15 @@ public:
 	// TimerHandler
 	FTimerHandle DamageTimerHandler;
 
-	// Level Sequence
-	//UPROPERTY(EditDefaultsOnly)
-	//class UPlayerBossAttackSequence* LevelSequenceComp;
-
+	// GameMode
 	class APlayerGameModeBase* MyGameModeBase;
 
 	// Motion Warping
 	UPROPERTY(EditDefaultsOnly)
 	class UMotionWarpingComponent* MotionWarpingComp;
+	UPROPERTY(EditDefaultsOnly)
+	class UPlayerMotionWarpingComponent* PlayerMotionWarpingComp;
+
 
 private:
 	// Input
@@ -158,26 +169,27 @@ private:
 	void MoveToTarget(AActor* Target);
 	void RotateToTarget(AActor* Target);
 	bool IsLockedMove() const;
-	EEnemyDirection GetTargetVerticalDirection(AActor* TargetActor);
-	EEnemyDirection GetTargetHorizontalDirection(AActor* TargetActor);
+
+	// Find Target
+	APrisoner* FindTargetPrisoner();
 
 	// Animation
 	void PlayAttackAnimation();
-	void PlayBossAttack();
 
-	void SetGlobalTimeDilation(float Value);
-	void SetAttackComboCount(float Value);
+	void SetHitCombo(float Value);
+	void SetBossAttackCombo(float Value);
+	void OnHitSucceeded(float Value);
 
-	void CallDelegateLevelSequnce();
+
 public:
 	bool bIsSlow;
 
-	void ResetCombo();
 	void OnTakeDamage(AActor* OtherActor, int32 Damage);
 	void OnEndDamage();
-	void SetMeshCollisionEnabled(bool bValue);
+	
+	void OnHitPrisoner();
+	void OnHitBoss();
 
-	UFUNCTION(BlueprintCallable)
-	void OnMeshBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	void OnPlayMotionWarping(EAttackType AttackType);
 
 };
