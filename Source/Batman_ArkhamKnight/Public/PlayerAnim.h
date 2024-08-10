@@ -58,4 +58,13 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void AnimNotify_OnHitBoss();
 
+	// Motion Warping
+	UFUNCTION(BlueprintCallable)
+	void AnimNotify_OnPlayFlyingKneePunch();
+	UFUNCTION(BlueprintCallable)
+	void AnimNotify_OnPlayDropKick();
+	UFUNCTION(BlueprintCallable)
+	void AnimNotify_OnPlayFlipKick();
+	UFUNCTION(BlueprintCallable)
+	void AnimNotify_OnPlayRun();
 };
