@@ -14,6 +14,7 @@
 #include "PlayerGameModeBase.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SphereComponent.h"
+#include "BossHP.h"
 
 // Sets default values for this component's properties
 UBossFSM::UBossFSM()
@@ -141,16 +142,9 @@ void UBossFSM::MoveState() // boss move to player or idle
 				if (attackstatevalue == 0 && MyGameModeBase->IsPlayingSequence() == false)
 				{
 					currentTime = 0;
-					if (FMath::RandBool()) {
-						SetCollision(true);
-						mState = EBossState::DoubleRightAttack;
-						anim->BanimState = mState;
-					}
-					else {
-						SetCollision(true);
-						mState = EBossState::DoubleLeftAttack;
-						anim->BanimState = mState;
-					}
+					SetCollision(true);
+					mState = EBossState::DoubleRightAttack;
+					anim->BanimState = mState;
 				}
 				else if ((attackstatevalue == 1 || attackstatevalue == 2) && MyGameModeBase->IsPlayingSequence() == false)
 				{
@@ -307,6 +301,7 @@ void UBossFSM::OnMyTakeDamage(int32 damage)
 		return;
 	}
 	HP -= damage;
+	if (HP < 0) HP = 0;
 
 	if (HP > 0)
 	{
@@ -371,7 +366,7 @@ void UBossFSM::OnPlayerHit()
 
 	if (Ptarget != nullptr)
 	{
-		if (dist < 250)
+		if (dist < 150)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("player is attacked by boss"));
 			Ptarget->OnTakeDamage(me, 2);
