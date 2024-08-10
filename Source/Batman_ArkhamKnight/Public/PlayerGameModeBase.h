@@ -35,4 +35,8 @@ private:
 public:
     void PlaySequence();
     bool IsPlayingSequence();
+
+    UPROPERTY(EditDefaultsOnly)
+    class UBossFSM* fsm;
+
 };

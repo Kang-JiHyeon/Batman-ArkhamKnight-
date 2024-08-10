@@ -90,6 +90,9 @@ public:
 	UPROPERTY(EditAnywhere,Category= PFSM)
 	float attackDistance = 100.0f;
 
+	UFUNCTION()
+	void OnPlayerHit();
+
 	// damage
 	void OnMyTakeDamage(int32 damage);
 	UPROPERTY(EditAnywhere,Category= PFSM)

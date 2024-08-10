@@ -399,13 +399,16 @@ void APlayerCharacter::OnHitPrisoner()
 void APlayerCharacter::OnHitBoss()
 {
 	if (TargetBoss == nullptr) return;
+	if (CurrAttackType == EAttackType::Run) return;
 
-	TargetBoss->fsm->OnMyTakeDamage(5);
+	TargetBoss->fsm->OnMyTakeDamage(CurrAttackType, 5);
 }
 
 void APlayerCharacter::OnPlayMotionWarping(EAttackType AttackType)
 {
-	PlayerMotionWarpingComp->AddAndUpdateMotionWarping(AttackType);
+	CurrAttackType = AttackType;
+
+	PlayerMotionWarpingComp->AddAndUpdateMotionWarping(CurrAttackType);
 }
 
 void APlayerCharacter::OnTakeDamage(AActor* OtherActor, int32 Damage)
