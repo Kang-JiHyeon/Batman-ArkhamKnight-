@@ -123,6 +123,8 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	int32 MaxBossAttackCount = 8;
 	int32 BossAttackCount = 0;
+	EAttackType CurrAttackType;
+
 
 	// È¸ÇÇ
 	UPROPERTY(EditDefaultsOnly)
