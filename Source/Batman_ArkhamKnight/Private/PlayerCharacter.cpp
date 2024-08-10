@@ -281,6 +281,8 @@ void APlayerCharacter::OnActionBossAttack(const FInputActionValue& Value)
 	//// 모션 워핑 실행
 	//MotionWarpingComp->AddOrUpdateWarpTargetFromLocationAndRotation(FName("AttactPoint"), targetLoc, targetRot);
 
+	//PlayerMotionWarpingComp->AddAndUpdateMotionWarping(EAttackType::DropKick);
+
 	// 몽타주 재생
 	PlayAnimMontage(BossAttackMotages[bossAttackIndex]);
 	bossAttackIndex = (bossAttackIndex + 1) % BossAttackMotages.Num();
@@ -462,6 +464,11 @@ void APlayerCharacter::OnHitBoss()
 	if (TargetBoss == nullptr) return;
 
 	TargetBoss->fsm->OnMyTakeDamage(5);
+}
+
+void APlayerCharacter::OnPlayMotionWarping(EAttackType AttackType)
+{
+	PlayerMotionWarpingComp->AddAndUpdateMotionWarping(AttackType);
 }
 
 void APlayerCharacter::OnTakeDamage(AActor* OtherActor, int32 Damage)

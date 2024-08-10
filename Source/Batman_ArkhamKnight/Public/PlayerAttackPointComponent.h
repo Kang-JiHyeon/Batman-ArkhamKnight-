@@ -12,6 +12,7 @@ enum class EAttackType : uint8
 	FlyingKneePunch,
 	DropKick,
 	FilpKick,
+	Run,
 };
 
 

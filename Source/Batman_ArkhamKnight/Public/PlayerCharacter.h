@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
+#include "PlayerAttackPointComponent.h"
 #include "PlayerCharacter.generated.h"
 
 UENUM()
@@ -150,7 +151,7 @@ public:
 	// Motion Warping
 	UPROPERTY(EditDefaultsOnly)
 	class UMotionWarpingComponent* MotionWarpingComp;
-	UPROPERTY()
+	UPROPERTY(EditDefaultsOnly)
 	class UPlayerMotionWarpingComponent* PlayerMotionWarpingComp;
 
 private:
@@ -187,6 +188,8 @@ public:
 	
 	void OnHitPrisoner();
 	void OnHitBoss();
+
+	void OnPlayMotionWarping(EAttackType AttackType);
 
 	void SetMeshCollisionEnabled(bool bValue);
 

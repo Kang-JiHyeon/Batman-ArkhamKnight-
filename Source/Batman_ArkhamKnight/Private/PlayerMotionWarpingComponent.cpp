@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "PlayerMotionWarpingComponent.h"
@@ -27,13 +27,10 @@ void UPlayerMotionWarpingComponent::BeginPlay()
 
 }
 
-
-
 // Called every frame
 void UPlayerMotionWarpingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
 	
 }
 
@@ -41,11 +38,17 @@ void UPlayerMotionWarpingComponent::OnInitialize(AActor* OtherActor)
 {
 	if(OtherActor == nullptr) return;
 
+	UE_LOG(LogTemp, Warning, TEXT("UPlayerMotionWarpingComponent : OnInitialize 실행"));
+
 	TargetActor = OtherActor;
 
 	TArray<UActorComponent*> components = TargetActor->K2_GetComponentsByClass(UPlayerAttackPointComponent::StaticClass());
 
-	if (components.Num() <= 0) return;
+	if (components.Num() <= 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("UPlayerMotionWarpingComponent : Target에 UPlayerAttackPointComponent 컴포넌트가 없습니다. "));
+		return;
+	}
 
 	for (auto component : components)
 	{
@@ -60,5 +63,32 @@ void UPlayerMotionWarpingComponent::OnInitialize(AActor* OtherActor)
 
 void UPlayerMotionWarpingComponent::AddAndUpdateMotionWarping(EAttackType AttackType)
 {
+	if(AttackPoints.Contains(AttackType) == false) return;
+
+	auto* attackPoint = AttackPoints[AttackType];
+
+	// 이동할 위치 설정
+	FVector targetLoc = attackPoint->GetComponentLocation();
+	// 회전 설정
+	FVector targetDir = UKismetMathLibrary::GetDirectionUnitVector(Me->GetActorLocation(), targetLoc);
+	FRotator targetRot = UKismetMathLibrary::MakeRotFromX(targetDir);
+
+	// 모션 워핑 실행
+	Me->MotionWarpingComp->AddOrUpdateWarpTargetFromLocationAndRotation(GetEnumValue(AttackType), targetLoc, targetRot);
+}
+
+FName UPlayerMotionWarpingComponent::GetEnumValue(EAttackType AttackType)
+{
+	const UEnum* CharStateEnum = FindObject<UEnum>(ANY_PACKAGE, TEXT("EAttackType"), true);
+
+	FString EnumToString = TEXT("Invalid");
+	if (CharStateEnum)
+	{
+		EnumToString = CharStateEnum->GetNameStringByValue((int64)AttackType);
+		UE_LOG(LogTemp, Warning, TEXT("AddMotionWarping : %s"), *EnumToString);
+
+	}
+	
+	return FName(EnumToString);
 }
 

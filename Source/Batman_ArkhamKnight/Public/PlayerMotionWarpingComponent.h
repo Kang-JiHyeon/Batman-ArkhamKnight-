@@ -32,6 +32,7 @@ public:
 	UPROPERTY()
 	class AActor* TargetActor;
 
+	UPROPERTY(VisibleAnywhere)
 	TMap<EAttackType, class UPlayerAttackPointComponent*> AttackPoints;
 
 
@@ -40,4 +41,5 @@ public:
 	void AddAndUpdateMotionWarping(EAttackType AttackType);
 	void RemoveMotionWarping();
 
+	FName GetEnumValue(EAttackType AttackType);
 };
