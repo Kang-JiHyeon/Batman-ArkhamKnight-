@@ -31,7 +31,7 @@ ABoss::ABoss()
 	if (TempTailMesh.Succeeded())
 	{
 		TailComp->SetStaticMesh(TempTailMesh.Object);
-		TailComp->SetRelativeLocationAndRotation(FVector(-409.198095, 294.424819, 29.297073),FRotator((2.033529, 67.198997, -96.366017)));
+		TailComp->SetRelativeLocationAndRotation(FVector(-380.712324, 269.675396, 40.428358), FRotator(-2.033529, 67.198997, -96.366017));
 	}
 
 	SphereComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
@@ -54,19 +54,35 @@ void ABoss::Tick(float DeltaTime)
 	FRotator InitialTailRotation;
 	FVector InitialTailLocation;
 	Super::Tick(DeltaTime);
+
 	if (fsm->mState == EBossState::Crawl)
 	{
 
 		// 기어가는 상태에서 꼬리를 회전시키고 싶다.
 		TailComp->SetRelativeLocationAndRotation(FVector(0.045342, 381.207363, 9.576032), FRotator(-2.524381, 7.448579, -96.188432));
-		time += DeltaTime;
+		crawltime += DeltaTime;
 
 	}
-	if (time > 2)
+	if (crawltime > 2)
 	{
-		TailComp->SetRelativeLocationAndRotation(FVector(-409.198095, 294.424819, 29.297073), FRotator(2.033529, 67.198997, -96.366017));
-		time = 0;
+		TailComp->SetRelativeLocationAndRotation(FVector(-380.712324, 269.675396, 40.428358), FRotator(-2.033529, 67.198997, -96.366017));
+		crawltime = 0;
 	}
+	// 0.96초 동안 어퍼컷맞고 쓰러짐
+	if (fsm->mState == EBossState::Damage && Damaged == true)
+	{
+		TailComp->SetRelativeLocationAndRotation(FVector(40.045342, 381.207363, 19.576032), FRotator(-0.524381, 30.448579, -96.188432));
+		damagetime += DeltaTime;
+		UE_LOG(LogTemp, Warning, TEXT("damagetime = %f"), damagetime);
+	}
+	if (damagetime > 3.4 && fsm->mState == EBossState::Move)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("tail on place!!"));
+		TailComp->SetRelativeLocationAndRotation(FVector(-380.712324, 269.675396, 40.428358), FRotator(-2.033529, 67.198997, -96.366017));
+		damagetime = 0;
+		Damaged = false;
+	}
+
 
 }
 

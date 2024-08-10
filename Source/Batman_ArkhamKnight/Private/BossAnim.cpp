@@ -26,3 +26,10 @@ void UBossAnim::AnimNotify_AttackStart()
 {
 	boss->fsm->OnPlayerHit();
 }
+
+void UBossAnim::AnimNotify_ComboStart()
+{
+	boss->Damaged = true;
+}
+
+

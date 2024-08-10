@@ -138,7 +138,7 @@ void UBossFSM::MoveState() // boss move to player or idle
 			if (dir.Size() < attackRange)
 			{
 				int32 attackstatevalue = FMath::RandRange(0, 4);
-				if (attackstatevalue >= 0 && MyGameModeBase->IsPlayingSequence() == false)
+				if (attackstatevalue == 0 && MyGameModeBase->IsPlayingSequence() == false)
 				{
 					currentTime = 0;
 					if (FMath::RandBool()) {
@@ -252,7 +252,7 @@ void UBossFSM::DoubleLeftAttackState() // double smash
 void UBossFSM::DamageState()
 {
 	currentTime += GetWorld()->GetDeltaSeconds();
-	if (currentTime > damageDelayTime)
+	if (currentTime >= damageDelayTime)
 	{
 		mState = EBossState::Move;
 		anim->BanimState = mState;
@@ -311,6 +311,7 @@ void UBossFSM::OnMyTakeDamage(int32 damage)
 	if (HP > 0)
 	{
 		currentTime = 0;
+		SetCollision(false);
 		mState = EBossState::Damage;
 		anim->BanimState = mState;
 

@@ -33,5 +33,9 @@ public:
 	UPROPERTY()
 	class ABoss* boss;
 
+	UFUNCTION()
+	void AnimNotify_ComboStart();
+
+
 
 };
