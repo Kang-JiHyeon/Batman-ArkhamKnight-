@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
 #include "BossFSM.h"
+#include "PlayerAttackPointComponent.h"
 #include "BossAnim.generated.h"
 
 /**
@@ -22,6 +23,9 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category= BossFSM)
 	bool bAttackPlay = false;
+
+	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite,Category = BossFSM)
+	EAttackType attacktype;
 
 	// attack animation end
 	UFUNCTION(BlueprintCallable,Category=FSMEvent)

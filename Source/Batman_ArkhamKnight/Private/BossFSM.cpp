@@ -15,6 +15,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/SphereComponent.h"
 #include "BossHP.h"
+#include "PlayerAttackPointComponent.h"
 
 // Sets default values for this component's properties
 UBossFSM::UBossFSM()
@@ -51,6 +52,8 @@ void UBossFSM::BeginPlay()
 	MyGameModeBase = Cast<APlayerGameModeBase>(GetWorld()->GetAuthGameMode());
 
 	SetCollision(false);
+
+	MyGameModeBase->OnStartedLevelSequence.AddUObject(this, &UBossFSM::SetupBossStateIdle);
 }
 
 
@@ -293,7 +296,14 @@ void UBossFSM::CrawlState()
 	}
 }
 
-void UBossFSM::OnMyTakeDamage(int32 damage)
+void UBossFSM::SetupBossStateIdle()
+{
+	mState = EBossState::Idle;
+	anim->BanimState = mState;
+}
+
+
+void UBossFSM::OnMyTakeDamage(EAttackType attacktype,int32 damage)
 
 {
 	if (mState == EBossState::Die)
@@ -301,15 +311,14 @@ void UBossFSM::OnMyTakeDamage(int32 damage)
 		return;
 	}
 	HP -= damage;
-	if (HP < 0) HP = 0;
 
-	if (HP > 0)
+	if (HP > 0 )
 	{
 		currentTime = 0;
 		SetCollision(false);
 		mState = EBossState::Damage;
+		anim->attacktype = attacktype;
 		anim->BanimState = mState;
-
 	}
 	else
 	{

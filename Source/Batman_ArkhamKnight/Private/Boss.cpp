@@ -68,20 +68,20 @@ void ABoss::Tick(float DeltaTime)
 		TailComp->SetRelativeLocationAndRotation(FVector(-366.510225, 308.967507, 19.801516), FRotator(-2.033529, 67.198997, -96.366017));
 		crawltime = 0;
 	}
-	// 0.96초 동안 어퍼컷맞고 쓰러짐
-	if (fsm->mState == EBossState::Damage && Damaged == true)
-	{
-		TailComp->SetRelativeLocationAndRotation(FVector(40.045342, 381.207363, 19.576032), FRotator(-0.524381, 30.448579, -96.188432));
-		damagetime += DeltaTime;
-		UE_LOG(LogTemp, Warning, TEXT("damagetime = %f"), damagetime);
-	}
-	if (damagetime > 3.4 && fsm->mState == EBossState::Move)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("tail on place!!"));
-		TailComp->SetRelativeLocationAndRotation(FVector(-366.510225, 308.967507, 19.801516), FRotator(-2.033529, 67.198997, -96.366017));
-		damagetime = 0;
-		Damaged = false;
-	}
+	//// 0.96초 동안 어퍼컷맞고 쓰러짐
+	//if (fsm->mState == EBossState::Damage && Damaged == true)
+	//{
+	//	TailComp->SetRelativeLocationAndRotation(FVector(40.045342, 381.207363, 19.576032), FRotator(-0.524381, 30.448579, -96.188432));
+	//	damagetime += DeltaTime;
+	//	UE_LOG(LogTemp, Warning, TEXT("damagetime = %f"), damagetime);
+	//}
+	//if (damagetime > 3.4 && fsm->mState == EBossState::Move)
+	//{
+	//	UE_LOG(LogTemp, Warning, TEXT("tail on place!!"));
+	//	TailComp->SetRelativeLocationAndRotation(FVector(-366.510225, 308.967507, 19.801516), FRotator(-2.033529, 67.198997, -96.366017));
+	//	damagetime = 0;
+	//	Damaged = false;
+	//}
 
 
 }

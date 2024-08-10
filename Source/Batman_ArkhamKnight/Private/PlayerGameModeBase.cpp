@@ -23,7 +23,8 @@ void APlayerGameModeBase::PlaySequence()
 	if (SequencePlayer == nullptr) return;
 
 	//OnStartedLevelSequence.AddDynamic(this, &);
-	//OnStartedLevelSequence.Broadcast();
+
+	OnStartedLevelSequence.Broadcast();
     SequencePlayer->Play();
 }
 
@@ -33,5 +34,6 @@ bool APlayerGameModeBase::IsPlayingSequence()
 
 	return SequencePlayer->IsPlaying();
 }
+
 
 

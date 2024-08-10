@@ -124,6 +124,7 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	int32 MaxBossAttackComboCount = 12;
 	int32 AttackComboCount = 0;
+	EAttackType CurrAttackType;
 	
 
 	// È¸ÇÇ
