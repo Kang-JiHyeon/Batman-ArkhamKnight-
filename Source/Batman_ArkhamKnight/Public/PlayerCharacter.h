@@ -19,14 +19,6 @@ enum class EPlayerState
 	Die
 };
 
-UENUM()
-enum class EEnemyDirection
-{
-	Front,
-	Back,
-	Left,
-	Right
-};
 
 
 UCLASS()
@@ -55,6 +47,7 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	class UCameraComponent* CameraComp;
 
+	// 매쉬-망토
 	UPROPERTY(EditDefaultsOnly)
 	class UStaticMeshComponent* CapeMeshComp;
 
@@ -113,19 +106,25 @@ public:
 	bool bMovingToTarget;
 	bool bRotatingToTarget;
 
-	// 공격 
+	// 죄수 공격 
+	UPROPERTY()
+	class UCheckTargetDirectionComponent* CheckTargetDirComp;
+
 	UPROPERTY(EditDefaultsOnly)
 	float AttackRange = 1000;
 	int32 AttackMaxSpeed = 3000;
 	int32 DefaultMaxSpeed;
 	int32 AnimComboCount = 0;
+	UPROPERTY(EditDefaultsOnly)
+	int32 MaxHitCombo = 12;
+	int32 HitCombo = 0;
 
 	// 보스 공격
 	UPROPERTY(EditDefaultsOnly)
-	int32 MaxBossAttackComboCount = 12;
-	int32 AttackComboCount = 0;
+	int32 MaxSkillCombo = 8;
+	int32 SkillCombo = 0;
 	EAttackType CurrAttackType;
-	
+
 
 	// 회피
 	UPROPERTY(EditDefaultsOnly)
@@ -147,6 +146,7 @@ public:
 	// TimerHandler
 	FTimerHandle DamageTimerHandler;
 
+	// GameMode
 	class APlayerGameModeBase* MyGameModeBase;
 
 	// Motion Warping
@@ -154,6 +154,7 @@ public:
 	class UMotionWarpingComponent* MotionWarpingComp;
 	UPROPERTY(EditDefaultsOnly)
 	class UPlayerMotionWarpingComponent* PlayerMotionWarpingComp;
+
 
 private:
 	// Input
@@ -168,8 +169,6 @@ private:
 	void MoveToTarget(AActor* Target);
 	void RotateToTarget(AActor* Target);
 	bool IsLockedMove() const;
-	EEnemyDirection GetTargetVerticalDirection(AActor* TargetActor);
-	EEnemyDirection GetTargetHorizontalDirection(AActor* TargetActor);
 
 	// Find Target
 	APrisoner* FindTargetPrisoner();
@@ -177,13 +176,14 @@ private:
 	// Animation
 	void PlayAttackAnimation();
 
-	void SetAttackComboCount(float Value);
+	void SetHP(float Value);
+	void SetHitCombo(float Value);
+	void SetSkillCombo(float Value);
+	void OnHitSucceeded(float Value);
 
-	void CallDelegateLevelSequnce();
 public:
 	bool bIsSlow;
 
-	void ResetCombo();
 	void OnTakeDamage(AActor* OtherActor, int32 Damage);
 	void OnEndDamage();
 	
@@ -191,10 +191,5 @@ public:
 	void OnHitBoss();
 
 	void OnPlayMotionWarping(EAttackType AttackType);
-
-	void SetMeshCollisionEnabled(bool bValue);
-
-	UFUNCTION(BlueprintCallable)
-	void OnMeshBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 };

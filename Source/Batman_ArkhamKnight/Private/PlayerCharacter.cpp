@@ -9,7 +9,6 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "TestEnemy.h"
 #include "Boss.h"
 #include "BossFSM.h"
 #include "Prisoner.h"
@@ -18,13 +17,14 @@
 #include "../../../../Plugins/Animation/MotionWarping/Source/MotionWarping/Public/MotionWarpingComponent.h"
 #include "PlayerGameModeBase.h"
 #include "PlayerMotionWarpingComponent.h"
+#include "CheckTargetDirectionComponent.h"
+#include "BossMapMainWidget.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	
 
 	// 스프링암
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
@@ -52,8 +52,14 @@ APlayerCharacter::APlayerCharacter()
 		CapeMeshComp->SetStaticMesh(CapeMeshFinder.Object);
 	}
 
+	// 모션 워핑 컴포넌트
 	MotionWarpingComp = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComp"));
 	PlayerMotionWarpingComp = CreateDefaultSubobject<UPlayerMotionWarpingComponent>(TEXT("PlayerMotionWarpingComp"));
+
+	// 타겟 방향 확인 컴포넌트
+	CheckTargetDirComp = CreateDefaultSubobject<UCheckTargetDirectionComponent>(TEXT("CheckTargetDirComp"));
+
+
 }
 
 // Called when the game starts or when spawned
@@ -85,35 +91,15 @@ void APlayerCharacter::BeginPlay()
 	// 기본 이동 속도 캐싱
 	DefaultMaxSpeed = GetCharacterMovement()->MaxWalkSpeed;
 
-	// 매쉬 콜리전 비활성화
-	SetMeshCollisionEnabled(false);
-
-	// 매쉬 충돌 이벤트 설정
-	GetMesh()->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::OnMeshBeginOverlap);
-
-	// HP 초기화
-	HP = MaxHP;
+	// Stat 초기화
+	SetHP(MaxHP);
+	SetHitCombo(0);
+	SetSkillCombo(0);
 
 	// 보스
 	AActor* boss = UGameplayStatics::GetActorOfClass(GetWorld(), ABoss::StaticClass());
 	TargetBoss = Cast<ABoss>(boss);
-
-//	// 타켓의 위치에서 150 앞에 있는 위치
-//// 이동할 위치 설정
-//	FVector offset = UKismetMathLibrary::GetDirectionUnitVector(TargetBoss->GetActorLocation(), GetActorLocation()) * 150;
-//	FVector targetLoc = TargetBoss->GetActorLocation() + offset;
-//	// 회전 설정
-//	FVector targetDir = UKismetMathLibrary::GetDirectionUnitVector(GetActorLocation(), TargetBoss->GetActorLocation());
-//	FRotator targetRot = UKismetMathLibrary::MakeRotFromX(targetDir);
-//	// 모션 워핑 실행
-//	MotionWarpingComp->AddOrUpdateWarpTargetFromLocationAndRotation(FName("AttactPoint"), targetLoc, targetRot);
-	
 	PlayerMotionWarpingComp->OnInitialize(TargetBoss);
-
-	//PlayerMotionWarpingComp->AddMotionWarping(EWarpingPoint::Origin);
-	//PlayerMotionWarpingComp->AddMotionWarping(EWarpingPoint::Front);
-	//PlayerMotionWarpingComp->AddMotionWarping(EWarpingPoint::Right);
-
 }
 
 // Called every frame
@@ -159,10 +145,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 void APlayerCharacter::OnActionMove(const FInputActionValue& Value)
 {
-	if (IsLockedMove())
-	{
-		return;
-	}
+	if (IsLockedMove())	return;
 
 	FVector2D v = Value.Get<FVector2D>();
 
@@ -205,7 +188,7 @@ void APlayerCharacter::OnActionDodge(const FInputActionValue& Value)
 		PlayAnimMontage(DodgeMontage);
 
 		// 구르기 시 공격 콤보 초기화
-		SetAttackComboCount(0);	
+		SetHitCombo(0);	
 	}
 	LastDodgeInputPressTime = currtime;
 }
@@ -260,7 +243,7 @@ void APlayerCharacter::OnActionBossAttack(const FInputActionValue& Value)
 {
 	if (TargetBoss == nullptr) return;
 	if(IsLockedMove()) return;
-    //if (AttackComboCount < MaxBossAttackComboCount) return;
+	if(SkillCombo < MaxSkillCombo) return;
 
 	// 타켓의 위치에서 150 앞에 있는 위치
 	// 이동할 위치 설정
@@ -269,19 +252,6 @@ void APlayerCharacter::OnActionBossAttack(const FInputActionValue& Value)
 	// 회전 설정
 	FVector targetDir = UKismetMathLibrary::GetDirectionUnitVector(GetActorLocation(), TargetBoss->GetActorLocation());
 	FRotator targetRot = UKismetMathLibrary::MakeRotFromX(targetDir);
-	
-	//FVector offset = TargetBoss->GetActorRightVector() * 150;
-
-	//FVector targetLoc = TargetBoss->GetActorLocation() + offset;
-	//// 회전 설정
-	//FVector targetDir = UKismetMathLibrary::GetDirectionUnitVector(offset, TargetBoss->GetActorLocation());
-	//FRotator targetRot = UKismetMathLibrary::MakeRotFromX(targetDir);
-	
-	
-	//// 모션 워핑 실행
-	//MotionWarpingComp->AddOrUpdateWarpTargetFromLocationAndRotation(FName("AttactPoint"), targetLoc, targetRot);
-
-	//PlayerMotionWarpingComp->AddAndUpdateMotionWarping(EAttackType::DropKick);
 
 	// 몽타주 재생
 	PlayAnimMontage(BossAttackMotages[bossAttackIndex]);
@@ -290,8 +260,8 @@ void APlayerCharacter::OnActionBossAttack(const FInputActionValue& Value)
 	// 시퀀스 재생
 	MyGameModeBase->PlaySequence();
 	
-	// 공격 콤보 초기화
-	SetAttackComboCount(0);
+	// 보스 공격 콤보 초기화
+	SetSkillCombo(0);
 
 	PlayerAnim->SetIgnoreAttack(false);
 }
@@ -319,7 +289,6 @@ void APlayerCharacter::MoveToTarget(AActor* Target)
 		PlayAttackAnimation();
 		// 최대 스피드 복구
 		GetCharacterMovement()->MaxWalkSpeed = DefaultMaxSpeed;
-
 	}
 }
 
@@ -352,34 +321,6 @@ void APlayerCharacter::RotateToTarget(AActor* Target)
 	{
 		bRotatingToTarget = false;
 	}
-}
-
-EEnemyDirection APlayerCharacter::GetTargetVerticalDirection(AActor* Target)
-{
-	// 적이 앞에 있는지, 뒤에 있는지 판별
-	FVector targetVector = Target->GetActorLocation() - GetActorLocation();
-	FVector forwardVector = GetActorForwardVector();
-
-	float forwardDotProduct = FVector::DotProduct(targetVector, forwardVector);
-
-	if(forwardDotProduct > 0)
-		return EEnemyDirection::Front;
-	else
-		return EEnemyDirection::Back;
-}
-
-EEnemyDirection APlayerCharacter::GetTargetHorizontalDirection(AActor* Target)
-{
-	// 적이 왼쪽에 있는지, 오른쪽에 있는지 판별
-	FVector targetVector = Target->GetActorLocation() - GetActorLocation();
-	FVector rightVector = GetActorRightVector();
-
-	float rightDotProject = FVector::DotProduct(targetVector, rightVector);
-
-	if (rightDotProject > 0)
-		return EEnemyDirection::Right;
-	else
-		return EEnemyDirection::Left;
 }
 
 APrisoner* APlayerCharacter::FindTargetPrisoner()
@@ -427,10 +368,10 @@ void APlayerCharacter::PlayAttackAnimation()
 	if(TargetPrisoner == nullptr) return;
 
 	// 앞, 뒤 방향 확인
-	EEnemyDirection enemyDir = GetTargetVerticalDirection(TargetPrisoner);
+	EDirectionType enemyDir = CheckTargetDirComp->GetTargetVerticalDirection(TargetPrisoner);
 
 	// 적이 앞에 있다면 콤보 애니메이션 실행
-	if (enemyDir == EEnemyDirection::Front)
+	if (enemyDir == EDirectionType::Front)
 	{
 		// 콤보 카운트 증가
 		FString section = FString::FromInt((AnimComboCount % 3));
@@ -440,7 +381,7 @@ void APlayerCharacter::PlayAttackAnimation()
 	// 적이 뒤에 있다면 왼쪽, 오른쪽 구분해서 애니메이션 실행
 	else
 	{
-		FString dirName = GetTargetHorizontalDirection(TargetPrisoner) == EEnemyDirection::Left ? "Left" : "Right";
+		FString dirName = CheckTargetDirComp->GetTargetHorizontalDirection(TargetPrisoner) == EDirectionType::Left ? "Left" : "Right";
 		PlayAnimMontage(BackAttackMontage, 1, FName(dirName));
 	}
 
@@ -456,6 +397,7 @@ void APlayerCharacter::OnHitPrisoner()
 	if (distance < 150)
 	{
 		TargetPrisoner->fsm->OnMyTakeDamage(1);
+		OnHitSucceeded(1);
 	}
 }
 
@@ -480,10 +422,10 @@ void APlayerCharacter::OnTakeDamage(AActor* OtherActor, int32 Damage)
 	if(bDamageState) return;
 	if(MyGameModeBase->IsPlayingSequence()) return;
 
-	HP -= Damage;
+	SetHP(HP-Damage);
 	
 	// 공격 콤보 초기화
-	SetAttackComboCount(0);
+	SetHitCombo(0);
 
 	// 슬로우 해제
 	bIsSlow = false;
@@ -500,8 +442,8 @@ void APlayerCharacter::OnTakeDamage(AActor* OtherActor, int32 Damage)
 		GetCharacterMovement()->Velocity = dir * 2000;
 
 		// 적이 앞에서 공격했다면, 뒤로 휘청거리기
-		EEnemyDirection dirState = GetTargetVerticalDirection(OtherActor);
-		if (dirState == EEnemyDirection::Front)
+		EDirectionType dirState = CheckTargetDirComp->GetTargetVerticalDirection(OtherActor);
+		if (dirState == EDirectionType::Front)
 		{
 			PlayAnimMontage(DamageMontage, 1, FName("FrontDamage"));
 			//UE_LOG(LogTemp, Warning, TEXT("적이 [앞]에서 때렸습니다!!"));
@@ -523,7 +465,6 @@ void APlayerCharacter::OnTakeDamage(AActor* OtherActor, int32 Damage)
 		bDamageState = true;
 		PlayerAnim->bDie = true;
 
-		SetMeshCollisionEnabled(false);
 		UE_LOG(LogTemp, Warning, TEXT("Player Die!!"), HP);
 	}
 }
@@ -534,60 +475,34 @@ void APlayerCharacter::OnEndDamage()
 	PlayerAnim->bIgnoreInputAttack = false;
 }
 
-void APlayerCharacter::SetAttackComboCount(float Value)
+void APlayerCharacter::SetHP(float Value)
 {
-	AttackComboCount = Value;
+	HP = Value;
 
-	UE_LOG(LogTemp, Warning, TEXT("AttackComboCount : %d"), AttackComboCount);
+	if (MyGameModeBase != nullptr)
+		MyGameModeBase->MainWidget->UpdatePlayerHPBar(HP, MaxHP);
 }
 
-void APlayerCharacter::CallDelegateLevelSequnce()
+void APlayerCharacter::SetHitCombo(float Value)
 {
+	HitCombo = Value;
+
+	if(MyGameModeBase != nullptr)
+		MyGameModeBase->MainWidget->UpdatePlayerHitCombo(HitCombo, MaxHitCombo);
+
 }
 
-void APlayerCharacter::ResetCombo()
+void APlayerCharacter::SetSkillCombo(float Value)
 {
-	SetMeshCollisionEnabled(false);
-	AnimComboCount = 0;
+	SkillCombo = Value;
+
+	if (MyGameModeBase != nullptr)
+		MyGameModeBase->MainWidget->UpdatePlayerSkillGauge(SkillCombo, MaxSkillCombo);
 }
 
-void APlayerCharacter::SetMeshCollisionEnabled(bool bValue)
+void APlayerCharacter::OnHitSucceeded(float Value)
 {
-	//if (bValue)
-	//{
-	//	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	//}
-	//else
-	//{
-	//	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	//}
-}
+	SetHitCombo(HitCombo + Value);
+	SetSkillCombo(SkillCombo + Value);
 
-void APlayerCharacter::OnMeshBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	//auto* prisoner = Cast<APrisoner>(OtherActor);
-	//if (prisoner != nullptr && TargetPrisoner == prisoner)
-	//{
-	//	auto* prisonerFSM = prisoner->GetComponentByClass<UPrisonerFSM>();
-	//	if (prisonerFSM != nullptr)
-	//	{
-	//		bIsSlow = prisonerFSM->IsAttack();
-
-	//		// 공격 콤보 증가
-	//		SetAttackComboCount(AttackComboCount + 1);
-
-	//		OverlapPrisoner = prisoner;
-	//	}
-	//}
-	//if (MyGameModeBase->IsPlayingSequence())
-	//{
- //       auto* boss = Cast<ABoss>(OtherActor);
- //       if (boss != nullptr)
- //       {
-	//		UE_LOG(LogTemp, Warning, TEXT("Player->Boss Attack!!"));
- //           boss->fsm->OnMyTakeDamage(5);
- //       }
-	//}
-
-	//SetMeshCollisionEnabled(false);
 }
