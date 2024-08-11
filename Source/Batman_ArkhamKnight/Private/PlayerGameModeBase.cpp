@@ -64,7 +64,6 @@ bool APlayerGameModeBase::IsPlayingSequence()
 	return false;
 }
 
-
 void APlayerGameModeBase::NotifyEnemyDeath()
 {
 	DeadEnemies++;
