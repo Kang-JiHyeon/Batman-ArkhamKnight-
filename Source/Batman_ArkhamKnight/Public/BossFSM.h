@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "PlayerAttackPointComponent.h"
 #include "BossFSM.generated.h"
 
 UENUM(BlueprintType)
@@ -63,6 +64,8 @@ public:
 	void YellState();
 	// 기어가기 상태
 	void CrawlState();
+	// 콤보 피격시 대기 상태
+	void SetupBossStateIdle();
 
 	// 대기시간
 	UPROPERTY(EditAnywhere,Category= BFSM)
@@ -78,7 +81,7 @@ public:
 	UPROPERTY(EditAnywhere)
 	FVector direction;
 
-	// 나의 위치 기억
+	// 나의 위치 기억        
 	UPROPERTY(EditAnywhere)
 	class ABoss* me;
 	
@@ -109,18 +112,21 @@ public:
 	// hp
 	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite,Category= BFSM)
 	int32 BossHp = 10;
+	int32 HP;
 
-	// fast move중에 player와 mesh가 overlap되면 일어서기
+	// damage를 입히기 위해
+	UFUNCTION()
+	void OnPlayerHit();
+
 	UFUNCTION(BlueprintCallable)
 	void OnMeshBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-	// damage and die
-	void OnMyTakeDamage(int32 damage);
+	// fast move중에 player와 sphere가 overlap되면 일어서기
+	UFUNCTION(BlueprintCallable)
+	void OnSphereCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-	// hp
-	UPROPERTY(EditAnywhere)
-	int32 MaxHP=10;
-	int32 HP;
+	// damage and die
+	void OnMyTakeDamage(EAttackType attacktype, int32 damage);
 
 	// crawl camera
 	UPROPERTY(EditDefaultsOnly)
@@ -130,4 +136,5 @@ public:
 	void SetCollision(bool bvalue);
 
 	class APlayerGameModeBase* MyGameModeBase;
+
 };

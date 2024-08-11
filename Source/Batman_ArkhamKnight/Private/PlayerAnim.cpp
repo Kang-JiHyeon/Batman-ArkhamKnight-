@@ -5,6 +5,7 @@
 #include "PlayerCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "PlayerAttackPointComponent.h"
 
 void UPlayerAnim::NativeInitializeAnimation()
 {
@@ -71,7 +72,38 @@ void UPlayerAnim::OnStartSlowMotion()
 
 void UPlayerAnim::OnEndSlowMotion()
 {
-
-
     UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1);
+}
+
+void UPlayerAnim::AnimNotify_OnHit()
+{
+    if(Player == nullptr) return;
+
+    Player->OnHitPrisoner();
+}
+
+void UPlayerAnim::AnimNotify_OnHitBoss()
+{
+    if (Player == nullptr) return;
+
+    Player->OnHitBoss();
+}
+
+void UPlayerAnim::AnimNotify_OnPlayFlyingKneePunch()
+{
+    Player->OnPlayMotionWarping(EAttackType::FlyingKneePunch);
+}
+
+void UPlayerAnim::AnimNotify_OnPlayDropKick()
+{
+    Player->OnPlayMotionWarping(EAttackType::DropKick);
+}
+
+void UPlayerAnim::AnimNotify_OnPlayFlipKick()
+{
+    Player->OnPlayMotionWarping(EAttackType::FilpKick);
+}
+void UPlayerAnim::AnimNotify_OnPlayRun()
+{
+    Player->OnPlayMotionWarping(EAttackType::Run);
 }

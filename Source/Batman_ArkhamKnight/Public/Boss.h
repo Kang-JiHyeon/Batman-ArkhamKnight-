@@ -32,6 +32,16 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	class ABoss* me;
+	
+	// boss tail
+	UPROPERTY(EditDefaultsOnly)
+	class UStaticMeshComponent* TailComp;
+	float crawltime = 0.0f;
+	float damagetime = 0.0f;
 
+	UPROPERTY(EditAnywhere)
+	class USphereComponent* SphereComp;
 
+	UPROPERTY(EditAnywhere)
+	bool Damaged = true;
 };

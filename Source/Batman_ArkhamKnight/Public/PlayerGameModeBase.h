@@ -14,6 +14,7 @@ class BATMAN_ARKHAMKNIGHT_API APlayerGameModeBase : public AGameModeBase
 	GENERATED_BODY()
 	
 public:
+    virtual void BeginPlay() override;
     virtual void StartPlay() override;
 
 public:
@@ -32,7 +33,18 @@ private:
     UPROPERTY()
     class ALevelSequenceActor* SequenceActor;
 
+    // Main Widget
+    UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<class UUserWidget> MainWidgetFactory;
+
+public:
+    UPROPERTY()
+    class UBossMapMainWidget* MainWidget;
+
 public:
     void PlaySequence();
     bool IsPlayingSequence();
+    
+    void SetPlayerHPBar(const int32 CurrHP, const int32 MaxHP);
+
 };

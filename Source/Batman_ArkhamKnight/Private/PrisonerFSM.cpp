@@ -147,7 +147,7 @@ void UPrisonerFSM::MoveState(float& DeltaSeconds){
 		else
 		{
 			int value = FMath::RandRange(0, 100);
-			if (value < 30)
+			if (value < 40)
 			{
 				SetState(EPrisonerState::Run);
 				anim->PanimState = mState;
@@ -321,6 +321,28 @@ void UPrisonerFSM::DieState(float& DeltaSeconds)
 	
 }
 
+void UPrisonerFSM::OnPlayerHit()
+{
+	float dist = me->GetDistanceTo(Ptarget);
+	
+	if (Ptarget != nullptr)
+	{
+		if (dist < attackDistance)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("player is attacked by prisoner"));
+			Ptarget->OnTakeDamage(me, 1);
+			SetCollision(false);
+			SetState(EPrisonerState::BackMove); // 공격이 끝난 후의 back move 상태 
+			anim->PanimState = mState;
+		}
+		else
+		{
+			SetState(EPrisonerState::Move);
+			anim->PanimState = mState;
+		}
+	}
+}
+
 void UPrisonerFSM::OnMyTakeDamage(int32 damage)
 
 // 데미지를 입다가 일정 HP 이하가 되면 기절상태에 들어가고 싶다.
@@ -367,16 +389,16 @@ void UPrisonerFSM::SetCollision(bool bvalue)
 
 void UPrisonerFSM::OnMeshBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	auto* player = Cast<APlayerCharacter>(OtherActor);
+	//auto* player = Cast<APlayerCharacter>(OtherActor);
 
-	if (player != nullptr)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Overlap with Player detected!"));
-		Ptarget->OnTakeDamage(me, 1);
-		SetCollision(false);
-		SetState(EPrisonerState::BackMove); // 공격이 끝난 후의 back move 상태 
-		anim->PanimState = mState;
-	}
+	//if (player != nullptr)
+	//{
+	//	UE_LOG(LogTemp, Warning, TEXT("Overlap with Player detected!"));
+	//	Ptarget->OnTakeDamage(me, 1);
+	//	SetCollision(false);
+	//	SetState(EPrisonerState::BackMove); // 공격이 끝난 후의 back move 상태 
+	//	anim->PanimState = mState;
+	//}
 }
 
 bool UPrisonerFSM::IsAttack()
