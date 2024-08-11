@@ -86,6 +86,7 @@ class BATMAN_ARKHAMKNIGHT_API AVehicleEnemy : public AActor
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Health", meta = (AllowPrivateAccess = "true"))
 	int MaxHealth;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attackable", meta = (AllowPrivateAccess = "true"))
 	bool bIsAttackAble = true;
 	
 public:	

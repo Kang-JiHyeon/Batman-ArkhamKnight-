@@ -17,6 +17,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "NiagaraComponent.h"
 #include "NiagaraSystem.h"
+#include "Components/AudioComponent.h"
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -69,6 +70,9 @@ ABaseWheeledVehiclePawn::ABaseWheeledVehiclePawn()
 	RightBoostVFXComponent->SetupAttachment(RootComponent);
 	RightBoostVFXComponent->SetRelativeLocation(FVector(-210.f, 70.f, 36.f));
 	RightBoostVFXComponent->SetRelativeRotation(FRotator(0.f, -180.f, 0.f));
+
+	EngineSoundComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("Engine Sound"));
+	BoostSoundComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("Boost Sound"));
 
 	GetMesh() -> OnComponentHit.AddDynamic(this, &ABaseWheeledVehiclePawn::OnComponentHit);
 }
@@ -127,6 +131,7 @@ void ABaseWheeledVehiclePawn::SetupPlayerInputComponent(UInputComponent* PlayerI
 
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
+		EnhancedInputComponent->BindAction(IA_Throttle, ETriggerEvent::Started, this, &ABaseWheeledVehiclePawn::ThrottleStart);
 		EnhancedInputComponent->BindAction(IA_Throttle, ETriggerEvent::Triggered, this, &ABaseWheeledVehiclePawn::ThrottleTrigger);
 		EnhancedInputComponent->BindAction(IA_Throttle, ETriggerEvent::Completed, this, &ABaseWheeledVehiclePawn::ThrottleComplete);
 		
@@ -138,6 +143,7 @@ void ABaseWheeledVehiclePawn::SetupPlayerInputComponent(UInputComponent* PlayerI
 		EnhancedInputComponent->BindAction(IA_Steering, ETriggerEvent::Triggered, this, &ABaseWheeledVehiclePawn::SteeringTrigger);
 		EnhancedInputComponent->BindAction(IA_Steering, ETriggerEvent::Completed, this, &ABaseWheeledVehiclePawn::SteeringComplete);
 
+		EnhancedInputComponent->BindAction(IA_Boost, ETriggerEvent::Started, this, &ABaseWheeledVehiclePawn::MouseLeftStart);
 		EnhancedInputComponent->BindAction(IA_Boost, ETriggerEvent::Triggered, this, &ABaseWheeledVehiclePawn::MouseLeftTrigger);
 		EnhancedInputComponent->BindAction(IA_Boost, ETriggerEvent::Completed, this, &ABaseWheeledVehiclePawn::MouseLeftComplete);
 
@@ -152,6 +158,11 @@ void ABaseWheeledVehiclePawn::SetupPlayerInputComponent(UInputComponent* PlayerI
 	}
 }
 
+void ABaseWheeledVehiclePawn::ThrottleStart(const FInputActionValue& Value)
+{
+	EngineSoundComponent -> Play();
+}
+
 void ABaseWheeledVehiclePawn::ThrottleTrigger(const FInputActionValue& Value)
 {
 	ChaosVehicleMovementComponent->SetThrottleInput(Value.Get<float>());
@@ -160,6 +171,7 @@ void ABaseWheeledVehiclePawn::ThrottleTrigger(const FInputActionValue& Value)
 void ABaseWheeledVehiclePawn::ThrottleComplete(const FInputActionValue& Value)
 {
 	ChaosVehicleMovementComponent->SetThrottleInput(Value.Get<float>());
+	EngineSoundComponent -> Stop();
 }
 
 void ABaseWheeledVehiclePawn::BrakeTrigger(const FInputActionValue& Value)
@@ -194,6 +206,11 @@ void ABaseWheeledVehiclePawn::SteeringComplete(const FInputActionValue& Value)
 	ChaosVehicleMovementComponent->SetSteeringInput(Value.Get<float>());
 }
 
+void ABaseWheeledVehiclePawn::MouseLeftStart(const FInputActionValue& Value)
+{
+	BoostSoundComponent -> Play();
+}
+
 void ABaseWheeledVehiclePawn::MouseLeftTrigger(const FInputActionValue& Value)
 {
 	
@@ -201,7 +218,6 @@ void ABaseWheeledVehiclePawn::MouseLeftTrigger(const FInputActionValue& Value)
 	LeftBoostVFXComponent -> Activate();
 	RightBoostVFXComponent -> Activate();
 	UGameplayStatics::GetPlayerController(GetWorld(), 0) -> PlayerCameraManager -> PlayWorldCameraShake(GetWorld(), BoostCameraShake, GetActorLocation(), 10.f, 1000.f, 1.f, false);
-	
 }
 
 void ABaseWheeledVehiclePawn::MouseLeftComplete(const FInputActionValue& Value)
@@ -209,6 +225,8 @@ void ABaseWheeledVehiclePawn::MouseLeftComplete(const FInputActionValue& Value)
 	ChaosVehicleMovementComponent-> SetMaxEngineTorque(BaseSpeed);
 	LeftBoostVFXComponent -> Deactivate();
 	RightBoostVFXComponent -> Deactivate();
+	
+	BoostSoundComponent -> Stop();
 }
 
 void ABaseWheeledVehiclePawn::BoostStart(const FInputActionValue& Value)

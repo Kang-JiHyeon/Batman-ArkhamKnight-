@@ -24,6 +24,7 @@ class AMachineGunBullet;
 class ACannonBall;
 class UNiagaraSystem;
 class UNiagaraComponent;
+class UAudioComponent;
 
 struct FTimerHandle;
 
@@ -101,6 +102,13 @@ class BATMAN_ARKHAMKNIGHT_API ABaseWheeledVehiclePawn : public AWheeledVehiclePa
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputAction * IA_Missile;
 
+	//* SFX */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SFX", meta = (AllowPrivateAccess = "true"))
+	UAudioComponent* EngineSoundComponent;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SFX", meta = (AllowPrivateAccess = "true"))
+	UAudioComponent* BoostSoundComponent;
+
 	/** Chaos Vehicle Movement Component */
 	
 	UPROPERTY()
@@ -158,6 +166,7 @@ protected:
 public:
 	virtual void Tick(float DeltaTime) override;
 
+	void ThrottleStart(const FInputActionValue& Value);
 	void ThrottleTrigger(const FInputActionValue& Value);
 	void ThrottleComplete(const FInputActionValue& Value);
 	
@@ -168,9 +177,10 @@ public:
 	
 	void SteeringTrigger(const FInputActionValue& Value);
 	void SteeringComplete(const FInputActionValue& Value);
-	
-	void MouseLeftTrigger(const FInputActionValue& Value);		// * Boost, Machine Gun */
-	void MouseLeftComplete(const FInputActionValue& Value);		// * Boost, Machine Gun */
+
+	void MouseLeftStart(const FInputActionValue& Value);		// * Boost */
+	void MouseLeftTrigger(const FInputActionValue& Value);		// * Boost */
+	void MouseLeftComplete(const FInputActionValue& Value);		// * Boost */
 	void MouseRight(const FInputActionValue& Value);			// * Shot Mahcine Gun */ 
 	void BoostStart(const FInputActionValue& Value);			// * Boost Start */
 	void BoostEnd(const FInputActionValue& Value);				// * Boost End */
