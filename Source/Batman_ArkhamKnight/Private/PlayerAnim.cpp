@@ -107,3 +107,8 @@ void UPlayerAnim::AnimNotify_OnPlayRun()
 {
     Player->OnPlayMotionWarping(EAttackType::Run);
 }
+
+void UPlayerAnim::AnimNotify_OnEndDie()
+{
+    Player->OnEndDie();
+}

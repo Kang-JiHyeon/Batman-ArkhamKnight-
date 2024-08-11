@@ -475,6 +475,12 @@ void APlayerCharacter::OnEndDamage()
 	PlayerAnim->bIgnoreInputAttack = false;
 }
 
+void APlayerCharacter::OnEndDie()
+{
+	if (MyGameModeBase != nullptr)
+		MyGameModeBase->MainWidget->ShowGameOverWidget(true);
+}
+
 void APlayerCharacter::SetHP(float Value)
 {
 	HP = Value;

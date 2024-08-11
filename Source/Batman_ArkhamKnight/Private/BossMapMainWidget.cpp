@@ -3,6 +3,16 @@
 
 #include "BossMapMainWidget.h"
 #include "PlayerStatWidget.h"
+#include "PlayerGameOverWidget.h"
+#include "Kismet/GameplayStatics.h"
+
+void UBossMapMainWidget::NativeConstruct()
+{
+    Super::NativeConstruct();
+    
+    ShowGameOverWidget(false);
+}
+
 
 void UBossMapMainWidget::UpdatePlayerHPBar(const int32 Value, const int32 Max)
 {
@@ -19,11 +29,10 @@ void UBossMapMainWidget::UpdatePlayerSkillGauge(const int32 Value, const int32 M
     PlayerStatWidget->UpdateSkillGauge(Value, Max);
 }
 
-void UBossMapMainWidget::SetVisibilityPlayerHP(bool bValue)
+void UBossMapMainWidget::ShowGameOverWidget(bool bValue)
 {
-}
+    PlayerGameOverWidget->ShowWidget(bValue);
 
-void UBossMapMainWidget::SetVisibilityPlayerStat(bool bValue)
-{
+    GetWorld()->GetFirstPlayerController()->SetShowMouseCursor(bValue);
+    UGameplayStatics::SetGamePaused(GetWorld(), bValue);
 }
-

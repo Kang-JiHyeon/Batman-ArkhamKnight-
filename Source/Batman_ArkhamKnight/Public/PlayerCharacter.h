@@ -19,8 +19,6 @@ enum class EPlayerState
 	Die
 };
 
-
-
 UCLASS()
 class BATMAN_ARKHAMKNIGHT_API APlayerCharacter : public ACharacter
 {
@@ -143,6 +141,7 @@ public:
 	float DamageIdleTime = 1.5f;
 	bool bDamageState;
 
+
 	// TimerHandler
 	FTimerHandle DamageTimerHandler;
 
@@ -186,6 +185,7 @@ public:
 
 	void OnTakeDamage(AActor* OtherActor, int32 Damage);
 	void OnEndDamage();
+	void OnEndDie();
 	
 	void OnHitPrisoner();
 	void OnHitBoss();

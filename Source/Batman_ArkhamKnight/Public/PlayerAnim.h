@@ -67,4 +67,7 @@ public:
 	void AnimNotify_OnPlayFlipKick();
 	UFUNCTION(BlueprintCallable)
 	void AnimNotify_OnPlayRun();
+
+	UFUNCTION(BlueprintCallable)
+	void AnimNotify_OnEndDie();
 };
