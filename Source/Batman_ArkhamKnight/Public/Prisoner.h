@@ -14,7 +14,8 @@ class BATMAN_ARKHAMKNIGHT_API APrisoner : public ACharacter
 public:
 	// Sets default values for this character's properties
 	APrisoner();
-
+	// FSM에서 죽음 상태로 전환될 때 호출되는 함수
+	void OnDeathStateEntered();
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

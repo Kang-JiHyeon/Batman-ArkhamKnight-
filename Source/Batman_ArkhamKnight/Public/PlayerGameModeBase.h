@@ -20,6 +20,13 @@ public:
 public:
     FPlayerGameModeBaseOnStartedLevelSequence OnStartedLevelSequence;
 
+    UFUNCTION()
+    void NotifyEnemyDeath();
+    int32 TotalEnemies;
+    int32 DeadEnemies;
+
+    void CheckAllEnemiesDead();
+
 private:
 	// 레벨 시퀀스 애셋
     UPROPERTY(EditAnywhere, Category = "Camera")

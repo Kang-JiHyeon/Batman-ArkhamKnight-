@@ -6,6 +6,8 @@
 #include "Camera/CameraComponent.h"
 #include "PrisonerFSM.h"
 #include "Animation/AnimInstance.h"
+#include "Kismet/GameplayStatics.h"
+#include "PlayerGameModeBase.h"
 
 // Sets default values
 APrisoner::APrisoner()
@@ -19,6 +21,15 @@ APrisoner::APrisoner()
 	if (animClass.Succeeded())
 	{
 		GetMesh()->SetAnimInstanceClass(animClass.Class);
+	}
+}
+
+void APrisoner::OnDeathStateEntered()
+{
+	APlayerGameModeBase* GameMode = Cast<APlayerGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (GameMode)
+	{
+		GameMode->NotifyEnemyDeath();
 	}
 }
 
