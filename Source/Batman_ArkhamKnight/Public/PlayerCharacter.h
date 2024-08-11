@@ -142,6 +142,8 @@ public:
 	// GameMode
 	class APlayerGameModeBase* MyGameModeBase;
 
+
+	// Actor Component
 	// ÁË¼ö °ø°Ý 
 	UPROPERTY()
 	class UCheckTargetDirection* CheckTargetDirComp;
@@ -151,6 +153,12 @@ public:
 	class UMotionWarpingComponent* MotionWarpingComp;
 	UPROPERTY(EditDefaultsOnly)
 	class UPlayerMotionWarping* PlayerMotionWarpingComp;
+
+	// Sound
+	UPROPERTY(EditDefaultsOnly)
+	class UPlayerSoundManager* SoundManager;
+	UPROPERTY(EditDefaultsOnly)
+	class UAudioComponent* AudioComp;
 
 
 private:

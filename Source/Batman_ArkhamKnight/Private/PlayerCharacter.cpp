@@ -19,6 +19,8 @@
 #include "PlayerMotionWarping.h"
 #include "CheckTargetDirection.h"
 #include "BossMapMainWidget.h"
+#include "PlayerSoundManager.h"
+#include "Components/AudioComponent.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -42,7 +44,6 @@ APlayerCharacter::APlayerCharacter()
 
 	// 망토 Static Mesh
 	CapeMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CapeMeshComp"));
-	//CapeMeshComp->SetupAttachment(GetMesh(), TEXT("neck_01"));
 	CapeMeshComp->SetupAttachment(GetMesh(), TEXT("spine_03"));
 	CapeMeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
@@ -58,6 +59,11 @@ APlayerCharacter::APlayerCharacter()
 
 	// 타겟 방향 확인 컴포넌트
 	CheckTargetDirComp = CreateDefaultSubobject<UCheckTargetDirection>(TEXT("CheckTargetDirComp"));
+
+	// 사운드
+	SoundManager = CreateDefaultSubobject<UPlayerSoundManager>(TEXT("SoundManager"));
+	AudioComp = CreateDefaultSubobject<UAudioComponent>(TEXT("AudioComp"));
+	AudioComp->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
@@ -187,6 +193,9 @@ void APlayerCharacter::OnActionDodge(const FInputActionValue& Value)
 
 		// 구르기 시 공격 콤보 초기화
 		SetHitCombo(0);	
+
+		// 사운드 재생
+		SoundManager->PlaySound(EPlayerSoundType::Dodge);
 	}
 	LastDodgeInputPressTime = currtime;
 }
@@ -231,8 +240,9 @@ void APlayerCharacter::OnActionAttack(const FInputActionValue& Value)
 		// 애니메이션 실행
 		PlayAnimMontage(FrontAttackMontage, 1, FName(section));
 		AnimComboCount++;
-		
-		//PlayAttackAnimation();
+		// 사운드 재생
+		SoundManager->PlaySound(EPlayerSoundType::InvaildAttack);
+
 		GetCharacterMovement()->Velocity = GetActorForwardVector() * 2000;
 	}
 }
@@ -382,8 +392,10 @@ void APlayerCharacter::PlayAttackAnimation()
 		FString dirName = CheckTargetDirComp->GetTargetHorizontalDirection(TargetPrisoner) == EDirectionType::Left ? "Left" : "Right";
 		PlayAnimMontage(BackAttackMontage, 1, FName(dirName));
 	}
-
 	AnimComboCount++;
+
+	// 사운드 재생
+	SoundManager->PlaySound(EPlayerSoundType::VaildAttack);
 }
 
 void APlayerCharacter::OnHitPrisoner()
@@ -396,6 +408,8 @@ void APlayerCharacter::OnHitPrisoner()
 	{
 		TargetPrisoner->fsm->OnMyTakeDamage(1);
 		OnHitSucceeded(1);
+		//// 사운드 재생
+		//SoundManager->PlaySound(EPlayerSoundType::VaildAttack);
 	}
 }
 
@@ -405,6 +419,9 @@ void APlayerCharacter::OnHitBoss()
 	if (CurrAttackType == EAttackType::Run) return;
 
 	TargetBoss->fsm->OnMyTakeDamage(CurrAttackType, 5);
+
+	// 사운드 재생
+	SoundManager->PlaySound(EPlayerSoundType::BossAttack);
 }
 
 void APlayerCharacter::OnPlayMotionWarping(EAttackType AttackType)
@@ -432,6 +449,9 @@ void APlayerCharacter::OnTakeDamage(AActor* OtherActor, int32 Damage)
 	if (HP > 0)
 	{
 		bDamageState = true;
+
+		// 사운드 재생
+		SoundManager->PlaySound(EPlayerSoundType::Damage);
 
 		// 맞은 방향으로 밀리기
 		FVector dir = GetActorLocation() - OtherActor->GetActorLocation();
@@ -462,6 +482,8 @@ void APlayerCharacter::OnTakeDamage(AActor* OtherActor, int32 Damage)
 	{
 		bDamageState = true;
 		PlayerAnim->bDie = true;
+		// 사운드 재생
+		SoundManager->PlaySound(EPlayerSoundType::Die);
 
 		UE_LOG(LogTemp, Warning, TEXT("Player Die!!"), HP);
 	}
