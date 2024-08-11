@@ -30,6 +30,7 @@ public:
 	void SetHPBar(const int32 Value, const int32 Max);
 	void SetAttackCombo(const int32 Value, const int32 Max);
 	void UpdateSkillGauge(const int32 Value, const int32 Max);
+	void ShowWidget(bool bValue);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void UpdateCirculerProgressBar(const float Value);

@@ -32,6 +32,7 @@ void UBossMapMainWidget::UpdatePlayerSkillGauge(const int32 Value, const int32 M
 void UBossMapMainWidget::ShowGameOverWidget(bool bValue)
 {
     PlayerGameOverWidget->ShowWidget(bValue);
+    PlayerStatWidget->ShowWidget(!bValue);
 
     GetWorld()->GetFirstPlayerController()->SetShowMouseCursor(bValue);
     UGameplayStatics::SetGamePaused(GetWorld(), bValue);

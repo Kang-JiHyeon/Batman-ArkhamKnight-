@@ -45,3 +45,9 @@ void UPlayerStatWidget::UpdateSkillGauge(const int32 Value, const int32 Max)
 
     UpdateCirculerProgressBar(persent);
 }
+
+void UPlayerStatWidget::ShowWidget(bool bValue)
+{
+    ESlateVisibility visibility = bValue ? ESlateVisibility::Visible : ESlateVisibility::Hidden;
+    this->SetVisibility(visibility);
+}
