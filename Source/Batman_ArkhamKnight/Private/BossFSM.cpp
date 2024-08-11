@@ -96,8 +96,8 @@ void UBossFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 		break;
 	}
 	
-	//FString logMsg = UEnum::GetValueAsString(mState);
-	//GEngine->AddOnScreenDebugMessage(0, 1, FColor::Cyan,logMsg);
+	FString logMsg = UEnum::GetValueAsString(mState);
+	GEngine->AddOnScreenDebugMessage(0, 1, FColor::Cyan,logMsg);
 }
 
 void UBossFSM::IdleState()
@@ -251,6 +251,7 @@ void UBossFSM::DamageState()
 	if (HP <= 0)
 	{
 		SetCollision(false);
+		mState = EBossState::Die;
 	}
 	currentTime += GetWorld()->GetDeltaSeconds();
 	if (currentTime >= damageDelayTime)
@@ -267,6 +268,10 @@ void UBossFSM::DieState()
 
 void UBossFSM::YellState()
 {
+	if (BossRoarSound)
+	{
+		UGameplayStatics::PlaySound2D(GetWorld(), BossRoarSound);
+	}
 	currentTime += GetWorld()->GetDeltaSeconds();
 	if (currentTime > 1.4 && MyGameModeBase->IsPlayingSequence() == false)
 	{
@@ -315,7 +320,7 @@ void UBossFSM::OnMyTakeDamage(EAttackType attacktype,int32 damage)
 		return;
 	}
 	HP -= damage;
-
+	UE_LOG(LogTemp, Warning, TEXT("Boss Damage!! : Hp = %d"), HP);
 
 	currentTime = 0;
 	SetCollision(false);
@@ -325,7 +330,6 @@ void UBossFSM::OnMyTakeDamage(EAttackType attacktype,int32 damage)
 	UE_LOG(LogTemp, Warning, TEXT("attack type : %d, mstate : %d"), (int32)attacktype, (int32)mState);
 	
 
-	UE_LOG(LogTemp, Warning, TEXT("Boss Damage!! : Hp = %d"), HP);
 
 }
 

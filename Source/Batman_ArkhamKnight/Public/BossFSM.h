@@ -137,4 +137,9 @@ public:
 
 	class APlayerGameModeBase* MyGameModeBase;
 
+
+	//sound
+
+	UPROPERTY(EditDefaultsOnly)
+	class USoundBase* BossRoarSound;
 };
