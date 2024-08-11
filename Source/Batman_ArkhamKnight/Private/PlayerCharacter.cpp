@@ -21,6 +21,7 @@
 #include "BossMapMainWidget.h"
 #include "PlayerSoundManager.h"
 #include "Components/AudioComponent.h"
+#include "PlayerEffectManager.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -64,6 +65,9 @@ APlayerCharacter::APlayerCharacter()
 	SoundManager = CreateDefaultSubobject<UPlayerSoundManager>(TEXT("SoundManager"));
 	AudioComp = CreateDefaultSubobject<UAudioComponent>(TEXT("AudioComp"));
 	AudioComp->SetupAttachment(RootComponent);
+
+	// 이펙트
+	EffectManager = CreateDefaultSubobject<UPlayerEffectManager>(TEXT("EffectManager"));
 }
 
 // Called when the game starts or when spawned
@@ -408,8 +412,10 @@ void APlayerCharacter::OnHitPrisoner()
 	{
 		TargetPrisoner->fsm->OnMyTakeDamage(1);
 		OnHitSucceeded(1);
-		//// 사운드 재생
-		//SoundManager->PlaySound(EPlayerSoundType::VaildAttack);
+
+		// Effect
+		EPlayerEffectType effectType = HitCombo < MaxHitCombo ? EPlayerEffectType::DefaultAttack : EPlayerEffectType::SpecialAttack;
+		EffectManager->SpawnEffectAtLocation(effectType, TargetPrisoner->GetActorLocation(), TargetPrisoner->GetActorRotation());
 	}
 }
 

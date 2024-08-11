@@ -160,6 +160,9 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	class UAudioComponent* AudioComp;
 
+	// Effect
+	UPROPERTY(EditDefaultsOnly)
+	class UPlayerEffectManager* EffectManager;
 
 private:
 	// Input
