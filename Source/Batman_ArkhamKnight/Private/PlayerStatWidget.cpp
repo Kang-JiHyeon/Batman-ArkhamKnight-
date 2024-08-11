@@ -4,6 +4,7 @@
 #include "PlayerStatWidget.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
+#include "Components/Image.h"
 
 void UPlayerStatWidget::SetHPBar(const int32 Value, const int32 Max)
 {
@@ -11,7 +12,7 @@ void UPlayerStatWidget::SetHPBar(const int32 Value, const int32 Max)
     HPBar->SetPercent(percent);
 }
 
-void UPlayerStatWidget::SetComboGaze(const int32 Value, const int32 Max)
+void UPlayerStatWidget::SetAttackCombo(const int32 Value, const int32 Max)
 {
     float percent = (float)Value / Max;
 
@@ -29,10 +30,18 @@ void UPlayerStatWidget::SetComboGaze(const int32 Value, const int32 Max)
     }
 }
 
-
-void UPlayerStatWidget::SetSkillGazeBar(const int32 Value, const int32 Max)
+void UPlayerStatWidget::UpdateSkillGauge(const int32 Value, const int32 Max)
 {
-    float percent = (float)Value / Max;
+    float persent = FMath::Clamp((float)Value / Max, 0, 1);
 
-    SkillGazeBar->SetPercent(percent);
+    if (persent >= 1)
+    {
+        SkillActiveImage->SetVisibility(ESlateVisibility::Visible);
+    }
+    else
+    {
+        SkillActiveImage->SetVisibility(ESlateVisibility::Hidden);
+    }
+
+    UpdateCirculerProgressBar(persent);
 }

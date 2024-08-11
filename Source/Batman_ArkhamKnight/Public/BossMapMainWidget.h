@@ -19,8 +19,10 @@ public:
 	class UPlayerStatWidget* PlayerStatWidget;
 
 public:
-	void SetPlayerHPBar(const int32 Value, const int32 Max);
-	void SetPlayerCombo(const int32 Value, const int32 Max);
+	void UpdatePlayerHPBar(const int32 Value, const int32 Max);
+	void UpdatePlayerHitCombo(const int32 Value, const int32 Max);
+	void UpdatePlayerSkillGauge(const int32 Value, const int32 Max);
+
 	void SetVisibilityPlayerHP(bool bValue);
 	void SetVisibilityPlayerStat(bool bValue);
 };

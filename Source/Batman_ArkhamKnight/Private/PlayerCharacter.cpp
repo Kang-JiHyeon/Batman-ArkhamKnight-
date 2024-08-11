@@ -94,7 +94,7 @@ void APlayerCharacter::BeginPlay()
 	// Stat 초기화
 	SetHP(MaxHP);
 	SetHitCombo(0);
-	SetBossAttackCombo(0);
+	SetSkillCombo(0);
 
 	// 보스
 	AActor* boss = UGameplayStatics::GetActorOfClass(GetWorld(), ABoss::StaticClass());
@@ -243,7 +243,7 @@ void APlayerCharacter::OnActionBossAttack(const FInputActionValue& Value)
 {
 	if (TargetBoss == nullptr) return;
 	if(IsLockedMove()) return;
-    //if (BossAttackCount < MaxBossAttackCount) return;
+	if(SkillCombo < MaxSkillCombo) return;
 
 	// 타켓의 위치에서 150 앞에 있는 위치
 	// 이동할 위치 설정
@@ -261,7 +261,7 @@ void APlayerCharacter::OnActionBossAttack(const FInputActionValue& Value)
 	MyGameModeBase->PlaySequence();
 	
 	// 보스 공격 콤보 초기화
-	SetBossAttackCombo(0);
+	SetSkillCombo(0);
 
 	PlayerAnim->SetIgnoreAttack(false);
 }
@@ -480,7 +480,7 @@ void APlayerCharacter::SetHP(float Value)
 	HP = Value;
 
 	if (MyGameModeBase != nullptr)
-		MyGameModeBase->MainWidget->SetPlayerHPBar(HP, MaxHP);
+		MyGameModeBase->MainWidget->UpdatePlayerHPBar(HP, MaxHP);
 }
 
 void APlayerCharacter::SetHitCombo(float Value)
@@ -488,21 +488,21 @@ void APlayerCharacter::SetHitCombo(float Value)
 	HitCombo = Value;
 
 	if(MyGameModeBase != nullptr)
-		MyGameModeBase->MainWidget->SetPlayerCombo(HitCombo, MaxHitCombo);
+		MyGameModeBase->MainWidget->UpdatePlayerHitCombo(HitCombo, MaxHitCombo);
 
 }
 
-void APlayerCharacter::SetBossAttackCombo(float Value)
+void APlayerCharacter::SetSkillCombo(float Value)
 {
-	BossAttackCount = Value;
+	SkillCombo = Value;
 
-	//if (MyGameModeBase != nullptr)
-	//	MyGameModeBase->MainWidget->setplayer(HitCombo, MaxHitCombo);
+	if (MyGameModeBase != nullptr)
+		MyGameModeBase->MainWidget->UpdatePlayerSkillGauge(SkillCombo, MaxSkillCombo);
 }
 
 void APlayerCharacter::OnHitSucceeded(float Value)
 {
 	SetHitCombo(HitCombo + Value);
-	SetBossAttackCombo(BossAttackCount + Value);
+	SetSkillCombo(SkillCombo + Value);
 
 }

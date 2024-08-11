@@ -121,8 +121,8 @@ public:
 
 	// 보스 공격
 	UPROPERTY(EditDefaultsOnly)
-	int32 MaxBossAttackCount = 8;
-	int32 BossAttackCount = 0;
+	int32 MaxSkillCombo = 8;
+	int32 SkillCombo = 0;
 	EAttackType CurrAttackType;
 
 
@@ -178,7 +178,7 @@ private:
 
 	void SetHP(float Value);
 	void SetHitCombo(float Value);
-	void SetBossAttackCombo(float Value);
+	void SetSkillCombo(float Value);
 	void OnHitSucceeded(float Value);
 
 public:

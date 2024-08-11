@@ -52,7 +52,7 @@ bool APlayerGameModeBase::IsPlayingSequence()
 
 void APlayerGameModeBase::SetPlayerHPBar(const int32 CurrHP, const int32 MaxHP)
 {
-	MainWidget->SetPlayerHPBar(CurrHP, MaxHP);
+	MainWidget->UpdatePlayerHPBar(CurrHP, MaxHP);
 }
 
 

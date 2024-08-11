@@ -4,14 +4,19 @@
 #include "BossMapMainWidget.h"
 #include "PlayerStatWidget.h"
 
-void UBossMapMainWidget::SetPlayerHPBar(const int32 Value, const int32 Max)
+void UBossMapMainWidget::UpdatePlayerHPBar(const int32 Value, const int32 Max)
 {
     PlayerStatWidget->SetHPBar(Value, Max);
 }
 
-void UBossMapMainWidget::SetPlayerCombo(const int32 Value, const int32 Max)
+void UBossMapMainWidget::UpdatePlayerHitCombo(const int32 Value, const int32 Max)
 {
-    PlayerStatWidget->SetComboGaze(Value, Max);
+    PlayerStatWidget->SetAttackCombo(Value, Max);
+}
+
+void UBossMapMainWidget::UpdatePlayerSkillGauge(const int32 Value, const int32 Max)
+{
+    PlayerStatWidget->UpdateSkillGauge(Value, Max);
 }
 
 void UBossMapMainWidget::SetVisibilityPlayerHP(bool bValue)
