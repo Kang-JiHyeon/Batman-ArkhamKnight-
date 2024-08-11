@@ -18,6 +18,7 @@
 #include "PlayerGameModeBase.h"
 #include "PlayerMotionWarpingComponent.h"
 #include "CheckTargetDirectionComponent.h"
+#include "BossMapMainWidget.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -57,6 +58,8 @@ APlayerCharacter::APlayerCharacter()
 
 	// 타겟 방향 확인 컴포넌트
 	CheckTargetDirComp = CreateDefaultSubobject<UCheckTargetDirectionComponent>(TEXT("CheckTargetDirComp"));
+
+
 }
 
 // Called when the game starts or when spawned
@@ -88,8 +91,10 @@ void APlayerCharacter::BeginPlay()
 	// 기본 이동 속도 캐싱
 	DefaultMaxSpeed = GetCharacterMovement()->MaxWalkSpeed;
 
-	// HP 초기화
-	HP = MaxHP;
+	// Stat 초기화
+	SetHP(MaxHP);
+	SetHitCombo(0);
+	SetBossAttackCombo(0);
 
 	// 보스
 	AActor* boss = UGameplayStatics::GetActorOfClass(GetWorld(), ABoss::StaticClass());
@@ -417,7 +422,7 @@ void APlayerCharacter::OnTakeDamage(AActor* OtherActor, int32 Damage)
 	if(bDamageState) return;
 	if(MyGameModeBase->IsPlayingSequence()) return;
 
-	HP -= Damage;
+	SetHP(HP-Damage);
 	
 	// 공격 콤보 초기화
 	SetHitCombo(0);
@@ -470,21 +475,34 @@ void APlayerCharacter::OnEndDamage()
 	PlayerAnim->bIgnoreInputAttack = false;
 }
 
+void APlayerCharacter::SetHP(float Value)
+{
+	HP = Value;
+
+	if (MyGameModeBase != nullptr)
+		MyGameModeBase->MainWidget->SetPlayerHPBar(HP, MaxHP);
+}
+
 void APlayerCharacter::SetHitCombo(float Value)
 {
-	HitCount = Value;
+	HitCombo = Value;
+
+	if(MyGameModeBase != nullptr)
+		MyGameModeBase->MainWidget->SetPlayerCombo(HitCombo, MaxHitCombo);
+
 }
 
 void APlayerCharacter::SetBossAttackCombo(float Value)
 {
 	BossAttackCount = Value;
+
+	//if (MyGameModeBase != nullptr)
+	//	MyGameModeBase->MainWidget->setplayer(HitCombo, MaxHitCombo);
 }
 
 void APlayerCharacter::OnHitSucceeded(float Value)
 {
-	HitCount += Value;
-	BossAttackCount += Value;
-
-	UE_LOG(LogTemp, Warning, TEXT("HitCount : %d, BossAttackCount : %d"), HitCount, BossAttackCount);
+	SetHitCombo(HitCombo + Value);
+	SetBossAttackCombo(BossAttackCount + Value);
 
 }

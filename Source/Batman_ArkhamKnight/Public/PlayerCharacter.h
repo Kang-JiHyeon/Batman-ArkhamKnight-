@@ -116,8 +116,8 @@ public:
 	int32 DefaultMaxSpeed;
 	int32 AnimComboCount = 0;
 	UPROPERTY(EditDefaultsOnly)
-	int32 MaxHitCount = 12;
-	int32 HitCount = 0;
+	int32 MaxHitCombo = 12;
+	int32 HitCombo = 0;
 
 	// 보스 공격
 	UPROPERTY(EditDefaultsOnly)
@@ -176,10 +176,10 @@ private:
 	// Animation
 	void PlayAttackAnimation();
 
+	void SetHP(float Value);
 	void SetHitCombo(float Value);
 	void SetBossAttackCombo(float Value);
 	void OnHitSucceeded(float Value);
-
 
 public:
 	bool bIsSlow;
