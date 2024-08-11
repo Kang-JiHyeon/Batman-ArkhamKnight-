@@ -254,6 +254,7 @@ void APlayerCharacter::OnActionAttack(const FInputActionValue& Value)
 void APlayerCharacter::OnActionBossAttack(const FInputActionValue& Value)
 {
 	if (TargetBoss == nullptr) return;
+	if (TargetBoss->fsm->mState == EBossState::Die) return;
 	if(IsLockedMove()) return;
 	//if(SkillCombo < MaxSkillCombo) return;
 

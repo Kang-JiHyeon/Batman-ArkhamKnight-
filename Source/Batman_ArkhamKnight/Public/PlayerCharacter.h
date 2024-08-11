@@ -117,7 +117,6 @@ public:
 	int32 SkillCombo = 0;
 	EAttackType CurrAttackType;
 
-
 	// 회피
 	UPROPERTY(EditDefaultsOnly)
 	float DodgeSpeed = 700;
@@ -135,13 +134,11 @@ public:
 	float DamageIdleTime = 1.5f;
 	bool bDamageState;
 
-
 	// TimerHandler
 	FTimerHandle DamageTimerHandler;
 
 	// GameMode
 	class APlayerGameModeBase* MyGameModeBase;
-
 
 	// Actor Component
 	// 죄수 공격 

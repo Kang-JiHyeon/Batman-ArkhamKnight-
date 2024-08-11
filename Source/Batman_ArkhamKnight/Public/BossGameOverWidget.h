@@ -14,7 +14,7 @@ class BATMAN_ARKHAMKNIGHT_API UBossGameOverWidget : public UUserWidget
 {
 	GENERATED_BODY()
 public:
-	UPROPERTY(meta = (BIndWidget))
+	UPROPERTY(meta = (BindWidget))
 	class UCanvasPanel* GameOver;
 
 	void OnMyGameOverUI(bool visible);
