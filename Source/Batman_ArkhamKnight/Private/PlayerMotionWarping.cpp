@@ -1,7 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "PlayerMotionWarpingComponent.h"
+#include "PlayerMotionWarping.h"
 #include "PlayerCharacter.h"
 #include "Boss.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -9,7 +9,7 @@
 
 
 // Sets default values for this component's properties
-UPlayerMotionWarpingComponent::UPlayerMotionWarpingComponent()
+UPlayerMotionWarping::UPlayerMotionWarping()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
@@ -19,7 +19,7 @@ UPlayerMotionWarpingComponent::UPlayerMotionWarpingComponent()
 
 
 // Called when the game starts
-void UPlayerMotionWarpingComponent::BeginPlay()
+void UPlayerMotionWarping::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -28,13 +28,13 @@ void UPlayerMotionWarpingComponent::BeginPlay()
 }
 
 // Called every frame
-void UPlayerMotionWarpingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UPlayerMotionWarping::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	
 }
 
-void UPlayerMotionWarpingComponent::OnInitialize(AActor* OtherActor)
+void UPlayerMotionWarping::OnInitialize(AActor* OtherActor)
 {
 	if(OtherActor == nullptr) return;
 
@@ -61,7 +61,7 @@ void UPlayerMotionWarpingComponent::OnInitialize(AActor* OtherActor)
 	}
 }
 
-void UPlayerMotionWarpingComponent::AddAndUpdateMotionWarping(EAttackType AttackType)
+void UPlayerMotionWarping::AddAndUpdateMotionWarping(EAttackType AttackType)
 {
 	if(AttackPoints.Contains(AttackType) == false) return;
 
@@ -77,7 +77,7 @@ void UPlayerMotionWarpingComponent::AddAndUpdateMotionWarping(EAttackType Attack
 	Me->MotionWarpingComp->AddOrUpdateWarpTargetFromLocationAndRotation(GetEnumValue(AttackType), targetLoc, targetRot);
 }
 
-FName UPlayerMotionWarpingComponent::GetEnumValue(EAttackType AttackType)
+FName UPlayerMotionWarping::GetEnumValue(EAttackType AttackType)
 {
 	const UEnum* CharStateEnum = FindObject<UEnum>(ANY_PACKAGE, TEXT("EAttackType"), true);
 

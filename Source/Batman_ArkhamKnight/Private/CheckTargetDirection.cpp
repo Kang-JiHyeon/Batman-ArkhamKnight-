@@ -1,10 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "CheckTargetDirectionComponent.h"
+#include "CheckTargetDirection.h"
 
 // Sets default values for this component's properties
-UCheckTargetDirectionComponent::UCheckTargetDirectionComponent()
+UCheckTargetDirection::UCheckTargetDirection()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
@@ -15,7 +15,7 @@ UCheckTargetDirectionComponent::UCheckTargetDirectionComponent()
 
 
 // Called when the game starts
-void UCheckTargetDirectionComponent::BeginPlay()
+void UCheckTargetDirection::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -23,7 +23,7 @@ void UCheckTargetDirectionComponent::BeginPlay()
 	
 }
 
-EDirectionType UCheckTargetDirectionComponent::GetTargetVerticalDirection(AActor* Target)
+EDirectionType UCheckTargetDirection::GetTargetVerticalDirection(AActor* Target)
 {
 	// 적이 앞에 있는지, 뒤에 있는지 판별
 	FVector targetVector = Target->GetActorLocation() - GetOwner()->GetActorLocation();
@@ -37,7 +37,7 @@ EDirectionType UCheckTargetDirectionComponent::GetTargetVerticalDirection(AActor
 		return EDirectionType::Back;
 }
 
-EDirectionType UCheckTargetDirectionComponent::GetTargetHorizontalDirection(AActor* Target)
+EDirectionType UCheckTargetDirection::GetTargetHorizontalDirection(AActor* Target)
 {
 	// 적이 왼쪽에 있는지, 오른쪽에 있는지 판별
 	FVector targetVector = Target->GetActorLocation() - GetOwner()->GetActorLocation();

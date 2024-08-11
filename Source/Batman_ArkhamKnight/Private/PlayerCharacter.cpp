@@ -16,8 +16,8 @@
 #include "TimerManager.h"
 #include "../../../../Plugins/Animation/MotionWarping/Source/MotionWarping/Public/MotionWarpingComponent.h"
 #include "PlayerGameModeBase.h"
-#include "PlayerMotionWarpingComponent.h"
-#include "CheckTargetDirectionComponent.h"
+#include "PlayerMotionWarping.h"
+#include "CheckTargetDirection.h"
 #include "BossMapMainWidget.h"
 
 // Sets default values
@@ -54,12 +54,10 @@ APlayerCharacter::APlayerCharacter()
 
 	// 모션 워핑 컴포넌트
 	MotionWarpingComp = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComp"));
-	PlayerMotionWarpingComp = CreateDefaultSubobject<UPlayerMotionWarpingComponent>(TEXT("PlayerMotionWarpingComp"));
+	PlayerMotionWarpingComp = CreateDefaultSubobject<UPlayerMotionWarping>(TEXT("PlayerMotionWarpingComp"));
 
 	// 타겟 방향 확인 컴포넌트
-	CheckTargetDirComp = CreateDefaultSubobject<UCheckTargetDirectionComponent>(TEXT("CheckTargetDirComp"));
-
-
+	CheckTargetDirComp = CreateDefaultSubobject<UCheckTargetDirection>(TEXT("CheckTargetDirComp"));
 }
 
 // Called when the game starts or when spawned

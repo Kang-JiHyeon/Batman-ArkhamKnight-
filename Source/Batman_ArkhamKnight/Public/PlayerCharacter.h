@@ -64,7 +64,7 @@ public:
 	class UInputAction* IA_BossAttack;
 
 	// 애니메이션
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY()
 	class UPlayerAnim* PlayerAnim;
 	// 애니메이션 몽타주
 	UPROPERTY(EditAnywhere)
@@ -73,8 +73,7 @@ public:
 	class UAnimMontage* BackAttackMontage;
 	UPROPERTY(EditAnywhere)
 	class UAnimMontage* DamageMontage;
-	UPROPERTY(EditAnywhere)
-	class UAnimMontage* BossAttackMontage;
+
 	UPROPERTY(EditAnywhere)
 	class UAnimMontage* DodgeMontage;
 
@@ -93,8 +92,7 @@ public:
 
 	UPROPERTY(VisibleDefaultsOnly)
 	class APrisoner* TargetPrisoner;
-	UPROPERTY()
-	class APrisoner* OverlapPrisoner;
+
 
 	// 방향
 	FVector Direction;
@@ -103,10 +101,6 @@ public:
 	bool bMoveInputPressed;
 	bool bMovingToTarget;
 	bool bRotatingToTarget;
-
-	// 죄수 공격 
-	UPROPERTY()
-	class UCheckTargetDirectionComponent* CheckTargetDirComp;
 
 	UPROPERTY(EditDefaultsOnly)
 	float AttackRange = 1000;
@@ -148,11 +142,15 @@ public:
 	// GameMode
 	class APlayerGameModeBase* MyGameModeBase;
 
+	// 죄수 공격 
+	UPROPERTY()
+	class UCheckTargetDirection* CheckTargetDirComp;
+
 	// Motion Warping
 	UPROPERTY(EditDefaultsOnly)
 	class UMotionWarpingComponent* MotionWarpingComp;
 	UPROPERTY(EditDefaultsOnly)
-	class UPlayerMotionWarpingComponent* PlayerMotionWarpingComp;
+	class UPlayerMotionWarping* PlayerMotionWarpingComp;
 
 
 private:

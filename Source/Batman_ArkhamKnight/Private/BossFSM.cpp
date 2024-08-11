@@ -131,6 +131,12 @@ void UBossFSM::MoveState() // boss move to player or idle
 			SetCollision(true);
 			mState = EBossState::Yell;
 			anim->BanimState = mState;
+
+			if (BossRoarSound)
+			{
+				UGameplayStatics::PlaySound2D(GetWorld(), BossRoarSound);
+			}
+
 		}
 		else if (statevalue > 0 && statevalue <2 && MyGameModeBase->IsPlayingSequence() == false)
 		{
@@ -268,10 +274,10 @@ void UBossFSM::DieState()
 
 void UBossFSM::YellState()
 {
-	if (BossRoarSound)
-	{
-		UGameplayStatics::PlaySound2D(GetWorld(), BossRoarSound);
-	}
+	//if (BossRoarSound)
+	//{
+	//	UGameplayStatics::PlaySound2D(GetWorld(), BossRoarSound);
+	//}
 	currentTime += GetWorld()->GetDeltaSeconds();
 	if (currentTime > 1.4 && MyGameModeBase->IsPlayingSequence() == false)
 	{

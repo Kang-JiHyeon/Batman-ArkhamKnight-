@@ -4,33 +4,25 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "CheckTargetDirectionComponent.generated.h"
-
-UENUM()
-enum class EDirectionType
-{
-	Front,
-	Back,
-	Left,
-	Right
-};
+#include "PlayerSoundManager.generated.h"
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class BATMAN_ARKHAMKNIGHT_API UCheckTargetDirectionComponent : public UActorComponent
+class BATMAN_ARKHAMKNIGHT_API UPlayerSoundManager : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:	
 	// Sets default values for this component's properties
-	UCheckTargetDirectionComponent();
+	UPlayerSoundManager();
 
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-public:
+public:	
+	// Called every frame
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	EDirectionType GetTargetVerticalDirection(AActor* TargetActor);
-	EDirectionType GetTargetHorizontalDirection(AActor* TargetActor);
+		
 };
