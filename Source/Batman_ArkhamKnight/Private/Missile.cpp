@@ -25,6 +25,7 @@ AMissile::AMissile()
 
 	MissileCollision = CreateDefaultSubobject<UCapsuleComponent>(TEXT("MissileCollision"));
 	SetRootComponent(MissileCollision);
+	MissileCollision->SetCapsuleSize(10.f, 10.f);
 
 	MissileMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MissileMesh"));
 	MissileMesh->SetupAttachment(RootComponent);
