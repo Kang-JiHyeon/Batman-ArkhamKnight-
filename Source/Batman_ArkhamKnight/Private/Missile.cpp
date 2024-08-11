@@ -10,6 +10,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Particles/ParticleSystem.h"
 
 
 /**
@@ -29,6 +30,9 @@ AMissile::AMissile()
 
 	MissileMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MissileMesh"));
 	MissileMesh->SetupAttachment(RootComponent);
+
+	MissileVFX = CreateDefaultSubobject<UParticleSystem>(TEXT("MissileVFX"));
+	
 
 	MissileCollision->OnComponentBeginOverlap.AddDynamic(this, &AMissile::OnBeginOverlap);
 }
@@ -91,6 +95,16 @@ void AMissile::UpdateTargetLocation()
 
 void AMissile::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	if(ExplosionSound != nullptr)
+	{
+		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), ExplosionSound, GetActorLocation());	
+	}
+
+	if(MissileVFX != nullptr)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MissileVFX, GetActorLocation(), FRotator::ZeroRotator, FVector(7.f), true, EPSCPoolMethod::AutoRelease);
+	}
+	
 	if(AVehicleEnemy* EnemyVehicle = Cast<AVehicleEnemy>(OtherActor))
 	{
 		UKismetSystemLibrary::PrintString(GetWorld(), TEXT("Enemy Hit"));
@@ -103,10 +117,5 @@ void AMissile::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 		UKismetSystemLibrary::PrintString(GetWorld(), TEXT("BatMobile Hit"));
 		UGameplayStatics::GetPlayerController(GetWorld(), 0) -> PlayerCameraManager -> PlayWorldCameraShake(GetWorld(), DamageCameraShake, GetActorLocation(), 10.f, 1000.f, 1.f, false);
 		Destroy();
-	}
-
-	if(ExplosionSound != nullptr)
-	{
-		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), ExplosionSound, GetActorLocation());	
 	}
 }
