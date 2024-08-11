@@ -36,6 +36,13 @@ AMissile::AMissile()
 void AMissile::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if(FireSound != nullptr)
+	{
+		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), FireSound, GetActorLocation());
+	}
+	
+	
 	Direction = GetActorForwardVector();
 	SetActorRotation(Direction.ToOrientationRotator());
 
@@ -95,5 +102,10 @@ void AMissile::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 		UKismetSystemLibrary::PrintString(GetWorld(), TEXT("BatMobile Hit"));
 		UGameplayStatics::GetPlayerController(GetWorld(), 0) -> PlayerCameraManager -> PlayWorldCameraShake(GetWorld(), DamageCameraShake, GetActorLocation(), 10.f, 1000.f, 1.f, false);
 		Destroy();
+	}
+
+	if(ExplosionSound != nullptr)
+	{
+		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), ExplosionSound, GetActorLocation());	
 	}
 }

@@ -12,11 +12,13 @@
  *	Last Modified : 2024-08-08
  */
 
+class URadialForceComponent;
 class UArrowComponent;
 class USplineComponent;
 class UBoxComponent;
 class USkeletalMeshComponent;
 class UCurveFloat;
+class APlayerCharacter;
 
 struct FTimerHandle;
 
@@ -38,6 +40,9 @@ class BATMAN_ARKHAMKNIGHT_API AVehicleEnemy : public AActor
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "MissileSpawnLocation", meta = (AllowPrivateAccess = "true"))
 	UArrowComponent* MissileSpawnLocation;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "RadialForce", meta = (AllowPrivateAccess = "true"))
+	URadialForceComponent* RadialForce;
 
 	//* Missile Class */
 
@@ -66,10 +71,22 @@ class BATMAN_ARKHAMKNIGHT_API AVehicleEnemy : public AActor
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Speed", meta = (AllowPrivateAccess = "true"))
 	float TimeToCompleteTrack = 30.f;
 
+	//* Possess Character */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "PossessCharacter", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<APlayerCharacter> PossessCharacterClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "PossessCharacter", meta = (AllowPrivateAccess = "true"))
+	APlayerCharacter* PossessCharacter;
+
 	// * Stat */
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Health", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Health", meta = (AllowPrivateAccess = "true"))
 	int Health;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Health", meta = (AllowPrivateAccess = "true"))
+	int MaxHealth;
+
+	bool bIsAttackAble = true;
 	
 public:	
 	// Sets default values for this actor's properties
@@ -88,6 +105,8 @@ public:
 
 	void FireMissile();
 	void OnDamage(int Amount);
+	
+	//void PossessBatman();
 	
 	FORCEINLINE void SetHealth(int NewHealth) { Health = NewHealth; }
 	FORCEINLINE int GetHealth() const { return Health; }

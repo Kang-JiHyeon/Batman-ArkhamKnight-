@@ -47,13 +47,7 @@ void AMachineGunBullet::OnBeingOverlap(UPrimitiveComponent* OverlappedComponent,
 {
 	if(AVehicleEnemy* EnemyVehicle = Cast<AVehicleEnemy>(OtherActor))
 	{
-		UKismetSystemLibrary::PrintString(this, "Hit MachineGun");
-		EnemyVehicle -> SetHealth(EnemyVehicle -> GetHealth() - 1);
-		if(EnemyVehicle -> GetHealth() <= 0)
-		{
-			EnemyVehicle -> Destroy();
-		}
+		EnemyVehicle -> OnDamage(1);
 	}
-	
 	Destroy();
 }

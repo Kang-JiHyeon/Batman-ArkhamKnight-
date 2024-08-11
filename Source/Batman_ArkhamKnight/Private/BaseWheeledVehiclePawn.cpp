@@ -17,6 +17,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "NiagaraComponent.h"
 #include "NiagaraSystem.h"
+#include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
 
 /**
@@ -106,28 +107,7 @@ void ABaseWheeledVehiclePawn::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	GetMesh() -> SetAngularDamping(UKismetMathLibrary::SelectFloat(0, 3, ChaosVehicleMovementComponent -> IsMovingOnGround()));
-
-	FHitResult HitResult;
-	FVector Start = BackCamera -> GetComponentLocation();
-	FVector End = Start + BackCamera -> GetForwardVector() * 10000;
-	FCollisionQueryParams CollisionQueryParams;
-	CollisionQueryParams.AddIgnoredActor(this);
-	GetWorld() -> LineTraceSingleByChannel(HitResult, Start, End, ECollisionChannel::ECC_Visibility);
-
-	if(HitResult.bBlockingHit)
-	{
-		TargetPoint = HitResult.Location;
-	}
-	else
-	{
-		TargetPoint = End;
-	}
-
-	MachineGun -> SetWorldRotation(UKismetMathLibrary::FindLookAtRotation(MachineGun -> GetComponentLocation(), TargetPoint));
-
-	//UKismetSystemLibrary::DrawDebugLine(GetWorld(), Start, TargetPoint, FLinearColor::Red, 0.f, 1.f);
 	
-
 	if(TargetActor)
 	{
 		TargetLocation = TargetActor -> GetActorLocation();

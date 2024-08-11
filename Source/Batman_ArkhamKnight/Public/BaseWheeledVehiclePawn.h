@@ -137,15 +137,16 @@ class BATMAN_ARKHAMKNIGHT_API ABaseWheeledVehiclePawn : public AWheeledVehiclePa
 	//* Battle Mode Machine Gun Timer */
 	FTimerHandle MachineGunTimerHandle;
 
-	// * Battle Mode TargetPoint */
-	FVector TargetPoint;
-
-	//* Battle Mode Machine Gun */
+	//* Machine Gun */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "MachineGun", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<AMachineGunBullet> MachineGunBulletClass;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="MachineGun", meta=(AllowPrivateAccess="true"))
 	float MachineGunFireRate = 0.15f;
+
+	//* Spawn Possess Character Class */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "PossessCharacter", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<ACharacter> PossessCharacterClass;
 
 public:
 	ABaseWheeledVehiclePawn();
@@ -170,7 +171,7 @@ public:
 	
 	void MouseLeftTrigger(const FInputActionValue& Value);		// * Boost, Machine Gun */
 	void MouseLeftComplete(const FInputActionValue& Value);		// * Boost, Machine Gun */
-	void MouseRight(const FInputActionValue& Value);			// * Mode Switch */
+	void MouseRight(const FInputActionValue& Value);			// * Shot Mahcine Gun */ 
 	void BoostStart(const FInputActionValue& Value);			// * Boost Start */
 	void BoostEnd(const FInputActionValue& Value);				// * Boost End */
 	UFUNCTION(BlueprintImplementableEvent)
@@ -178,11 +179,14 @@ public:
 	
 	void ToggleCamera();										// * Camera Switching */
 	
-	void LockOn(const FInputActionValue& Value);				// * On DriveMode, Lock On */
-	void Shot(const FInputActionValue& Value);					// * On DriveMode, Execute FireMissile */	
-	void FireMissile();											// * On DriveMode, Shot Missile */
+	void LockOn(const FInputActionValue& Value);				// * Lock On */
+	void Shot(const FInputActionValue& Value);					// * Execute FireMissile */	
+	void FireMissile();											// * Shot Missile */
 
-	void FireMachineGun();										// * On BattleMode, Fire Machine Gun */
+	void FireMachineGun();										// * Fire Machine Gun */
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void PossessBatman();										// * Posses Batman */
 	
 	UFUNCTION()
 	void OnComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
