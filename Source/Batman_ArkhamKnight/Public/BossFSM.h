@@ -114,6 +114,9 @@ public:
 	int32 BossHp = 10;
 	int32 HP;
 
+	UPROPERTY(EditDefaultsOnly)
+	class UBossHP* BossHPWidget;
+
 	// damage를 입히기 위해
 	UFUNCTION()
 	void OnPlayerHit();
@@ -142,4 +145,7 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	class USoundBase* BossRoarSound;
+
+	UPROPERTY(EditAnywhere)
+	class APrisoner* prisoner;
 };

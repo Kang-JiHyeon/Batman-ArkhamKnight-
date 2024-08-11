@@ -122,4 +122,20 @@ public:
 
 	class APlayerGameModeBase* MyGameModeBase;
 
+	//sound
+
+	UPROPERTY(EditDefaultsOnly)
+	class USoundBase* PrisonerDamageSound1;
+	
+	UPROPERTY(EditDefaultsOnly)
+	class USoundBase* PrisonerDamageSound2;
+	
+	UPROPERTY(EditDefaultsOnly)
+	class USoundBase* PrisonerDamageSound3;
+
+	UPROPERTY(EditDefaultsOnly)
+	class USoundBase* PrisonerScream;
+
+		UPROPERTY(EditDefaultsOnly)
+	class USoundBase* PrisonerAttack;
 };

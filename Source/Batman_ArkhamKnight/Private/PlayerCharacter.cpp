@@ -243,7 +243,7 @@ void APlayerCharacter::OnActionBossAttack(const FInputActionValue& Value)
 {
 	if (TargetBoss == nullptr) return;
 	if(IsLockedMove()) return;
-	if(SkillCombo < MaxSkillCombo) return;
+	//if(SkillCombo < MaxSkillCombo) return;
 
 	// 타켓의 위치에서 150 앞에 있는 위치
 	// 이동할 위치 설정

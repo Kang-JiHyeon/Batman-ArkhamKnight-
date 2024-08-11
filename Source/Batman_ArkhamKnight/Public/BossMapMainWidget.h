@@ -18,6 +18,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, meta=(BindWidget))
 	class UPlayerStatWidget* PlayerStatWidget;
 
+	UPROPERTY(EditDefaultsOnly, meta=(BindWidget))
+	class UBossHP* BossHPWidget;
+
+	UPROPERTY(EditDefaultsOnly,meta=(BindWidget))
+	class UBossGameOverWidget* GameOverWidget;
+
 public:
 	void UpdatePlayerHPBar(const int32 Value, const int32 Max);
 	void UpdatePlayerHitCombo(const int32 Value, const int32 Max);
@@ -25,4 +31,10 @@ public:
 
 	void SetVisibilityPlayerHP(bool bValue);
 	void SetVisibilityPlayerStat(bool bValue);
+
+	void UpdateBossHPBar(int32 cur, int32 max);
+
+	void VisibleOverUI();
+
+
 };

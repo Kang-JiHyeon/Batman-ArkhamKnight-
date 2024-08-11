@@ -16,6 +16,7 @@
 #include "Components/SphereComponent.h"
 #include "BossHP.h"
 #include "PlayerAttackPointComponent.h"
+#include "BossMapMainWidget.h"
 
 // Sets default values for this component's properties
 UBossFSM::UBossFSM()
@@ -45,15 +46,18 @@ void UBossFSM::BeginPlay()
 	// crawl
 	me->SphereComp->OnComponentBeginOverlap.AddDynamic(this, &UBossFSM::OnSphereCollisionBeginOverlap);
 
-	// hp	
-	HP = BossHp;
-
+	auto pri = UGameplayStatics::GetActorOfClass(GetWorld(), APrisoner::StaticClass());
+	prisoner = Cast<APrisoner>(pri);
 	// GameModeBase
 	MyGameModeBase = Cast<APlayerGameModeBase>(GetWorld()->GetAuthGameMode());
 
 	SetCollision(false);
 
 	MyGameModeBase->OnStartedLevelSequence.AddUObject(this, &UBossFSM::SetupBossStateIdle);
+
+	// hp	
+	HP = BossHp;
+	MyGameModeBase->MainWidget->UpdateBossHPBar(1, 1);
 }
 
 
@@ -125,8 +129,12 @@ void UBossFSM::MoveState() // boss move to player or idle
 	if (currentTime > moveDelayTime)
 	{
 		int32 statevalue = FMath::RandRange(0, 10);
-		if (statevalue >= 0 && MyGameModeBase->IsPlayingSequence()==false)
+		if (statevalue == 0 && MyGameModeBase->IsPlayingSequence()==false)
 		{
+			if (BossRoarSound)
+			{
+				UGameplayStatics::PlaySound2D(GetWorld(), BossRoarSound);
+			}
 			direction = Ptarget->GetActorLocation() - me->GetActorLocation();
 			SetCollision(true);
 			mState = EBossState::Yell;
@@ -250,6 +258,11 @@ void UBossFSM::DamageState()
 {
 	if (HP <= 0)
 	{
+		// 죽음 상태 진입 처리
+		if(prisoner)
+		{
+			prisoner->OnDeathStateEntered();
+		}
 		SetCollision(false);
 		mState = EBossState::Die;
 	}
@@ -268,10 +281,6 @@ void UBossFSM::DieState()
 
 void UBossFSM::YellState()
 {
-	if (BossRoarSound)
-	{
-		UGameplayStatics::PlaySound2D(GetWorld(), BossRoarSound);
-	}
 	currentTime += GetWorld()->GetDeltaSeconds();
 	if (currentTime > 1.4 && MyGameModeBase->IsPlayingSequence() == false)
 	{
@@ -320,6 +329,9 @@ void UBossFSM::OnMyTakeDamage(EAttackType attacktype,int32 damage)
 		return;
 	}
 	HP -= damage;
+	MyGameModeBase->MainWidget->UpdateBossHPBar(HP, BossHp);
+
+
 	UE_LOG(LogTemp, Warning, TEXT("Boss Damage!! : Hp = %d"), HP);
 
 	currentTime = 0;
