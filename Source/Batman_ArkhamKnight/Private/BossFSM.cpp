@@ -125,7 +125,7 @@ void UBossFSM::MoveState() // boss move to player or idle
 	if (currentTime > moveDelayTime)
 	{
 		int32 statevalue = FMath::RandRange(0, 10);
-		if (statevalue == 0 && MyGameModeBase->IsPlayingSequence()==false)
+		if (statevalue >= 0 && MyGameModeBase->IsPlayingSequence()==false)
 		{
 			direction = Ptarget->GetActorLocation() - me->GetActorLocation();
 			SetCollision(true);
@@ -248,6 +248,10 @@ void UBossFSM::DoubleLeftAttackState() // double smash
 
 void UBossFSM::DamageState()
 {
+	if (HP <= 0)
+	{
+		SetCollision(false);
+	}
 	currentTime += GetWorld()->GetDeltaSeconds();
 	if (currentTime >= damageDelayTime)
 	{
@@ -312,20 +316,15 @@ void UBossFSM::OnMyTakeDamage(EAttackType attacktype,int32 damage)
 	}
 	HP -= damage;
 
-	if (HP > 0 )
-	{
-		currentTime = 0;
-		SetCollision(false);
-		mState = EBossState::Damage;
-		anim->attacktype = attacktype;
-		anim->BanimState = mState;
-	}
-	else
-	{
-		SetCollision(false);
-		mState = EBossState::Die;
-		anim->BanimState = mState;
-	}
+
+	currentTime = 0;
+	SetCollision(false);
+	mState = EBossState::Damage;
+	anim->attacktype = attacktype;
+	anim->BanimState = mState;
+	UE_LOG(LogTemp, Warning, TEXT("attack type : %d, mstate : %d"), (int32)attacktype, (int32)mState);
+	
+
 	UE_LOG(LogTemp, Warning, TEXT("Boss Damage!! : Hp = %d"), HP);
 
 }
