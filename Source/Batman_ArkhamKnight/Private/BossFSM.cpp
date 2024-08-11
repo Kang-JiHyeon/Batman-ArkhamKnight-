@@ -7,6 +7,15 @@
 #include "Boss.h"
 #include "BossAnim.h"
 #include "PlayerCharacter.h"
+#include "EnemyPlayer.h"
+#include "Prisoner.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "PlayerGameModeBase.h"
+#include "Components/StaticMeshComponent.h"
+#include "Components/SphereComponent.h"
+#include "BossHP.h"
+#include "PlayerAttackPointComponent.h"
 
 // Sets default values for this component's properties
 UBossFSM::UBossFSM()
@@ -14,8 +23,7 @@ UBossFSM::UBossFSM()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
+	
 }
 
 
@@ -30,6 +38,22 @@ void UBossFSM::BeginPlay()
 
 	// animation
 	anim = Cast<UBossAnim>(me->GetMesh()->GetAnimInstance());
+
+	// attack
+	me->GetMesh()->OnComponentBeginOverlap.AddDynamic(this, &UBossFSM::OnMeshBeginOverlap);
+
+	// crawl
+	me->SphereComp->OnComponentBeginOverlap.AddDynamic(this, &UBossFSM::OnSphereCollisionBeginOverlap);
+
+	// hp	
+	HP = BossHp;
+
+	// GameModeBase
+	MyGameModeBase = Cast<APlayerGameModeBase>(GetWorld()->GetAuthGameMode());
+
+	SetCollision(false);
+
+	MyGameModeBase->OnStartedLevelSequence.AddUObject(this, &UBossFSM::SetupBossStateIdle);
 }
 
 
@@ -64,16 +88,16 @@ void UBossFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	case EBossState::Die:
 		DieState();
 		break;
-	//case EBossState::SavePrisoner:
-	//	SavePrisonerState();
-	//	break;
-	case EBossState::FastMove:
-		FastMoveState();
+	case EBossState::Crawl:
+		CrawlState();
+		break;
+	case EBossState::Yell:
+		YellState();
 		break;
 	}
 	
-	FString logMsg = UEnum::GetValueAsString(mState);
-	GEngine->AddOnScreenDebugMessage(0, 1, FColor::Cyan, logMsg);
+	//FString logMsg = UEnum::GetValueAsString(mState);
+	//GEngine->AddOnScreenDebugMessage(0, 1, FColor::Cyan,logMsg);
 }
 
 void UBossFSM::IdleState()
@@ -85,68 +109,68 @@ void UBossFSM::IdleState()
 
 		mState = EBossState::Move;
 		currentTime = 0;
-		anim->animState = mState;
+		anim->BanimState = mState;
 	}
 }
 
 void UBossFSM::MoveState() // boss move to player or idle
 {
-
+	//타깃의 목적지
+	FVector destination = Ptarget->GetActorLocation();
+	//방향
+	FVector dir = destination - me->GetActorLocation();
+	//방향으로 이동
+	me->AddMovementInput(dir.GetSafeNormal(), 0.1f);
 	currentTime += GetWorld()->DeltaTimeSeconds;
 	if (currentTime > moveDelayTime)
 	{
-		int32 statevalue = FMath::RandRange(0, 9);
-		if (statevalue < 8)
+		int32 statevalue = FMath::RandRange(0, 10);
+		if (statevalue == 0 && MyGameModeBase->IsPlayingSequence()==false)
 		{
 			direction = Ptarget->GetActorLocation() - me->GetActorLocation();
-			mState = EBossState::FastMove;
+			SetCollision(true);
+			mState = EBossState::Yell;
+			anim->BanimState = mState;
 		}
-		else if (statevalue == 8)
+		else if (statevalue > 0 && statevalue <2 && MyGameModeBase->IsPlayingSequence() == false)
 		{
 			mState = EBossState::Move;
+			anim->BanimState = mState;
 		}
-		else {
-			mState = EBossState::Idle;
+		else  {
+
+			if (dir.Size() < attackRange)
+			{
+				int32 attackstatevalue = FMath::RandRange(0, 4);
+				if (attackstatevalue == 0 && MyGameModeBase->IsPlayingSequence() == false)
+				{
+					currentTime = 0;
+					SetCollision(true);
+					mState = EBossState::DoubleRightAttack;
+					anim->BanimState = mState;
+				}
+				else if ((attackstatevalue == 1 || attackstatevalue == 2) && MyGameModeBase->IsPlayingSequence() == false)
+				{
+					currentTime = 0;
+					anim->bAttackPlay = true;
+					SetCollision(true);
+					mState = EBossState::LeftAttack;
+					anim->BanimState = mState;
+					currentTime = attackDelayTime;
+				}
+				else if ((attackstatevalue == 3 || attackstatevalue == 4) && MyGameModeBase->IsPlayingSequence() == false)
+				{
+					currentTime = 0;
+					anim->bAttackPlay = true;
+					SetCollision(true);
+					mState = EBossState::RightAttack;
+					anim->BanimState = mState;
+					currentTime = attackDelayTime;
+				}
+			}
 
 		}
 		currentTime = 0;
-		anim->animState = mState;
-	}
-		//타깃의 목적지
-	FVector destination = Ptarget->GetActorLocation();
-		//방향
-	FVector dir = destination - me->GetActorLocation();
-		//방향으로 이동
-	me->AddMovementInput(dir.GetSafeNormal(), 0.2f);
-
-	if (dir.Size() < attackRange)
-	{
-		int32 attackstatevalue = FMath::RandRange(0, 5);
-		if (attackstatevalue == 0)
-		{
-			if (FMath::RandBool()) {
-				mState = EBossState::DoubleRightAttack;
-				anim->animState = mState;
-			}
-			else {
-				mState = EBossState::DoubleLeftAttack;
-				anim->animState = mState;
-			}
-		}
-		else if (attackstatevalue == 1 || attackstatevalue == 2)
-		{
-			anim->bAttackPlay = true;
-			mState = EBossState::LeftAttack;
-			anim->animState = mState;
-			currentTime = attackDelayTime;
-		}
-		else
-		{
-			anim->bAttackPlay = true;
-			mState = EBossState::RightAttack;
-			anim->animState = mState;
-			currentTime = attackDelayTime;
-		}
 	}
 
 
@@ -157,18 +181,16 @@ void UBossFSM::MoveState() // boss move to player or idle
 void UBossFSM::RightAttackState() // smash
 {
 	float distance = FVector::Distance(Ptarget->GetActorLocation(), me->GetActorLocation());
-
 	currentTime += GetWorld()->DeltaTimeSeconds;
 	anim->bAttackPlay = true;
 
 	if (currentTime > attackDelayTime)
 	{
-		currentTime = 0;
-	}
-	if (distance > 2 * attackRange)
-	{
+		SetCollision(false);
 		mState = EBossState::Move;
-		anim->animState = mState;
+		anim->BanimState = mState;
+		currentTime = 0;
+		anim->bAttackPlay = false;
 	}
 }
 
@@ -181,15 +203,13 @@ void UBossFSM::LeftAttackState() // smash
 	anim->bAttackPlay = true;
 	if (currentTime > attackDelayTime)
 	{
-
-		currentTime = 0;
-	}
-	if (distance > 2 *attackRange)
-	{
+		SetCollision(false);
 		mState = EBossState::Move;
-		anim->animState = mState;
-
+		anim->BanimState = mState;
+		currentTime = 0;
+		anim->bAttackPlay = false;
 	}
+	
 }
 
 void UBossFSM::DoubleRightAttackState() // double smash
@@ -197,82 +217,174 @@ void UBossFSM::DoubleRightAttackState() // double smash
 	UE_LOG(LogTemp, Warning, TEXT("DoubleRightAttack"));
 	currentTime += GetWorld()->DeltaTimeSeconds;
 
+	float distance = FVector::Distance(Ptarget->GetActorLocation(), me->GetActorLocation());
 
 	// double attack 2 type
-	if (currentTime > attackDelayTime)
+	if (currentTime > 2.5)
 	{
-		mState = EBossState::Move;
-		anim->animState = mState;
+		SetCollision(false);
 		currentTime = 0;
+		mState = EBossState::Move;
+		anim->BanimState = mState;
 	}
 }
 
 void UBossFSM::DoubleLeftAttackState() // double smash
 {
-	UE_LOG(LogTemp, Warning, TEXT("DoubleRightAttack"));
+	UE_LOG(LogTemp, Warning, TEXT("DoubleleftAttack"));
 	currentTime += GetWorld()->DeltaTimeSeconds;
 
+	float distance = FVector::Distance(Ptarget->GetActorLocation(), me->GetActorLocation());
 
 	// double attack 2 type
-	if (currentTime > attackDelayTime)
+	if (currentTime > 2.3)
 	{
-		mState = EBossState::Move;
-		anim->animState = mState;
+		SetCollision(false);
 		currentTime = 0;
+		mState = EBossState::Move;
+		anim->BanimState = mState;
 	}
 }
 
 void UBossFSM::DamageState()
 {
 	currentTime += GetWorld()->GetDeltaSeconds();
-	if (currentTime > damageDelayTime)
+	if (currentTime >= damageDelayTime)
 	{
-		mState = EBossState::Idle;
-		anim->animState = mState;
+		mState = EBossState::Move;
+		anim->BanimState = mState;
 		currentTime = 0;
 	}
 }
 
 void UBossFSM::DieState()
 {
-	me->Destroy();
 }
 
-//void UBossFSM::SavePrisoner() // boss hold prisoner
-//{
-//}
+void UBossFSM::YellState()
+{
+	currentTime += GetWorld()->GetDeltaSeconds();
+	if (currentTime > 1.4 && MyGameModeBase->IsPlayingSequence() == false)
+	{
+		mState = EBossState::Crawl;
+		anim->BanimState = mState;
+		currentTime = 0;
+	}
+}
 
 
 
-void UBossFSM::FastMoveState()
+void UBossFSM::CrawlState()
 {
 // player first position remember and go to there
 // if player is there in boss root -> damage
-
+	SetCollision(true);
+	if (CrawlCameraShake)
+	{
+		GetWorld()->GetFirstPlayerController()->PlayerCameraManager->StartCameraShake(CrawlCameraShake);
+	}
 	me->AddMovementInput(direction.GetSafeNormal(), 1.0f);
-	
-	currentTime += GetWorld()->DeltaTimeSeconds;
-	if (currentTime > fastDelayTime)
+	float distance = FVector::Distance(Ptarget->GetActorLocation(), me->GetActorLocation());
+
+	currentTime += GetWorld()->GetDeltaSeconds();
+
+	if (currentTime >= fastDelayTime)
 	{
 		mState = EBossState::Move;
+		anim->BanimState = mState;
 		currentTime = 0;
-		anim->animState = mState;
 	}
 }
 
-void UBossFSM::OnDamageProcess()
+void UBossFSM::SetupBossStateIdle()
 {
-	// according to attack, hp change
+	mState = EBossState::Idle;
+	anim->BanimState = mState;
+}
 
-	BossHp--;
 
-	if (BossHp > 0)
+void UBossFSM::OnMyTakeDamage(EAttackType attacktype,int32 damage)
+
+{
+	if (mState == EBossState::Die)
 	{
+		return;
+	}
+	HP -= damage;
+
+	if (HP > 0 )
+	{
+		currentTime = 0;
+		SetCollision(false);
 		mState = EBossState::Damage;
+		anim->attacktype = attacktype;
+		anim->BanimState = mState;
 	}
 	else
 	{
+		SetCollision(false);
 		mState = EBossState::Die;
+		anim->BanimState = mState;
+	}
+	UE_LOG(LogTemp, Warning, TEXT("Boss Damage!! : Hp = %d"), HP);
+
+}
+
+void UBossFSM::OnMeshBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+
+}
+
+void UBossFSM::OnSphereCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	UE_LOG(LogTemp, Warning, TEXT("sphere collision"));
+
+	auto* player = Cast<APlayerCharacter>(OtherActor);
+	if (mState == EBossState::Crawl)
+	{
+		if (player != nullptr)
+		{
+			// player가 밀리는 함수 추가
+			Ptarget->OnTakeDamage(me, 3);
+			SetCollision(false);
+			mState = EBossState::Move;
+			anim->BanimState = mState;
+		}
 	}
 }
 
+void UBossFSM::SetCollision(bool bvalue)
+{
+	if (bvalue)
+	{
+		// collision을 켜야함
+		// 펀치가 먹는 상태
+		// 그러나 일반상태에서도 다가가면 튕김
+		me->GetMesh()->SetCollisionProfileName(TEXT("Boss"));
+	}
+	else {
+		// collision을 꺼야함
+		// 끈다는 것은 기절 또는 죽음 상태가 되어 collision이 먹지 않는 상태
+		me->GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+}
+
+void UBossFSM::OnPlayerHit()
+{
+	float dist = me->GetDistanceTo(Ptarget);
+
+	if (Ptarget != nullptr)
+	{
+		if (dist < 150)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("player is attacked by boss"));
+			Ptarget->OnTakeDamage(me, 2);
+			SetCollision(false);
+		}
+		else
+		{
+			mState = EBossState::Move;
+			anim->BanimState = mState;
+		}
+	}
+}

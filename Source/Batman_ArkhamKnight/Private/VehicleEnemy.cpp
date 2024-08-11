@@ -3,15 +3,20 @@
 
 #include "VehicleEnemy.h"
 
+#include "BaseWheeledVehiclePawn.h"
 #include "Missile.h"
+#include "PlayerCharacter.h"
+#include "Components/ArrowComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/SplineComponent.h"
 #include "Components/TimelineComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "PhysicsEngine/RadialForceComponent.h"
 
 /**
  *	Writer : Lee Dong Geun
- *	Last Modified : 2024-07-30
+ *	Last Modified : 2024-08-08
  */
 
 // Sets default values
@@ -31,6 +36,14 @@ AVehicleEnemy::AVehicleEnemy()
 	VehicleMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("VehicleMesh"));
 	VehicleMesh->SetupAttachment(Collision);
 
+	RadialForce = CreateDefaultSubobject<URadialForceComponent>(TEXT("RadialForce"));
+	RadialForce->SetupAttachment(VehicleMesh);
+
+	MissileSpawnLocation = CreateDefaultSubobject<UArrowComponent>(TEXT("MissileSpawnLocation"));
+	MissileSpawnLocation->SetupAttachment(VehicleMesh);
+	MissileSpawnLocation->SetRelativeLocation(FVector(-50.f, 0.f, 140.f));
+	MissileSpawnLocation->SetRelativeRotation(FRotator(10.f, 0.f, 0.f));
+
 	OnSplineTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("Timeline"));
 
 	MoveOnSpline.BindUFunction(this, FName("Move"));
@@ -46,8 +59,17 @@ void AVehicleEnemy::BeginPlay()
 	OnSplineTimeline -> AddInterpFloat(TrackCurveFloat, MoveOnSpline);
 	OnSplineTimeline -> SetLooping(false);
 
+	//PossessCharacter = PossessCharacterClass -> GetDefaultObject<APlayerCharacter>();
+
 	Move();
-	Health = 6;
+	Health = MaxHealth;
+
+	GetWorld() -> GetTimerManager().SetTimer(MissileTimerHandle,
+		this,
+		&AVehicleEnemy::FireMissile,
+		5.f,
+		true,
+		4.f);
 }
 
 // Called every frame
@@ -69,3 +91,36 @@ void AVehicleEnemy::Move()
 	
 	SetActorTransform(FTransform(newRotation, newLocation, FVector(1.f)));
 }
+
+void AVehicleEnemy::FireMissile()
+{
+	if(bIsAttackAble == false)
+	{
+		return;
+	}
+	AMissile* Missile = GetWorld() -> SpawnActor<AMissile>(MissileClass, MissileSpawnLocation -> GetComponentTransform());
+	Missile -> SetTarget(GetWorld() -> GetFirstPlayerController() -> GetPawn());
+}
+
+void AVehicleEnemy::OnDamage(int Amount)
+{
+	Health -= Amount;
+	if(Health <= 0)
+	{
+		VehicleMesh -> SetSimulatePhysics(true);
+		VehicleMesh -> SetCollisionProfileName("Ragdoll");
+		RadialForce -> FireImpulse();
+		bIsAttackAble = false;
+		UGameplayStatics::SetGlobalTimeDilation(GetWorld(), .2f);
+		GetWorld() -> GetTimerManager().SetTimer(TimeSleepHandle, FTimerDelegate::CreateLambda(
+			[this]() -> void
+			{
+				UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.f);
+			}),
+			.1f,false, 1.f);
+		/*GetWorld() -> GetTimerManager().ClearTimer(TimeSleepHandle);
+		GetWorld() -> GetTimerManager().SetTimer(TimeSleepHandle, this, &AVehicleEnemy::PossessBatman, .1f, false, 1.f);*/
+	}
+}
+
+

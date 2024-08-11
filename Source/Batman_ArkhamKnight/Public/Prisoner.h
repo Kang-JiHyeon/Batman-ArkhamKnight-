@@ -26,6 +26,12 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UPROPERTY(EditAnywhere,Category = FSMComponent)
+	class UPrisonerFSM* fsm;
 
+	UPROPERTY(EditAnywhere)
+	class APrisoner* me;
+
+	bool IsAttackable();
 	
 };

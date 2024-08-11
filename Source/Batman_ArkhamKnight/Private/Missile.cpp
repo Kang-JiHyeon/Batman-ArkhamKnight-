@@ -2,16 +2,19 @@
 
 
 #include "Missile.h"
+
+#include "BaseWheeledVehiclePawn.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "TimerManager.h"
 #include "VehicleEnemy.h"
 #include "Components/CapsuleComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 
 /**
  *	Writer : Lee Dong Geun
- *	Last Modified : 2024-07-30
+ *	Last Modified : 2024-08-04
  */
 
 // Sets default values
@@ -33,6 +36,13 @@ AMissile::AMissile()
 void AMissile::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if(FireSound != nullptr)
+	{
+		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), FireSound, GetActorLocation());
+	}
+	
+	
 	Direction = GetActorForwardVector();
 	SetActorRotation(Direction.ToOrientationRotator());
 
@@ -41,7 +51,7 @@ void AMissile::BeginPlay()
 		&AMissile::TurnToTarget,
 		.1f,
 		false,
-		1.f);
+		TurnDelay);
 }
 
 // Called every frame
@@ -50,6 +60,11 @@ void AMissile::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	Translate(DeltaTime, Direction, MissileSpeed);
+
+	if(TargetActor != nullptr)
+	{
+		UpdateTargetLocation();
+	}
 }
 
 void AMissile::Translate(float Time, const FVector& direction, float Speed)
@@ -64,19 +79,33 @@ void AMissile::TurnToTarget()
 	SetActorRotation(TargetRotation);
 	Direction = TargetLocation - GetActorLocation();
 	Direction.Normalize();
-	MissileSpeed = 20000.f;
+	MissileSpeed = AfterSpeed;
 }
+
+void AMissile::UpdateTargetLocation()
+{
+	TargetLocation = TargetActor -> GetActorLocation();
+}
+
 
 void AMissile::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if(AVehicleEnemy* EnemyVehicle = Cast<AVehicleEnemy>(OtherActor))
 	{
-		UKismetSystemLibrary::PrintString(GetWorld(), TEXT("Hit"));
+		UKismetSystemLibrary::PrintString(GetWorld(), TEXT("Enemy Hit"));
 		Destroy();
-		EnemyVehicle -> SetHealth(EnemyVehicle -> GetHealth() - 1);
-		if(EnemyVehicle -> GetHealth() <= 0)
-		{
-			EnemyVehicle -> Destroy();
-		}
+		EnemyVehicle -> OnDamage(1);
+	}
+
+	else if(ABaseWheeledVehiclePawn* BatMobile = Cast<ABaseWheeledVehiclePawn>(OtherActor))
+	{
+		UKismetSystemLibrary::PrintString(GetWorld(), TEXT("BatMobile Hit"));
+		UGameplayStatics::GetPlayerController(GetWorld(), 0) -> PlayerCameraManager -> PlayWorldCameraShake(GetWorld(), DamageCameraShake, GetActorLocation(), 10.f, 1000.f, 1.f, false);
+		Destroy();
+	}
+
+	if(ExplosionSound != nullptr)
+	{
+		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), ExplosionSound, GetActorLocation());	
 	}
 }
