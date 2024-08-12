@@ -268,10 +268,10 @@ void APlayerCharacter::OnActionBossAttack(const FInputActionValue& Value)
 
 	// 몽타주 재생
 	PlayAnimMontage(BossAttackMotages[bossAttackIndex]);
-	bossAttackIndex = (bossAttackIndex + 1) % BossAttackMotages.Num();
-
 	// 시퀀스 재생
-	MyGameModeBase->PlaySequence();
+	MyGameModeBase->PlaySequence(bossAttackIndex);
+
+	bossAttackIndex = (bossAttackIndex + 1) % BossAttackMotages.Num();
 	
 	// 보스 공격 콤보 초기화
 	SetSkillCombo(0);

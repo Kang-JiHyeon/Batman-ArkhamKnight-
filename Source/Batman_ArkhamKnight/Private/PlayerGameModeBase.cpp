@@ -20,47 +20,49 @@ void APlayerGameModeBase::BeginPlay()
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APrisoner::StaticClass(), FoundEnemies);
 	DeadEnemies = 0;
 	TotalEnemies = FoundEnemies.Num()+1;
-}
-
-void APlayerGameModeBase::StartPlay()
-{
-    Super::StartPlay();
 
 	// Level Sequence
-	FMovieSceneSequencePlaybackSettings Settings;
 	Settings.bDisableLookAtInput = true;
 	Settings.bDisableMovementInput = true;
 	Settings.bHideHud = true;
-
-	if (AttackSequence != nullptr)
-	{
-		SequencePlayer = ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), AttackSequence, Settings, SequenceActor);
-	}
-
+	CreateLevelSequencePlayer();
 }
 
-void APlayerGameModeBase::PlaySequence()
+void APlayerGameModeBase::CreateLevelSequencePlayer()
 {
-	if (SequencePlayer == nullptr) return;
+	if (SkillLevelSequences.Num() <= 0) return;
+	
+	for (auto& sequence : SkillLevelSequences)
+	{
+		if (sequence.LevelSequence == nullptr) continue;
 
-	//OnStartedLevelSequence.AddDynamic(this, &);
+		sequence.SequencePlayer = ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), sequence.LevelSequence, Settings, sequence.SequenceActor);
+	}
+}
 
+void APlayerGameModeBase::PlaySequence(int32 Index)
+{
+	if (SkillLevelSequences.Num() <= 0 || SkillLevelSequences.Num() <= Index) return;
+	if (SkillLevelSequences[Index].SequencePlayer == nullptr) return;
+
+	SkillLevelSequences[Index].SequencePlayer->Play();
 	OnStartedLevelSequence.Broadcast();
-    SequencePlayer->Play();
 }
 
 bool APlayerGameModeBase::IsPlayingSequence()
 {
-	if(SequencePlayer == nullptr) return false;
+	if (SkillLevelSequences.Num() <= 0) return false;
 
-	return SequencePlayer->IsPlaying();
+	for (auto& sequence : SkillLevelSequences)
+	{
+		if (sequence.SequencePlayer != nullptr)
+		{
+			if (sequence.SequencePlayer->IsPlaying())
+				return true;
+		}	
+	}
+	return false;
 }
-
-void APlayerGameModeBase::SetPlayerHPBar(const int32 CurrHP, const int32 MaxHP)
-{
-	MainWidget->UpdatePlayerHPBar(CurrHP, MaxHP);
-}
-
 
 void APlayerGameModeBase::NotifyEnemyDeath()
 {

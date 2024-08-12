@@ -4,7 +4,21 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
+#include "MovieSceneSequencePlayer.h"
 #include "PlayerGameModeBase.generated.h"
+
+USTRUCT()
+struct FSkillLevelSequence
+{
+    GENERATED_USTRUCT_BODY()
+public:
+    UPROPERTY()
+    class ULevelSequencePlayer* SequencePlayer;
+    UPROPERTY()
+    class ALevelSequenceActor* SequenceActor;
+    UPROPERTY(EditAnywhere)
+    class ULevelSequence* LevelSequence;
+};
 
 DECLARE_MULTICAST_DELEGATE(FPlayerGameModeBaseOnStartedLevelSequence);
 
@@ -15,10 +29,27 @@ class BATMAN_ARKHAMKNIGHT_API APlayerGameModeBase : public AGameModeBase
 	
 public:
     virtual void BeginPlay() override;
-    virtual void StartPlay() override;
 
 public:
     FPlayerGameModeBaseOnStartedLevelSequence OnStartedLevelSequence;
+
+private:
+
+    // Level Sequence
+    FMovieSceneSequencePlaybackSettings Settings;
+
+    UPROPERTY(EditDefaultsOnly)
+    TArray<FSkillLevelSequence> SkillLevelSequences;
+
+
+    // Main Widget
+    UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<class UUserWidget> MainWidgetFactory;
+
+
+public:
+    UPROPERTY()
+    class UBossMapMainWidget* MainWidget;
 
     UFUNCTION()
     void NotifyEnemyDeath();
@@ -27,31 +58,12 @@ public:
 
     void CheckAllEnemiesDead();
 
+
 private:
-	// 레벨 시퀀스 애셋
-    UPROPERTY(EditAnywhere, Category = "Camera")
-    class ULevelSequence* AttackSequence;
-
-    // 레벨 시퀀스 플레이어
-    UPROPERTY()
-    class ULevelSequencePlayer* SequencePlayer;
-
-    // 레벨 시퀀스 액터
-    UPROPERTY()
-    class ALevelSequenceActor* SequenceActor;
-
-    // Main Widget
-    UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<class UUserWidget> MainWidgetFactory;
+    void CreateLevelSequencePlayer();
 
 public:
-    UPROPERTY()
-    class UBossMapMainWidget* MainWidget;
-
-public:
-    void PlaySequence();
+    void PlaySequence(int32 Index);
     bool IsPlayingSequence();
-    
-    void SetPlayerHPBar(const int32 CurrHP, const int32 MaxHP);
 
 };

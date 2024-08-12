@@ -140,6 +140,7 @@ public:
 	// GameMode
 	class APlayerGameModeBase* MyGameModeBase;
 
+
 	// Actor Component
 	// СЫМі АјАн 
 	UPROPERTY()
