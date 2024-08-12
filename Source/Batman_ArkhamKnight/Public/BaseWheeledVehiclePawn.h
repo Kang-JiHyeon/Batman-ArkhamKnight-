@@ -9,7 +9,7 @@
 
 /**
  *	Writer : Lee Dong Geun
- *	Last Modified : 2024-08-04
+ *	Last Modified : 2024-08-08
  */
 
 class USpringArmComponent;
@@ -17,10 +17,16 @@ class UCameraComponent;
 class UArrowComponent;
 class UInputMappingContext;
 class UInputAction;
+class UCameraShakeBase;
 class UChaosWheeledVehicleMovementComponent;
 class AMissile;
+class AMachineGunBullet;
+class ACannonBall;
 class UNiagaraSystem;
 class UNiagaraComponent;
+class UAudioComponent;
+
+struct FTimerHandle;
 
 UCLASS()
 class BATMAN_ARKHAMKNIGHT_API ABaseWheeledVehiclePawn : public AWheeledVehiclePawn
@@ -28,6 +34,9 @@ class BATMAN_ARKHAMKNIGHT_API ABaseWheeledVehiclePawn : public AWheeledVehiclePa
 	GENERATED_BODY()
 
 	/** Components */
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BattleModeWeapon", meta = (AllowPrivateAccess = "true"))
+	UStaticMeshComponent* MachineGun;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BackCamera", meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* BackSpringArm;
@@ -79,6 +88,12 @@ class BATMAN_ARKHAMKNIGHT_API ABaseWheeledVehiclePawn : public AWheeledVehiclePa
 	UInputAction * IA_Boost;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	UInputAction * IA_MachineGun;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	UInputAction * IA_BoostCamera;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputAction * IA_ToggleCamera;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
@@ -86,6 +101,13 @@ class BATMAN_ARKHAMKNIGHT_API ABaseWheeledVehiclePawn : public AWheeledVehiclePa
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputAction * IA_Missile;
+
+	//* SFX */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SFX", meta = (AllowPrivateAccess = "true"))
+	UAudioComponent* EngineSoundComponent;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SFX", meta = (AllowPrivateAccess = "true"))
+	UAudioComponent* BoostSoundComponent;
 
 	/** Chaos Vehicle Movement Component */
 	
@@ -100,6 +122,12 @@ class BATMAN_ARKHAMKNIGHT_API ABaseWheeledVehiclePawn : public AWheeledVehiclePa
 
 	bool bCameraState; // false => BackCamera, true => FrontCamera
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CameraShake", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<UCameraShakeBase> CrackCameraShake;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CameraShake", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<UCameraShakeBase> BoostCameraShake;
+
 	//* Target Info*/
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	AActor* TargetActor;
@@ -113,6 +141,20 @@ class BATMAN_ARKHAMKNIGHT_API ABaseWheeledVehiclePawn : public AWheeledVehiclePa
 	FVector TargetLocation;
 	float TargetDistance;
 	bool bIsLockOn;
+	
+	//* Battle Mode Machine Gun Timer */
+	FTimerHandle MachineGunTimerHandle;
+
+	//* Machine Gun */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "MachineGun", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<AMachineGunBullet> MachineGunBulletClass;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="MachineGun", meta=(AllowPrivateAccess="true"))
+	float MachineGunFireRate = 0.15f;
+
+	//* Spawn Possess Character Class */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "PossessCharacter", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<ACharacter> PossessCharacterClass;
 
 public:
 	ABaseWheeledVehiclePawn();
@@ -124,18 +166,38 @@ protected:
 public:
 	virtual void Tick(float DeltaTime) override;
 
+	void ThrottleStart(const FInputActionValue& Value);
 	void ThrottleTrigger(const FInputActionValue& Value);
 	void ThrottleComplete(const FInputActionValue& Value);
+	
 	void BrakeTrigger(const FInputActionValue& Value);
-	void BrakeStart(const FInputActionValue& Value);
 	void BrakeComplete(const FInputActionValue& Value);
+	
 	void Look(const FInputActionValue& Value);
+	
 	void SteeringTrigger(const FInputActionValue& Value);
 	void SteeringComplete(const FInputActionValue& Value);
-	void BoostTrigger(const FInputActionValue& Value);
-	void BoostComplete(const FInputActionValue& Value);
-	void ToggleCamera();
-	void LockOn(const FInputActionValue& Value);
-	void Shot(const FInputActionValue& Value);
-	void FireMissile();
+
+	void MouseLeftStart(const FInputActionValue& Value);		// * Boost */
+	void MouseLeftTrigger(const FInputActionValue& Value);		// * Boost */
+	void MouseLeftComplete(const FInputActionValue& Value);		// * Boost */
+	void MouseRight(const FInputActionValue& Value);			// * Shot Mahcine Gun */ 
+	void BoostStart(const FInputActionValue& Value);			// * Boost Start */
+	void BoostEnd(const FInputActionValue& Value);				// * Boost End */
+	UFUNCTION(BlueprintImplementableEvent)
+	void BoostCameraLerp();										// * Boost Camera Lerp */
+	
+	void ToggleCamera();										// * Camera Switching */
+	
+	void LockOn(const FInputActionValue& Value);				// * Lock On */
+	void Shot(const FInputActionValue& Value);					// * Execute FireMissile */	
+	void FireMissile();											// * Shot Missile */
+
+	void FireMachineGun();										// * Fire Machine Gun */
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void PossessBatman();										// * Posses Batman */
+	
+	UFUNCTION()
+	void OnComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 };

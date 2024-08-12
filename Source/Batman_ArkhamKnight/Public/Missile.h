@@ -8,11 +8,13 @@
 
 /**
  *	Writer : Lee Dong Geun
- *	Last Modified : 2024-08-04
+ *	Last Modified : 2024-08-12
  */
 
 class USkeletalMeshComponent;
+class UCameraShakeBase;
 class UCapsuleComponent;
+class UParticleSystem;
 
 struct FTimerHandle;
 
@@ -26,6 +28,21 @@ class BATMAN_ARKHAMKNIGHT_API AMissile : public AActor
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "MissileMesh", meta = (AllowPrivateAccess = "true"))
 	USkeletalMeshComponent* MissileMesh;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "MissileVFX", meta = (AllowPrivateAccess = "true"))
+	UParticleSystem* MissileVFX;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CameraShake", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<UCameraShakeBase> DamageCameraShake;
+	
+
+	//* SFX */
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SFX", meta = (AllowPrivateAccess = "true"))
+	USoundBase* FireSound;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SFX", meta = (AllowPrivateAccess = "true"))
+	USoundBase* ExplosionSound;
 
 	UPROPERTY()
 	AActor* TargetActor;
