@@ -50,7 +50,7 @@ private:
 
 
 public:
-    UPROPERTY()
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
     class UBossMapMainWidget* MainWidget;
 
     UFUNCTION()
