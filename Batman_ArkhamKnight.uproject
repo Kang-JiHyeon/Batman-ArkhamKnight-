@@ -31,6 +31,10 @@
 			"Enabled": true
 		},
 		{
+			"Name": "MotionWarping",
+			"Enabled": true
+		},
+		{
 			"Name": "PCG",
 			"Enabled": true
 		}
