@@ -76,6 +76,11 @@ void APlayerGameModeBase::CheckAllEnemiesDead()
 	if (DeadEnemies >= TotalEnemies)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("All enemies are dead. Game Over!"));
-		MainWidget->VisibleOverUI();
+		GetWorld()->GetTimerManager().SetTimer(VisibleUITimeHandle, this, &APlayerGameModeBase::VisibleUI, 5.0f, false);
 	}
+}
+
+void APlayerGameModeBase::VisibleUI()
+{
+	MainWidget->VisibleOverUI();
 }

@@ -26,6 +26,8 @@ UCLASS()
 class BATMAN_ARKHAMKNIGHT_API APlayerGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
+private:
+    FTimerHandle VisibleUITimeHandle;
 	
 public:
     virtual void BeginPlay() override;
@@ -65,5 +67,8 @@ private:
 public:
     void PlaySequence(int32 Index);
     bool IsPlayingSequence();
+
+    void VisibleUI();
+
 
 };

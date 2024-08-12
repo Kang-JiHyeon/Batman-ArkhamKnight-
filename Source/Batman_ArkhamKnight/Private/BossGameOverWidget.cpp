@@ -8,6 +8,7 @@ void UBossGameOverWidget::OnMyGameOverUI(bool visible)
 {
     if (visible)
     {
+
         this->SetVisibility(ESlateVisibility::Visible);
         UE_LOG(LogTemp, Warning, TEXT("OnMyGameOverUI Visible!"));
     }

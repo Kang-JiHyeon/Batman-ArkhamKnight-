@@ -17,6 +17,7 @@
 #include "BossHP.h"
 #include "PlayerAttackPointComponent.h"
 #include "BossMapMainWidget.h"
+#include "Components/CapsuleComponent.h"
 
 // Sets default values for this component's properties
 UBossFSM::UBossFSM()
@@ -269,6 +270,7 @@ void UBossFSM::DoubleLeftAttackState() // double smash
 
 void UBossFSM::DamageState()
 {
+	//me->GetCapsuleComponent()->SetCollisionObjectType(ECollisionChannel::ECC_Pawn);
 	if (HP <= 0)
 	{
 		// 죽음 상태 진입 처리
@@ -282,6 +284,7 @@ void UBossFSM::DamageState()
 	currentTime += GetWorld()->GetDeltaSeconds();
 	if (currentTime >= damageDelayTime)
 	{
+		//me->GetCapsuleComponent()->SetCollisionProfileName(TEXT("Boss"));
 		mState = EBossState::Move;
 		anim->BanimState = mState;
 		currentTime = 0;
