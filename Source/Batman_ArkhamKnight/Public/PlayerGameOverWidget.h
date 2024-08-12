@@ -23,9 +23,6 @@ private:
 	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
 	class UButton* QuitBtn;
 
-	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<class ULevel> RestartLevel;
-
 public:
 	UFUNCTION()
 	void OnClickButtonRestart();

@@ -491,6 +491,8 @@ void APlayerCharacter::OnTakeDamage(AActor* OtherActor, int32 Damage)
 		PlayerAnim->bDie = true;
 		// 사운드 재생
 		SoundManager->PlaySound(EPlayerSoundType::Die);
+		//// 콜리전 끄기
+		//GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 		UE_LOG(LogTemp, Warning, TEXT("Player Die!!"), HP);
 	}

@@ -16,10 +16,7 @@ void UPlayerGameOverWidget::NativeConstruct()
 
 void UPlayerGameOverWidget::OnClickButtonRestart()
 {
-    // 현재 레벨을 다시 열기
-    FString LevelName = UGameplayStatics::GetCurrentLevelName(GetWorld());
-    UGameplayStatics::OpenLevel(GetWorld(), FName(*LevelName));
-
+    UGameplayStatics::OpenLevel(GetWorld(), FName("KJHKeyGuideMap"));
     GetWorld()->GetFirstPlayerController()->SetShowMouseCursor(false);
 }
 
