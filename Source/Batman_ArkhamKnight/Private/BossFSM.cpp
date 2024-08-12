@@ -149,9 +149,14 @@ void UBossFSM::MoveState() // boss move to player or idle
 
 			if (dir.Size() < attackRange)
 			{
+
 				int32 attackstatevalue = FMath::RandRange(0, 4);
 				if (attackstatevalue == 0 && MyGameModeBase->IsPlayingSequence() == false)
 				{
+					if (BossAttackSound)
+					{
+						UGameplayStatics::PlaySound2D(GetWorld(), BossAttackSound);
+					}
 					currentTime = 0;
 					SetCollision(true);
 					mState = EBossState::DoubleRightAttack;
@@ -159,6 +164,10 @@ void UBossFSM::MoveState() // boss move to player or idle
 				}
 				else if ((attackstatevalue == 1 || attackstatevalue == 2) && MyGameModeBase->IsPlayingSequence() == false)
 				{
+					if (BossAttackSound)
+					{
+						UGameplayStatics::PlaySound2D(GetWorld(), BossAttackSound);
+					}
 					currentTime = 0;
 					anim->bAttackPlay = true;
 					SetCollision(true);
@@ -168,6 +177,10 @@ void UBossFSM::MoveState() // boss move to player or idle
 				}
 				else if ((attackstatevalue == 3 || attackstatevalue == 4) && MyGameModeBase->IsPlayingSequence() == false)
 				{
+					if (BossAttackSound)
+					{
+						UGameplayStatics::PlaySound2D(GetWorld(), BossAttackSound);
+					}
 					currentTime = 0;
 					anim->bAttackPlay = true;
 					SetCollision(true);
@@ -327,6 +340,10 @@ void UBossFSM::OnMyTakeDamage(EAttackType attacktype,int32 damage)
 	if (mState == EBossState::Die)
 	{
 		return;
+	}
+	if (BossDamageSound)
+	{
+		UGameplayStatics::PlaySound2D(GetWorld(), BossDamageSound);
 	}
 	HP -= damage;
 	MyGameModeBase->MainWidget->UpdateBossHPBar(HP, BossHp);
