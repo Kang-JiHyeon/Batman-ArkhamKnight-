@@ -184,21 +184,24 @@ void UPrisonerFSM::RunState(float& DeltaSeconds)
 	currentTime += DeltaSeconds;
 	if (currentTime < 5 ) { // 최대 5초내에 player의 근처에 오기 때문에 5초로 설정
 		if (dist < 100) {
+			currentTime = 0;
 			if (PrisonerAttack)
 			{
 				UGameplayStatics::PlaySound2D(GetWorld(), PrisonerAttack);
 			}
 				// 오른쪽 공격과 왼쪽 공격을 랜덤하게 나오게 하고 싶다.
-				if (FMath::RandBool()) {
-					SetCollision(true);
-					SetState(EPrisonerState::RightAttack);
-					anim->attack = true;
-				}
-				else {
-					SetCollision(true);
-					SetState(EPrisonerState::LeftAttack);
-					anim->attack = false;
-				}
+			if (FMath::RandBool()) 
+			{
+				SetCollision(true);
+				SetState(EPrisonerState::RightAttack);
+				anim->attack = true;
+			}
+			else
+			{
+				SetCollision(true);
+				SetState(EPrisonerState::LeftAttack);
+				anim->attack = false;
+			}
 			
 			anim->PanimState = mState;
 		}
@@ -249,6 +252,7 @@ void UPrisonerFSM::RightAttackState(float& DeltaSeconds)
 	currentTime += DeltaSeconds;
 	if (currentTime > attackDelayTime)
 	{
+
 		// 펀치를 하고 난 후 다시 이동으로 전이하고 싶다.
 		float dist = me->GetDistanceTo(Ptarget);
 		if (dist < attackDistance)
@@ -286,7 +290,7 @@ void UPrisonerFSM::DamageState(float& DeltaSeconds)
 
 
 	currentTime += DeltaSeconds;
-	if (currentTime > damageDelayTime)
+	if (currentTime > anim->damageDelayTime)
 	{
 		if (HP/MaxHp < 0.5f && HP/MaxHp >0)
 		{
@@ -373,10 +377,12 @@ void UPrisonerFSM::OnMyTakeDamage(int32 damage)
 	dir.Normalize();
 	me->GetCharacterMovement()->Velocity = dir * 2000 * damage;
 
+
 	int value = FMath::RandRange(0, 2);
 	UE_LOG(LogTemp, Warning, TEXT("Prisoner Damage!! : Hp = %f"), HP);
 	if (value == 0)
 	{
+		anim->attack = true;
 		if (PrisonerDamageSound1)
 		{
 			UGameplayStatics::PlaySound2D(GetWorld(), PrisonerDamageSound1);
@@ -384,6 +390,8 @@ void UPrisonerFSM::OnMyTakeDamage(int32 damage)
 	}
 	else if (value == 1)
 	{
+		anim->attack = true;
+
 		if (PrisonerDamageSound2)
 		{
 			UGameplayStatics::PlaySound2D(GetWorld(), PrisonerDamageSound2);
@@ -391,11 +399,16 @@ void UPrisonerFSM::OnMyTakeDamage(int32 damage)
 	}
 	else
 	{
+		anim->attack = false;
+
 		if (PrisonerDamageSound3)
 		{
 			UGameplayStatics::PlaySound2D(GetWorld(), PrisonerDamageSound3);
 		}
 	}
+	damage = 3;
+	if (damage >= 3) anim->damageDelayTime = 4.4f;
+	else anim->damageDelayTime = 1.0f;
 	SetState(EPrisonerState::Damage);
 	anim->PanimState = mState;
 

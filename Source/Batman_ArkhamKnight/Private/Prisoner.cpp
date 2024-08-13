@@ -58,7 +58,7 @@ void APrisoner::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 bool APrisoner::IsAttackable()
 {
-	if (fsm->mState == EPrisonerState::Faint || fsm->mState == EPrisonerState::Die)
+	if (fsm->mState == EPrisonerState::Faint || fsm->mState == EPrisonerState::Die || fsm->mState == EPrisonerState::Damage)
 	{
 		return false;
 	}

@@ -95,8 +95,7 @@ public:
 
 	// damage
 	void OnMyTakeDamage(int32 damage);
-	UPROPERTY(EditAnywhere,Category= PFSM)
-	float damageDelayTime = 0.5f;
+
 
 	// faint
 	UPROPERTY(EditAnywhere,Category= PFSM)

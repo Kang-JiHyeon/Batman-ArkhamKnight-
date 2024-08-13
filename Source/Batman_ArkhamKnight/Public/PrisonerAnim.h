@@ -38,4 +38,7 @@ public:
 
 	UPROPERTY()
 	class UPrisonerFSM* fsm;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = PrisonerFSM)
+	float damageDelayTime;
 };
