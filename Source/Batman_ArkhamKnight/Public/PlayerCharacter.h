@@ -73,14 +73,19 @@ public:
 	class UAnimMontage* BackAttackMontage;
 	UPROPERTY(EditAnywhere)
 	class UAnimMontage* DamageMontage;
-
 	UPROPERTY(EditAnywhere)
 	class UAnimMontage* DodgeMontage;
 
+	UPROPERTY(EditDefaultsOnly)
+	TArray<class UAnimMontage*> PrisonerAttackMotages;
+	int32 prisonerAttackIndex;
+
 	UPROPERTY(EditAnywhere)
 	TArray<class UAnimMontage*> BossAttackMotages;
-
 	int32 bossAttackIndex;
+
+
+
 
 	// º¸½º
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)

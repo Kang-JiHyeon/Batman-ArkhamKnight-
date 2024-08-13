@@ -39,7 +39,9 @@ public:
 	void OnInitialize(AActor* OtherActor);
 
 	void AddAndUpdateMotionWarping(EAttackType AttackType);
-	void RemoveMotionWarping();
+
+	void PlayMotionWarpingToTarget(AActor* TargetActor, float Offset);
+
 
 	FName GetEnumValue(EAttackType AttackType);
 };
