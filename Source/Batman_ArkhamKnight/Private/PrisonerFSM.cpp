@@ -284,9 +284,6 @@ void UPrisonerFSM::DamageState(float& DeltaSeconds)
 	dir.Normalize();
 
 
-	if (dis < 120) {
-		me->GetCharacterMovement()->Velocity = dir * 2000;
-	}
 
 	currentTime += DeltaSeconds;
 	if (currentTime > damageDelayTime)
@@ -363,17 +360,19 @@ void UPrisonerFSM::OnMyTakeDamage(int32 damage)
 // 기절상태에 들어가고 나서 일정 시간이후에 다시 이동 상태로 전이하고 싶다.
 {
 
+
 	if (mState == EPrisonerState::Die || mState == EPrisonerState::Faint)
 	{
 		return;
 	}
-	if (IsAttack() == true)
-	{
-		HP -= 2*damage;
-	}
-	else {
-		HP -= damage;
-	}
+
+	HP -= damage;
+
+	FVector dir = me->GetActorLocation() - Ptarget->GetActorLocation();
+	float dis = dir.Size();
+	dir.Normalize();
+	me->GetCharacterMovement()->Velocity = dir * 2000 * damage;
+
 	int value = FMath::RandRange(0, 2);
 	UE_LOG(LogTemp, Warning, TEXT("Prisoner Damage!! : Hp = %f"), HP);
 	if (value == 0)

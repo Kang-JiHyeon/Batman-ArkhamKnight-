@@ -48,3 +48,8 @@ void UBossMapMainWidget::VisibleOverUI()
 {
     GameOverWidget->OnMyGameOverUI(true);
 }
+
+void UBossMapMainWidget::SetRedUI()
+{
+    BossHPWidget->SetRedBossHPBar(FLinearColor::Red);
+}

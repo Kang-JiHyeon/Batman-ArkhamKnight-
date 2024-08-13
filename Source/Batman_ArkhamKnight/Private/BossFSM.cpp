@@ -125,7 +125,7 @@ void UBossFSM::MoveState() // boss move to player or idle
 	//방향
 	FVector dir = destination - me->GetActorLocation();
 	//방향으로 이동
-	me->AddMovementInput(dir.GetSafeNormal(), 0.1f);
+	me->AddMovementInput(dir.GetSafeNormal(), 0.2f);
 	currentTime += GetWorld()->DeltaTimeSeconds;
 	if (currentTime > moveDelayTime)
 	{
@@ -349,8 +349,8 @@ void UBossFSM::OnMyTakeDamage(EAttackType attacktype,int32 damage)
 		UGameplayStatics::PlaySound2D(GetWorld(), BossDamageSound);
 	}
 	HP -= damage;
+	MyGameModeBase->MainWidget->SetRedUI();
 	MyGameModeBase->MainWidget->UpdateBossHPBar(HP, BossHp);
-
 
 	UE_LOG(LogTemp, Warning, TEXT("Boss Damage!! : Hp = %d"), HP);
 

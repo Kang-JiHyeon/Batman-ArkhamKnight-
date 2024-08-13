@@ -39,5 +39,5 @@ public:
 	void UpdateBossHPBar(int32 cur, int32 max);
 
 	void VisibleOverUI();
-
+	void SetRedUI();
 };
