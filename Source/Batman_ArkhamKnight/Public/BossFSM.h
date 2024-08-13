@@ -146,6 +146,13 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	class USoundBase* BossRoarSound;
 
+	
+	UPROPERTY(EditDefaultsOnly)
+	class USoundBase* BossAttackSound;
+
+		UPROPERTY(EditDefaultsOnly)
+	class USoundBase* BossDamageSound;
+
 	UPROPERTY(EditAnywhere)
 	class APrisoner* prisoner;
 };

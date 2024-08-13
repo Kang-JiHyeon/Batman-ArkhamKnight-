@@ -27,7 +27,7 @@ public:
 	class UBossHP* BossHPWidget;
 
 	UPROPERTY(EditDefaultsOnly,meta=(BindWidget))
-	class UBossGameOverWidget* GameOverWidget;
+	class UBossGameOverWidget* GameOverWidget  ;
 
 public:
 	void UpdatePlayerHPBar(const int32 Value, const int32 Max);

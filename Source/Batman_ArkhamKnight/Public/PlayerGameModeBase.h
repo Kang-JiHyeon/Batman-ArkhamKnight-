@@ -25,7 +25,9 @@ DECLARE_MULTICAST_DELEGATE(FPlayerGameModeBaseOnStartedLevelSequence);
 UCLASS()
 class BATMAN_ARKHAMKNIGHT_API APlayerGameModeBase : public AGameModeBase
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
+private:
+    FTimerHandle VisibleUITimeHandle;
 	
 public:
     virtual void BeginPlay() override;
@@ -44,11 +46,11 @@ private:
 
     // Main Widget
     UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<class UUserWidget> MainWidgetFactory;
+    TSubclassOf<class UUserWidget> MainWidgetFactory;
 
 
 public:
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "MainWidget")
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
     class UBossMapMainWidget* MainWidget;
 
     UFUNCTION()
@@ -65,5 +67,8 @@ private:
 public:
     void PlaySequence(int32 Index);
     bool IsPlayingSequence();
+
+    void VisibleUI();
+
 
 };
