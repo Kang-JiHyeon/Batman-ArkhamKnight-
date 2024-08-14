@@ -57,7 +57,7 @@ void AVehicleEnemy::BeginPlay()
 
 	TrackSpline = TrackActor -> GetComponentByClass<USplineComponent>();
 	OnSplineTimeline -> AddInterpFloat(TrackCurveFloat, MoveOnSpline);
-	OnSplineTimeline -> SetLooping(false);
+	OnSplineTimeline -> SetLooping(true);
 
 	//PossessCharacter = PossessCharacterClass -> GetDefaultObject<APlayerCharacter>();
 

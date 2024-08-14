@@ -7,7 +7,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "TimerManager.h"
 #include "VehicleEnemy.h"
-#include "Components/CapsuleComponent.h"
+#include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Particles/ParticleSystem.h"
@@ -24,9 +24,10 @@ AMissile::AMissile()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	MissileCollision = CreateDefaultSubobject<UCapsuleComponent>(TEXT("MissileCollision"));
+	MissileCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("MissileCollision"));
 	SetRootComponent(MissileCollision);
-	MissileCollision->SetCapsuleSize(10.f, 10.f);
+	MissileCollision->SetBoxExtent(FVector(110.f, 20.f, 16.f));
+	MissileCollision->SetRelativeLocation(FVector(0.f, 0.f, -20.f));
 
 	MissileMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MissileMesh"));
 	MissileMesh->SetupAttachment(RootComponent);
