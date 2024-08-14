@@ -147,7 +147,7 @@ void UPrisonerFSM::MoveState(float& DeltaSeconds){
 		else
 		{
 			int value = FMath::RandRange(0, 100);
-			if (value < 40)
+			if (value < 60)
 			{
 				if (PrisonerScream)
 				{
@@ -390,7 +390,7 @@ void UPrisonerFSM::OnMyTakeDamage(int32 damage)
 			UGameplayStatics::PlaySound2D(GetWorld(), PrisonerDamageSound2);
 		}
 	}
-	else
+	elseun
 	{
 		anim->damageInt = 2;
 		anim->damage = false;
