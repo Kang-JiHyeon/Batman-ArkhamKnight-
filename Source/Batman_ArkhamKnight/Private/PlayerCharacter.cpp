@@ -44,15 +44,15 @@ APlayerCharacter::APlayerCharacter()
 
 
 	// 망토 Static Mesh
-	//CapeMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CapeMeshComp"));
-	//CapeMeshComp->SetupAttachment(GetMesh(), TEXT("spine_03"));
-	//CapeMeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    CapeMeshComp = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CapeMeshComp"));
+    CapeMeshComp->SetupAttachment(GetMesh(), TEXT("spine_03"));
+    CapeMeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	//ConstructorHelpers::FObjectFinder<UStaticMesh> CapeMeshFinder(TEXT("/Script/Engine.StaticMesh'/Game/KJH/Models/Batman_cape/Batman_Cape.Batman_Cape'"));
-	//if (CapeMeshFinder.Succeeded())
-	//{
-	//	CapeMeshComp->SetStaticMesh(CapeMeshFinder.Object);
-	//}
+    //ConstructorHelpers::FObjectFinder<UStaticMesh> CapeMeshFinder(TEXT("/Script/Engine.StaticMesh'/Game/KJH/Models/Batman_cape/Batman_Cape.Batman_Cape'"));
+    //if (CapeMeshFinder.Succeeded())
+    //{
+    //    CapeMeshComp->SetStaticMesh(CapeMeshFinder.Object);
+    //}
 
 	// 모션 워핑 컴포넌트
 	MotionWarpingComp = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComp"));
@@ -95,9 +95,6 @@ void APlayerCharacter::BeginPlay()
 
 	// 애니메이션
 	PlayerAnim = Cast<UPlayerAnim>(GetMesh()->GetAnimInstance());
-
-	// 기본 이동 속도 캐싱
-	DefaultMaxSpeed = GetCharacterMovement()->MaxWalkSpeed;
 
 	// Stat 초기화
 	SetHP(MaxHP);
@@ -266,14 +263,6 @@ void APlayerCharacter::OnActionBossAttack(const FInputActionValue& Value)
 	if(IsLockedMove()) return;
 	//if(SkillCombo < MaxSkillCombo) return;
 
-	//// 타켓의 위치에서 150 앞에 있는 위치
-	//// 이동할 위치 설정
-	//FVector offset = UKismetMathLibrary::GetDirectionUnitVector(TargetBoss->GetActorLocation(), GetActorLocation()) * 150;
-	//FVector targetLoc = TargetBoss->GetActorLocation() + offset;
-	//// 회전 설정
-	//FVector targetDir = UKismetMathLibrary::GetDirectionUnitVector(GetActorLocation(), TargetBoss->GetActorLocation());
-	//FRotator targetRot = UKismetMathLibrary::MakeRotFromX(targetDir);
-
 	// 몽타주 재생
 	PlayAnimMontage(BossAttackMotages[bossAttackIndex]);
 	// 시퀀스 재생
@@ -305,11 +294,6 @@ void APlayerCharacter::MoveToTarget(AActor* Target)
 
 		bMovingToTarget = false;
 		bRotatingToTarget = true;
-
-		// 애니메이션 실행
-		//PlayAttackAnimation();
-		// 최대 스피드 복구
-		GetCharacterMovement()->MaxWalkSpeed = DefaultMaxSpeed;
 	}
 }
 
@@ -425,14 +409,25 @@ void APlayerCharacter::PlayAttackAnimation()
 
 void APlayerCharacter::OnHitPrisoner()
 {
-	if(TargetPrisoner == nullptr) return;
+	if(TargetPrisoner == nullptr || TargetPrisoner->fsm == nullptr) return;
 
 	// hit 대상이 거리 내에 있다면 데미지 입히기
 	float distance = FVector::Distance(TargetPrisoner->GetActorLocation(), GetActorLocation());
 	if (distance < 150)
 	{
-		TargetPrisoner->fsm->OnMyTakeDamage(1);
+		// 기본 공격 데미지
+		int damage = 1;
+		// 반격 공격 데미지
+		if(bIsSlow)
+			damage = 2;
+		// 콤보 데미지 = 공격 데미지 * 2
+		if(HitCombo >= MaxHitCombo)
+			damage *= 2;
+
+		TargetPrisoner->fsm->OnMyTakeDamage(damage);
 		OnHitSucceeded(1);
+
+		UE_LOG(LogTemp, Warning, TEXT("Player->Prisoner Damage : %d"), damage);
 
 		// Effect
 		EPlayerEffectType effectType = HitCombo < MaxHitCombo ? EPlayerEffectType::DefaultAttack : EPlayerEffectType::SpecialAttack;

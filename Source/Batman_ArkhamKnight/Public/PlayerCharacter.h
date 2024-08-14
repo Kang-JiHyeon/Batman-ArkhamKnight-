@@ -45,9 +45,9 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	class UCameraComponent* CameraComp;
 
-	// 매쉬-망토
-	//UPROPERTY(EditDefaultsOnly)
-	//class UStaticMeshComponent* CapeMeshComp;
+	UPROPERTY(EditDefaultsOnly)
+	class USkeletalMeshComponent* CapeMeshComp;
+
 
 	// 키 입력
 	UPROPERTY(EditDefaultsOnly)
@@ -84,9 +84,6 @@ public:
 	TArray<class UAnimMontage*> BossAttackMotages;
 	int32 bossAttackIndex;
 
-
-
-
 	// 보스
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
 	class ABoss* TargetBoss;
@@ -98,7 +95,6 @@ public:
 	UPROPERTY(VisibleDefaultsOnly)
 	class APrisoner* TargetPrisoner;
 
-
 	// 방향
 	FVector Direction;
 
@@ -109,14 +105,17 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	float AttackRange = 1000;
-	int32 AttackMaxSpeed = 3000;
-	int32 DefaultMaxSpeed;
-	int32 AnimComboCount = 0;
+	UPROPERTY(EditDefaultsOnly)
+	int32 DefalutHitDamage = 1;
+	UPROPERTY(EditDefaultsOnly)
+	int32 CounterHitDamage = 2;
 	UPROPERTY(EditDefaultsOnly)
 	int32 MaxHitCombo = 12;
 	int32 HitCombo = 0;
 
 	// 보스 공격
+	UPROPERTY(EditDefaultsOnly)
+	int32 BossHitDamage = 5;
 	UPROPERTY(EditDefaultsOnly)
 	int32 MaxSkillCombo = 8;
 	int32 SkillCombo = 0;
