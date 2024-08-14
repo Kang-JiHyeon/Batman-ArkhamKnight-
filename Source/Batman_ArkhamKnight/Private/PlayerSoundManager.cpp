@@ -58,7 +58,8 @@ void UPlayerSoundManager::PlaySound(EPlayerSoundType SoundType)
 		break;
 	}
 
-	Player->AudioComp->Play(StartTime);
+	if(Player->AudioComp->GetSound() != nullptr)
+		Player->AudioComp->Play(StartTime);
 }
 
 void UPlayerSoundManager::PlayDodge()
@@ -93,8 +94,12 @@ void UPlayerSoundManager::PlayBossAttack()
 
 void UPlayerSoundManager::PlayDamage()
 {
-	SetSoundBase(DamageSound);
-	StartTime = 0;
+	for (auto sound : DamageSounds)
+	{
+		UGameplayStatics::PlaySound2D(GetWorld(), sound);
+	}
+	
+	SetSoundBase(nullptr);
 }
 
 void UPlayerSoundManager::PlayDie()
