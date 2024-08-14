@@ -298,17 +298,7 @@ void UPrisonerFSM::DamageState(float& DeltaSeconds)
 			SetState(EPrisonerState::Faint);
 			anim->PanimState = mState;
 		}
-		else if (HP <= 0)
-		{
-			// 죽음 상태 진입 처리
-			if (APrisoner* Prisoner = Cast<APrisoner>(GetOwner()))
-			{
-				Prisoner->OnDeathStateEntered();
-			}
-			SetCollision(false);
-			SetState(EPrisonerState::Die);
-			anim->PanimState = mState;
-		}
+
 		else
 		{
 			SetState(EPrisonerState::Move);
@@ -334,6 +324,7 @@ void UPrisonerFSM::FaintState(float& DeltaSeconds)
 
 void UPrisonerFSM::DieState(float& DeltaSeconds)
 {
+	SetCollision(false);
 }
 
 void UPrisonerFSM::OnPlayerHit()
@@ -382,7 +373,8 @@ void UPrisonerFSM::OnMyTakeDamage(int32 damage)
 	UE_LOG(LogTemp, Warning, TEXT("Prisoner Damage!! : Hp = %f"), HP);
 	if (value == 0)
 	{
-		anim->attack = true;
+		anim->damageInt = 0;
+		anim->damage = false;
 		if (PrisonerDamageSound1)
 		{
 			UGameplayStatics::PlaySound2D(GetWorld(), PrisonerDamageSound1);
@@ -390,7 +382,8 @@ void UPrisonerFSM::OnMyTakeDamage(int32 damage)
 	}
 	else if (value == 1)
 	{
-		anim->attack = true;
+		anim->damageInt = 1;
+		anim->damage = true;
 
 		if (PrisonerDamageSound2)
 		{
@@ -399,19 +392,37 @@ void UPrisonerFSM::OnMyTakeDamage(int32 damage)
 	}
 	else
 	{
-		anim->attack = false;
-
+		anim->damageInt = 2;
+		anim->damage = false;
 		if (PrisonerDamageSound3)
 		{
 			UGameplayStatics::PlaySound2D(GetWorld(), PrisonerDamageSound3);
 		}
 	}
-	damage = 3;
-	if (damage >= 3) anim->damageDelayTime = 4.4f;
-	else anim->damageDelayTime = 1.0f;
-	SetState(EPrisonerState::Damage);
-	anim->PanimState = mState;
-
+	if (damage >= 3) 
+	{
+		anim->damageDelayTime = 5.0f;
+	}
+	else
+	{
+		anim->damageDelayTime = 1.0f;
+	}
+	if (HP <= 0)
+	{
+		// 죽음 상태 진입 처리
+		if (APrisoner* Prisoner = Cast<APrisoner>(GetOwner()))
+		{
+			Prisoner->OnDeathStateEntered();
+		}
+		SetCollision(false);
+		SetState(EPrisonerState::Die);
+		anim->PanimState = mState;
+	}
+	else
+	{
+		SetState(EPrisonerState::Damage);
+		anim->PanimState = mState;
+	}
 }
 
 void UPrisonerFSM::SetCollision(bool bvalue)
@@ -448,7 +459,7 @@ void UPrisonerFSM::OnMeshBeginOverlap(UPrimitiveComponent* OverlappedComponent, 
 	//}
 }
 
-bool UPrisonerFSM::IsAttack()
+bool UPrisonerFSM::IsCounter()
 {
 	if (mState == EPrisonerState::LeftAttack || mState == EPrisonerState::RightAttack || mState == EPrisonerState::Run)
 	{

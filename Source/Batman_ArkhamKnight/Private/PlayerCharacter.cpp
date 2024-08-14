@@ -234,7 +234,7 @@ void APlayerCharacter::OnActionAttack(const FInputActionValue& Value)
 		//// 최대 스피드 증가
 		//GetCharacterMovement()->MaxWalkSpeed = AttackMaxSpeed;
 		// 반격 상태라면 슬로우
-		bIsSlow = TargetPrisoner->fsm->IsAttack();
+		bIsSlow = TargetPrisoner->fsm->IsCounter();
 
 		PlayAttackAnimation();
 
