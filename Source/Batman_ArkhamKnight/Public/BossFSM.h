@@ -155,4 +155,5 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	class APrisoner* prisoner;
+
 };

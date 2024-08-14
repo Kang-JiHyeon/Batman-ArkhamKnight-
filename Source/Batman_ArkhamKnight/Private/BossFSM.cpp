@@ -59,6 +59,9 @@ void UBossFSM::BeginPlay()
 	// hp	
 	HP = BossHp;
 	MyGameModeBase->MainWidget->UpdateBossHPBar(1, 1);
+
+
+
 }
 
 
@@ -138,6 +141,7 @@ void UBossFSM::MoveState() // boss move to player or idle
 			}
 			direction = Ptarget->GetActorLocation() - me->GetActorLocation();
 			SetCollision(true);
+			me->Visible();
 			mState = EBossState::Yell;
 			anim->BanimState = mState;
 		}
@@ -147,17 +151,11 @@ void UBossFSM::MoveState() // boss move to player or idle
 			anim->BanimState = mState;
 		}
 		else  {
-
 			if (dir.Size() < attackRange)
 			{
-
 				int32 attackstatevalue = FMath::RandRange(0, 4);
 				if (attackstatevalue == 0 && MyGameModeBase->IsPlayingSequence() == false)
 				{
-					if (BossAttackSound)
-					{
-						UGameplayStatics::PlaySound2D(GetWorld(), BossAttackSound);
-					}
 					currentTime = 0;
 					SetCollision(true);
 					mState = EBossState::DoubleRightAttack;
@@ -165,10 +163,7 @@ void UBossFSM::MoveState() // boss move to player or idle
 				}
 				else if ((attackstatevalue == 1 || attackstatevalue == 2) && MyGameModeBase->IsPlayingSequence() == false)
 				{
-					if (BossAttackSound)
-					{
-						UGameplayStatics::PlaySound2D(GetWorld(), BossAttackSound);
-					}
+					
 					currentTime = 0;
 					anim->bAttackPlay = true;
 					SetCollision(true);
@@ -178,10 +173,7 @@ void UBossFSM::MoveState() // boss move to player or idle
 				}
 				else if ((attackstatevalue == 3 || attackstatevalue == 4) && MyGameModeBase->IsPlayingSequence() == false)
 				{
-					if (BossAttackSound)
-					{
-						UGameplayStatics::PlaySound2D(GetWorld(), BossAttackSound);
-					}
+					
 					currentTime = 0;
 					anim->bAttackPlay = true;
 					SetCollision(true);
@@ -349,7 +341,8 @@ void UBossFSM::OnMyTakeDamage(EAttackType attacktype,int32 damage)
 		UGameplayStatics::PlaySound2D(GetWorld(), BossDamageSound);
 	}
 	HP -= damage;
-	MyGameModeBase->MainWidget->SetRedUI();
+	//MyGameModeBase->MainWidget->SetRedUI();
+	MyGameModeBase->MainWidget->BlinkRedUI();
 	MyGameModeBase->MainWidget->UpdateBossHPBar(HP, BossHp);
 
 	UE_LOG(LogTemp, Warning, TEXT("Boss Damage!! : Hp = %d"), HP);
@@ -360,8 +353,6 @@ void UBossFSM::OnMyTakeDamage(EAttackType attacktype,int32 damage)
 	anim->attacktype = attacktype;
 	anim->BanimState = mState;
 	UE_LOG(LogTemp, Warning, TEXT("attack type : %d, mstate : %d"), (int32)attacktype, (int32)mState);
-	
-
 
 }
 
@@ -410,7 +401,7 @@ void UBossFSM::OnPlayerHit()
 
 	if (Ptarget != nullptr)
 	{
-		if (dist < 150)
+		if (dist < 250)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("player is attacked by boss"));
 			Ptarget->OnTakeDamage(me, 2);

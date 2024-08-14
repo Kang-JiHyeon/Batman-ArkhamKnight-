@@ -135,6 +135,6 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	class USoundBase* PrisonerScream;
 
-		UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly)
 	class USoundBase* PrisonerAttack;
 };

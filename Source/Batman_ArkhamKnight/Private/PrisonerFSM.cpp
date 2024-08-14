@@ -10,6 +10,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "PlayerGameModeBase.h"
+#include "Components/WidgetComponent.h"
+#include "PrisonerAttackWidget.h"
 
 // Sets default values for this component's properties
 UPrisonerFSM::UPrisonerFSM()
@@ -139,9 +141,9 @@ void UPrisonerFSM::MoveState(float& DeltaSeconds){
 	currentTime += DeltaSeconds;
 	if (currentTime > moveDelayTime)
 	{
-		if (dir.Size() < 200 && MyGameModeBase->IsPlayingSequence() == true)
+		if (dir.Size() < 300 && MyGameModeBase->IsPlayingSequence() == true)
 		{
-			SetState(EPrisonerState::BackMove);
+			SetState(EPrisonerState::Move);
 			anim->PanimState = mState;
 		}
 		else
@@ -152,9 +154,10 @@ void UPrisonerFSM::MoveState(float& DeltaSeconds){
 				if (PrisonerScream)
 				{
 					UGameplayStatics::PlaySound2D(GetWorld(), PrisonerScream);
-					SetState(EPrisonerState::Run);
-					anim->PanimState = mState;
 				}
+				me->Visible();
+				SetState(EPrisonerState::Run);
+				anim->PanimState = mState;
 
 			}
 			else
@@ -179,7 +182,7 @@ void UPrisonerFSM::RunState(float& DeltaSeconds)
 	FVector destination = Ptarget->GetActorLocation();
 	FVector dir = destination - me->GetActorLocation();
 	float dist = me->GetDistanceTo(Ptarget);
-	me->AddMovementInput(dir.GetSafeNormal(), 0.5f);
+	me->AddMovementInput(dir.GetSafeNormal(), 0.7f);
 
 	currentTime += DeltaSeconds;
 	if (currentTime < 5 ) { // 최대 5초내에 player의 근처에 오기 때문에 5초로 설정
@@ -189,7 +192,8 @@ void UPrisonerFSM::RunState(float& DeltaSeconds)
 			{
 				UGameplayStatics::PlaySound2D(GetWorld(), PrisonerAttack);
 			}
-				// 오른쪽 공격과 왼쪽 공격을 랜덤하게 나오게 하고 싶다.
+			// 오른쪽 공격과 왼쪽 공격을 랜덤하게 나오게 하고 싶다.
+			
 			if (FMath::RandBool()) 
 			{
 				SetCollision(true);
@@ -270,6 +274,7 @@ void UPrisonerFSM::LeftAttackState(float& DeltaSeconds)
 	currentTime += DeltaSeconds;
 	if (currentTime > attackDelayTime)
 	{
+
 		// 펀치를 하고 난 후 다시 이동으로 전이하고 싶다.
 		float dist = me->GetDistanceTo(Ptarget);
 		if (dist < attackDistance)
@@ -286,8 +291,6 @@ void UPrisonerFSM::DamageState(float& DeltaSeconds)
 	FVector dir = me->GetActorLocation() - Ptarget->GetActorLocation();
 	float dis = dir.Size();
 	dir.Normalize();
-
-
 
 	currentTime += DeltaSeconds;
 	if (currentTime > anim->damageDelayTime)
@@ -360,13 +363,16 @@ void UPrisonerFSM::OnMyTakeDamage(int32 damage)
 	{
 		return;
 	}
+	if (HP <= 0) return;
 
-	HP -= damage;
+	HP = FMath::Max(0, HP - damage);
 
 	FVector dir = me->GetActorLocation() - Ptarget->GetActorLocation();
 	float dis = dir.Size();
 	dir.Normalize();
 	me->GetCharacterMovement()->Velocity = dir * 2000 * damage;
+
+	UE_LOG(LogTemp, Warning, TEXT("damage = %d "), damage);
 
 
 	int value = FMath::RandRange(0, 2);

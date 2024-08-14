@@ -7,6 +7,9 @@
 #include "Prisoner.h"
 #include "Engine/StaticMesh.h"
 #include "Components/SphereComponent.h"
+#include "Components/WidgetComponent.h"
+#include "BossAttackWidget.h"
+#include "TimerManager.h"
 
 
 // Sets default values
@@ -38,6 +41,15 @@ ABoss::ABoss()
 	SphereComp->SetupAttachment(GetMesh());
 	SphereComp->SetRelativeLocation(FVector(0.000009, -170.206918, 743.073657));
 	SphereComp->SetRelativeScale3D(FVector(5));
+
+	AttackComp = CreateDefaultSubobject<UWidgetComponent>(TEXT("AttackComp"));
+	AttackComp->SetupAttachment(GetMesh());
+
+	ConstructorHelpers::FClassFinder<UBossAttackWidget> TempAttackUI(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/SYH/UI/WBP_BossAttack.WBP_BossAttack_C'"));
+	if (TempAttackUI.Succeeded())
+	{
+		AttackComp->SetWidgetClass(TempAttackUI.Class);
+	}
 }	
 
 // Called when the game starts or when spawned
@@ -91,6 +103,16 @@ void ABoss::NotifyActorBeginOverlap(AActor* OtherActor)
 		prisoner->LaunchCharacter(velo, true, false);
 		UE_LOG(LogTemp, Warning, TEXT(" Boss NotifyActorBeginOverlap"));
 	}
+}
+void ABoss::Visible()
+{
+	AttackComp->SetVisibility(true);
+	GetWorld()->GetTimerManager().SetTimer(TimeHandle, this, &ABoss::Hide, 2.0f, false);
+}
+
+void ABoss::Hide()
+{
+	AttackComp->SetVisibility(false);
 }
 
 
