@@ -207,7 +207,7 @@ void APlayerCharacter::OnActionAttack(const FInputActionValue& Value)
 	// 공격할 대상이 있다면
 	if (TargetPrisoner != nullptr)
 	{
-		bIsSlow = TargetPrisoner->fsm->IsAttack();
+		bIsSlow = TargetPrisoner->fsm->IsCounter();
 
 		PlayAttackAnimation();
 	}

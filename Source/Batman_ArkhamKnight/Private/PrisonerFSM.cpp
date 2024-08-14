@@ -390,7 +390,7 @@ void UPrisonerFSM::OnMyTakeDamage(int32 damage)
 			UGameplayStatics::PlaySound2D(GetWorld(), PrisonerDamageSound2);
 		}
 	}
-	elseun
+	else
 	{
 		anim->damageInt = 2;
 		anim->damage = false;
