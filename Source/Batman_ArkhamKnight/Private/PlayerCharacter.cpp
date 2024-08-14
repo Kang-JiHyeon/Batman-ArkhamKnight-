@@ -222,7 +222,7 @@ void APlayerCharacter::OnActionAttack(const FInputActionValue& Value)
 		// 사운드 재생
 		SoundManager->PlaySound(EPlayerSoundType::InvaildAttack);
 		
-		GetCharacterMovement()->Velocity = GetActorForwardVector() * 2000;
+		GetCharacterMovement()->Velocity = GetActorForwardVector() * 20000000;
 	}
 }
 
@@ -231,7 +231,7 @@ void APlayerCharacter::OnActionBossAttack(const FInputActionValue& Value)
 	if (TargetBoss == nullptr) return;
 	if (TargetBoss->fsm->mState == EBossState::Die) return;
 	if(IsLockedMove()) return;
-	//if(SkillCombo < MaxSkillCombo) return;
+	if(SkillCombo < MaxSkillCombo) return;
 
 	// 몽타주 재생
 	PlayAnimMontage(BossAttackMotages[bossAttackIndex]);
@@ -301,34 +301,24 @@ void APlayerCharacter::PlayAttackAnimation()
 	// 앞, 뒤 방향 확인
 	EDirectionType enemyDir = CheckTargetDirComp->GetTargetVerticalDirection(TargetPrisoner);
 
-	// 적이 앞에 있다면 콤보 애니메이션 실행
-	if (enemyDir == EDirectionType::Front)
-	{
-		//// 콤보 카운트 증가
-		//FString section = FString::FromInt((AnimComboCount % 3));
-		//// 애니메이션 실행
-		//PlayAnimMontage(FrontAttackMontage, 1, FName(section));
-
+	///적이 앞에 있다면 콤보 애니메이션 실행
+	//if (enemyDir == EDirectionType::Front)
+	//{
 		// 애니메이션 실행
 		int randIdx = FMath::RandRange(0, PrisonerAttackMotages.Num() - 1);
 		if (randIdx == prisonerAttackIndex) randIdx++;
-
 		prisonerAttackIndex = randIdx % PrisonerAttackMotages.Num();
 
 		PlayAnimMontage(PrisonerAttackMotages[prisonerAttackIndex]);
+	//}
+	//// 적이 뒤에 있다면 왼쪽, 오른쪽 구분해서 애니메이션 실행
+	//else
+	//{
+	//	FString dirName = CheckTargetDirComp->GetTargetHorizontalDirection(TargetPrisoner) == EDirectionType::Left ? "Left" : "Right";
+	//	PlayAnimMontage(BackAttackMontage, 1, FName(dirName));
+	//}
 
-		
-
-	}
-	// 적이 뒤에 있다면 왼쪽, 오른쪽 구분해서 애니메이션 실행
-	else
-	{
-		FString dirName = CheckTargetDirComp->GetTargetHorizontalDirection(TargetPrisoner) == EDirectionType::Left ? "Left" : "Right";
-		PlayAnimMontage(BackAttackMontage, 1, FName(dirName));
-	}
-	//AnimComboCount++;
-
-	PlayerMotionWarpingComp->PlayMotionWarpingToTarget(TargetPrisoner, 100);
+	PlayerMotionWarpingComp->PlayMotionWarpingToTarget(TargetPrisoner, 75);
 	// 사운드 재생
 	SoundManager->PlaySound(EPlayerSoundType::VaildAttack);
 }

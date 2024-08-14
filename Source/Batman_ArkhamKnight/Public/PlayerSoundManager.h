@@ -59,7 +59,7 @@ private:
 
 	// ÇÇ°Ý
 	UPROPERTY(EditDefaultsOnly)
-	USoundBase* DamageSound;
+	TArray<USoundBase*> DamageSounds;
 
 	// Á×À½
 	UPROPERTY(EditDefaultsOnly)
