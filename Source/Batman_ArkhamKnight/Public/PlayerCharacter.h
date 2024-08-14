@@ -110,8 +110,11 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	int32 CounterHitDamage = 2;
 	UPROPERTY(EditDefaultsOnly)
+	int32 HitComboMultiplier = 2;
+	UPROPERTY(EditDefaultsOnly)
 	int32 MaxHitCombo = 12;
 	int32 HitCombo = 0;
+
 
 	// 보스 공격
 	UPROPERTY(EditDefaultsOnly)

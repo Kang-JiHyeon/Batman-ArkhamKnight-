@@ -342,13 +342,13 @@ void APlayerCharacter::OnHitPrisoner()
 	if (distance < 150)
 	{
 		// 기본 공격 데미지
-		int damage = 1;
+		int damage = DefalutHitDamage;
 		// 반격 공격 데미지
 		if(bIsSlow)
-			damage = 2;
+			damage = CounterHitDamage;
 		// 콤보 데미지 = 공격 데미지 * 2
 		if(HitCombo >= MaxHitCombo)
-			damage *= 2;
+			damage *= HitComboMultiplier;
 
 		TargetPrisoner->fsm->OnMyTakeDamage(damage);
 		OnHitSucceeded(1);
