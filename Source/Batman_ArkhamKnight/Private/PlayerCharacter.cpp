@@ -44,15 +44,15 @@ APlayerCharacter::APlayerCharacter()
 
 
 	// 망토 Static Mesh
-	CapeMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CapeMeshComp"));
-	CapeMeshComp->SetupAttachment(GetMesh(), TEXT("spine_03"));
-	CapeMeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	//CapeMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CapeMeshComp"));
+	//CapeMeshComp->SetupAttachment(GetMesh(), TEXT("spine_03"));
+	//CapeMeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	ConstructorHelpers::FObjectFinder<UStaticMesh> CapeMeshFinder(TEXT("/Script/Engine.StaticMesh'/Game/KJH/Models/Batman_cape/Batman_Cape.Batman_Cape'"));
-	if (CapeMeshFinder.Succeeded())
-	{
-		CapeMeshComp->SetStaticMesh(CapeMeshFinder.Object);
-	}
+	//ConstructorHelpers::FObjectFinder<UStaticMesh> CapeMeshFinder(TEXT("/Script/Engine.StaticMesh'/Game/KJH/Models/Batman_cape/Batman_Cape.Batman_Cape'"));
+	//if (CapeMeshFinder.Succeeded())
+	//{
+	//	CapeMeshComp->SetStaticMesh(CapeMeshFinder.Object);
+	//}
 
 	// 모션 워핑 컴포넌트
 	MotionWarpingComp = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComp"));

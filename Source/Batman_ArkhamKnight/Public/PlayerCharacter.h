@@ -46,8 +46,8 @@ public:
 	class UCameraComponent* CameraComp;
 
 	// 매쉬-망토
-	UPROPERTY(EditDefaultsOnly)
-	class UStaticMeshComponent* CapeMeshComp;
+	//UPROPERTY(EditDefaultsOnly)
+	//class UStaticMeshComponent* CapeMeshComp;
 
 	// 키 입력
 	UPROPERTY(EditDefaultsOnly)
