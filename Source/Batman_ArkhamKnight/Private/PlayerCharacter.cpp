@@ -42,17 +42,10 @@ APlayerCharacter::APlayerCharacter()
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	bUseControllerRotationYaw = false;
 
-
 	// 망토 Static Mesh
-	CapeMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CapeMeshComp"));
-	CapeMeshComp->SetupAttachment(GetMesh(), TEXT("spine_03"));
-	CapeMeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-	ConstructorHelpers::FObjectFinder<UStaticMesh> CapeMeshFinder(TEXT("/Script/Engine.StaticMesh'/Game/KJH/Models/Batman_cape/Batman_Cape.Batman_Cape'"));
-	if (CapeMeshFinder.Succeeded())
-	{
-		CapeMeshComp->SetStaticMesh(CapeMeshFinder.Object);
-	}
+    CapeMeshComp = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CapeMeshComp"));
+    CapeMeshComp->SetupAttachment(GetMesh(), TEXT("spine_03"));
+    CapeMeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	// 모션 워핑 컴포넌트
 	MotionWarpingComp = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComp"));
@@ -96,9 +89,6 @@ void APlayerCharacter::BeginPlay()
 	// 애니메이션
 	PlayerAnim = Cast<UPlayerAnim>(GetMesh()->GetAnimInstance());
 
-	// 기본 이동 속도 캐싱
-	DefaultMaxSpeed = GetCharacterMovement()->MaxWalkSpeed;
-
 	// Stat 초기화
 	SetHP(MaxHP);
 	SetHitCombo(0);
@@ -115,26 +105,14 @@ void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (bMovingToTarget)
-	{
-		MoveToTarget(TargetPrisoner);
-	}
-	else
-	{
-		// 회전 방향으로 이동하고 싶다.
-		// 1.ControlRotation을 이용해서 Transform 을 만들고
-		FTransform controlTransform = FTransform(GetControlRotation());
-		// 2. TransformDirection 기능을 이용해서 방향을 만들어서
-		Direction = controlTransform.TransformVector(Direction);
-		// 3. 그 방향으로 이동한다.
-		AddMovementInput(Direction, 1);
-		Direction = FVector::ZeroVector;
-	}
-
-	if (bRotatingToTarget)
-	{
-		RotateToTarget(TargetPrisoner);
-	}
+	// 회전 방향으로 이동하고 싶다.
+	// 1.ControlRotation을 이용해서 Transform 을 만들고
+	FTransform controlTransform = FTransform(GetControlRotation());
+	// 2. TransformDirection 기능을 이용해서 방향을 만들어서
+	Direction = controlTransform.TransformVector(Direction);
+	// 3. 그 방향으로 이동한다.
+	AddMovementInput(Direction, 1);
+	Direction = FVector::ZeroVector;
 }
 
 // Called to bind functionality to input
@@ -229,32 +207,21 @@ void APlayerCharacter::OnActionAttack(const FInputActionValue& Value)
 	// 공격할 대상이 있다면
 	if (TargetPrisoner != nullptr)
 	{
-		//// 대상 위치로 이동
-		//bMovingToTarget = true;
-		//// 최대 스피드 증가
-		//GetCharacterMovement()->MaxWalkSpeed = AttackMaxSpeed;
-		// 반격 상태라면 슬로우
-		bIsSlow = TargetPrisoner->fsm->IsCounter();
+		bIsSlow = TargetPrisoner->fsm->IsAttack();
 
 		PlayAttackAnimation();
-
-
-
 	}
 	// 공격할 수 있는 대상이 없다면, 앞방향으로 일정거리만큼 이동
 	else
 	{
 		// 콤보 카운트 증가
-		//FString section = FString::FromInt((AnimComboCount % 3));
+		FString section = FString::FromInt((FrontAnimIndex % 3));
 		// 애니메이션 실행
-		int randIdx = FMath::RandRange(0, PrisonerAttackMotages.Num() - 1);
-		if(randIdx == prisonerAttackIndex) randIdx++;
-
-		prisonerAttackIndex = randIdx % PrisonerAttackMotages.Num();
-		PlayAnimMontage(PrisonerAttackMotages[prisonerAttackIndex]);
+		PlayAnimMontage(FrontAttackMontage, 1, FName(*section));
+		FrontAnimIndex++;
 		// 사운드 재생
 		SoundManager->PlaySound(EPlayerSoundType::InvaildAttack);
-
+		
 		GetCharacterMovement()->Velocity = GetActorForwardVector() * 2000;
 	}
 }
@@ -265,14 +232,6 @@ void APlayerCharacter::OnActionBossAttack(const FInputActionValue& Value)
 	if (TargetBoss->fsm->mState == EBossState::Die) return;
 	if(IsLockedMove()) return;
 	//if(SkillCombo < MaxSkillCombo) return;
-
-	//// 타켓의 위치에서 150 앞에 있는 위치
-	//// 이동할 위치 설정
-	//FVector offset = UKismetMathLibrary::GetDirectionUnitVector(TargetBoss->GetActorLocation(), GetActorLocation()) * 150;
-	//FVector targetLoc = TargetBoss->GetActorLocation() + offset;
-	//// 회전 설정
-	//FVector targetDir = UKismetMathLibrary::GetDirectionUnitVector(GetActorLocation(), TargetBoss->GetActorLocation());
-	//FRotator targetRot = UKismetMathLibrary::MakeRotFromX(targetDir);
 
 	// 몽타주 재생
 	PlayAnimMontage(BossAttackMotages[bossAttackIndex]);
@@ -287,61 +246,12 @@ void APlayerCharacter::OnActionBossAttack(const FInputActionValue& Value)
 	PlayerAnim->SetIgnoreAttack(false);
 }
 
-void APlayerCharacter::MoveToTarget(AActor* Target)
-{
-	if (!Target) return;
-	if (!bMovingToTarget) return;
-
-	FVector dir = Target->GetActorLocation() - GetActorLocation();
-	dir.Z = 0;
-	AddMovementInput(dir.GetSafeNormal());
-
-	PlayerAnim->SetRun(true);
-	
-	// 목표 지점에 도달했는지 확인
-	if (dir.Size() < 100)
-	{
-		PlayerAnim->SetRun(false);
-
-		bMovingToTarget = false;
-		bRotatingToTarget = true;
-
-		// 애니메이션 실행
-		//PlayAttackAnimation();
-		// 최대 스피드 복구
-		GetCharacterMovement()->MaxWalkSpeed = DefaultMaxSpeed;
-	}
-}
-
 bool APlayerCharacter::IsLockedMove() const
 {
 	bool bIsMontagePlaying = PlayerAnim->IsAnyMontagePlaying();
 
-	return bMovingToTarget || bDamageState || PlayerAnim->bDodge || bIsMontagePlaying || MyGameModeBase->IsPlayingSequence();
+	return bDamageState || PlayerAnim->bDodge || bIsMontagePlaying || MyGameModeBase->IsPlayingSequence();
 
-}
-
-void APlayerCharacter::RotateToTarget(AActor* Target)
-{
-	if (!Target) return;
-	if (!bRotatingToTarget) return;
-
-	// 회전값 갱신
-	FVector targetLocation = Target->GetActorLocation();
-	FVector direction = (targetLocation - GetActorLocation()).GetSafeNormal();
-	FRotator targetRotation = FRotationMatrix::MakeFromX(direction).Rotator();
-
-	FRotator newRotation = FMath::RInterpTo(GetActorRotation(), targetRotation, GetWorld()->DeltaTimeSeconds, 8);
-	SetActorRotation(newRotation);
-
-	// 타겟과 마주보고 있다면 회전 종료
-	FVector forwardVector = GetActorForwardVector();
-	FVector targetForwardVector = Target->GetActorForwardVector();
-
-	if (FVector::DotProduct(forwardVector, targetForwardVector) < -0.8f)
-	{
-		bRotatingToTarget = false;
-	}
 }
 
 APrisoner* APlayerCharacter::FindTargetPrisoner()
@@ -425,14 +335,25 @@ void APlayerCharacter::PlayAttackAnimation()
 
 void APlayerCharacter::OnHitPrisoner()
 {
-	if(TargetPrisoner == nullptr) return;
+	if(TargetPrisoner == nullptr || TargetPrisoner->fsm == nullptr) return;
 
 	// hit 대상이 거리 내에 있다면 데미지 입히기
 	float distance = FVector::Distance(TargetPrisoner->GetActorLocation(), GetActorLocation());
 	if (distance < 150)
 	{
-		TargetPrisoner->fsm->OnMyTakeDamage(1);
+		// 기본 공격 데미지
+		int damage = DefalutHitDamage;
+		// 반격 공격 데미지
+		if(bIsSlow)
+			damage = CounterHitDamage;
+		// 콤보 데미지 = 공격 데미지 * 2
+		if(HitCombo >= MaxHitCombo)
+			damage *= HitComboMultiplier;
+
+		TargetPrisoner->fsm->OnMyTakeDamage(damage);
 		OnHitSucceeded(1);
+
+		UE_LOG(LogTemp, Warning, TEXT("Player->Prisoner Damage : %d"), damage);
 
 		// Effect
 		EPlayerEffectType effectType = HitCombo < MaxHitCombo ? EPlayerEffectType::DefaultAttack : EPlayerEffectType::SpecialAttack;
