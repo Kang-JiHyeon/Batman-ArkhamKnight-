@@ -229,21 +229,29 @@ void APlayerCharacter::OnActionAttack(const FInputActionValue& Value)
 	// 공격할 대상이 있다면
 	if (TargetPrisoner != nullptr)
 	{
-		// 대상 위치로 이동
-		bMovingToTarget = true;
-		// 최대 스피드 증가
-		GetCharacterMovement()->MaxWalkSpeed = AttackMaxSpeed;
+		//// 대상 위치로 이동
+		//bMovingToTarget = true;
+		//// 최대 스피드 증가
+		//GetCharacterMovement()->MaxWalkSpeed = AttackMaxSpeed;
 		// 반격 상태라면 슬로우
 		bIsSlow = TargetPrisoner->fsm->IsAttack();
+
+		PlayAttackAnimation();
+
+
+
 	}
 	// 공격할 수 있는 대상이 없다면, 앞방향으로 일정거리만큼 이동
 	else
 	{
 		// 콤보 카운트 증가
-		FString section = FString::FromInt((AnimComboCount % 3));
+		//FString section = FString::FromInt((AnimComboCount % 3));
 		// 애니메이션 실행
-		PlayAnimMontage(FrontAttackMontage, 1, FName(section));
-		AnimComboCount++;
+		int randIdx = FMath::RandRange(0, PrisonerAttackMotages.Num() - 1);
+		if(randIdx == prisonerAttackIndex) randIdx++;
+
+		prisonerAttackIndex = randIdx % PrisonerAttackMotages.Num();
+		PlayAnimMontage(PrisonerAttackMotages[prisonerAttackIndex]);
 		// 사운드 재생
 		SoundManager->PlaySound(EPlayerSoundType::InvaildAttack);
 
@@ -258,13 +266,13 @@ void APlayerCharacter::OnActionBossAttack(const FInputActionValue& Value)
 	if(IsLockedMove()) return;
 	//if(SkillCombo < MaxSkillCombo) return;
 
-	// 타켓의 위치에서 150 앞에 있는 위치
-	// 이동할 위치 설정
-	FVector offset = UKismetMathLibrary::GetDirectionUnitVector(TargetBoss->GetActorLocation(), GetActorLocation()) * 150;
-	FVector targetLoc = TargetBoss->GetActorLocation() + offset;
-	// 회전 설정
-	FVector targetDir = UKismetMathLibrary::GetDirectionUnitVector(GetActorLocation(), TargetBoss->GetActorLocation());
-	FRotator targetRot = UKismetMathLibrary::MakeRotFromX(targetDir);
+	//// 타켓의 위치에서 150 앞에 있는 위치
+	//// 이동할 위치 설정
+	//FVector offset = UKismetMathLibrary::GetDirectionUnitVector(TargetBoss->GetActorLocation(), GetActorLocation()) * 150;
+	//FVector targetLoc = TargetBoss->GetActorLocation() + offset;
+	//// 회전 설정
+	//FVector targetDir = UKismetMathLibrary::GetDirectionUnitVector(GetActorLocation(), TargetBoss->GetActorLocation());
+	//FRotator targetRot = UKismetMathLibrary::MakeRotFromX(targetDir);
 
 	// 몽타주 재생
 	PlayAnimMontage(BossAttackMotages[bossAttackIndex]);
@@ -299,7 +307,7 @@ void APlayerCharacter::MoveToTarget(AActor* Target)
 		bRotatingToTarget = true;
 
 		// 애니메이션 실행
-		PlayAttackAnimation();
+		//PlayAttackAnimation();
 		// 최대 스피드 복구
 		GetCharacterMovement()->MaxWalkSpeed = DefaultMaxSpeed;
 	}
@@ -386,10 +394,21 @@ void APlayerCharacter::PlayAttackAnimation()
 	// 적이 앞에 있다면 콤보 애니메이션 실행
 	if (enemyDir == EDirectionType::Front)
 	{
-		// 콤보 카운트 증가
-		FString section = FString::FromInt((AnimComboCount % 3));
+		//// 콤보 카운트 증가
+		//FString section = FString::FromInt((AnimComboCount % 3));
+		//// 애니메이션 실행
+		//PlayAnimMontage(FrontAttackMontage, 1, FName(section));
+
 		// 애니메이션 실행
-		PlayAnimMontage(FrontAttackMontage, 1, FName(section));
+		int randIdx = FMath::RandRange(0, PrisonerAttackMotages.Num() - 1);
+		if (randIdx == prisonerAttackIndex) randIdx++;
+
+		prisonerAttackIndex = randIdx % PrisonerAttackMotages.Num();
+
+		PlayAnimMontage(PrisonerAttackMotages[prisonerAttackIndex]);
+
+		
+
 	}
 	// 적이 뒤에 있다면 왼쪽, 오른쪽 구분해서 애니메이션 실행
 	else
@@ -397,8 +416,9 @@ void APlayerCharacter::PlayAttackAnimation()
 		FString dirName = CheckTargetDirComp->GetTargetHorizontalDirection(TargetPrisoner) == EDirectionType::Left ? "Left" : "Right";
 		PlayAnimMontage(BackAttackMontage, 1, FName(dirName));
 	}
-	AnimComboCount++;
+	//AnimComboCount++;
 
+	PlayerMotionWarpingComp->PlayMotionWarpingToTarget(TargetPrisoner, 100);
 	// 사운드 재생
 	SoundManager->PlaySound(EPlayerSoundType::VaildAttack);
 }

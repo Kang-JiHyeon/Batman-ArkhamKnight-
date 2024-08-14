@@ -34,11 +34,25 @@ public:
 	bool bDie = false;
 
 
+	UPROPERTY(EditDefaultsOnly)
+	TArray<class UAnimMontage*> PrisonerAttackMotages;
+	int32 AttackIndex;
+
+	UPROPERTY(EditAnywhere)
+	TArray<class UAnimMontage*> BossAttackMotages;
+	int32 BossAttackIndex;
+
+
 public:
 	bool bIgnoreInputAttack = false;
 	
 	void SetRun(bool bValue);
 	void SetDodge(bool bValue);
+
+	void PlayPrisonerAttackMontage();
+	void PlayBossAttackMontage();
+
+
 
 	UFUNCTION(BlueprintCallable)
 	void OnResetCombo();
