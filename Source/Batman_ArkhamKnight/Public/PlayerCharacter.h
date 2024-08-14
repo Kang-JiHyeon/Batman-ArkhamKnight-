@@ -84,6 +84,8 @@ public:
 	TArray<class UAnimMontage*> BossAttackMotages;
 	int32 bossAttackIndex;
 
+	int32 FrontAnimIndex;
+
 	// 보스
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
 	class ABoss* TargetBoss;
@@ -100,8 +102,6 @@ public:
 
 	// 움직임 여부
 	bool bMoveInputPressed;
-	bool bMovingToTarget;
-	bool bRotatingToTarget;
 
 	UPROPERTY(EditDefaultsOnly)
 	float AttackRange = 1000;
@@ -176,8 +176,6 @@ private:
 	void OnActionBossAttack(const FInputActionValue& Value);
 
 	// Move
-	void MoveToTarget(AActor* Target);
-	void RotateToTarget(AActor* Target);
 	bool IsLockedMove() const;
 
 	// Find Target
