@@ -139,6 +139,7 @@ class BATMAN_ARKHAMKNIGHT_API ABaseWheeledVehiclePawn : public AWheeledVehiclePa
 	float BaseSpeed = 5000.f;
 	
 	FVector TargetLocation;
+	FVector TargetPoint;
 	float TargetDistance;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "LockOn", meta = (AllowPrivateAccess = "true"))

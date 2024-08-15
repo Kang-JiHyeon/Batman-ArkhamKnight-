@@ -114,6 +114,26 @@ void ABaseWheeledVehiclePawn::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	GetMesh() -> SetAngularDamping(UKismetMathLibrary::SelectFloat(0, 3, ChaosVehicleMovementComponent -> IsMovingOnGround()));
+
+	FHitResult HitResult;
+
+	FVector start = BackCamera -> GetComponentLocation();
+	FVector end = start + BackCamera -> GetForwardVector() * 10000;
+	
+	GetWorld() -> LineTraceSingleByChannel(HitResult, start, end, ECollisionChannel::ECC_Visibility);
+
+	if(HitResult.bBlockingHit)
+	{
+		TargetPoint = HitResult.Location;
+	}
+	else
+	{
+		TargetPoint = end;
+	}
+	\
+	FRotator rot = UKismetMathLibrary::FindLookAtRotation(MachineGun -> GetComponentLocation(), TargetPoint);
+	MachineGun -> SetWorldRotation(rot);
+	
 	if(TargetActor)
 	{
 		AVehicleEnemy* Enemy = Cast<AVehicleEnemy>(TargetActor);
