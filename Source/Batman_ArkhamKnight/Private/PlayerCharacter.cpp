@@ -22,6 +22,7 @@
 #include "PlayerSoundManager.h"
 #include "Components/AudioComponent.h"
 #include "PlayerEffectManager.h"
+#include "PlayerAntidoteDetector.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -61,6 +62,9 @@ APlayerCharacter::APlayerCharacter()
 
 	// 이펙트
 	EffectManager = CreateDefaultSubobject<UPlayerEffectManager>(TEXT("EffectManager"));
+
+	// 해독제 감지
+	AntidoteDetector = CreateDefaultSubobject<UPlayerAntidoteDetector>(TEXT("AntidoteDetector"));
 }
 
 // Called when the game starts or when spawned
@@ -127,6 +131,10 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	Input->BindAction(IA_Dodge, ETriggerEvent::Started, this, &APlayerCharacter::OnActionDodge);
 	Input->BindAction(IA_Attack, ETriggerEvent::Started, this, &APlayerCharacter::OnActionAttack);
 	Input->BindAction(IA_BossAttack, ETriggerEvent::Started, this, &APlayerCharacter::OnActionBossAttack);
+
+
+	AntidoteDetector->SetupPlayerInputComponent(PlayerInputComponent);
+
 }
 
 void APlayerCharacter::OnActionMove(const FInputActionValue& Value)

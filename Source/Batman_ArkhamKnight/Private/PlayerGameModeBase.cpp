@@ -26,6 +26,9 @@ void APlayerGameModeBase::BeginPlay()
 	Settings.bDisableMovementInput = true;
 	Settings.bHideHud = true;
 	CreateLevelSequencePlayer();
+
+
+	CreateAntidoteDetector();
 }
 
 void APlayerGameModeBase::CreateLevelSequencePlayer()
@@ -37,6 +40,23 @@ void APlayerGameModeBase::CreateLevelSequencePlayer()
 		if (sequence.LevelSequence == nullptr) continue;
 
 		sequence.SequencePlayer = ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), sequence.LevelSequence, Settings, sequence.SequenceActor);
+	}
+}
+
+void APlayerGameModeBase::CreateAntidoteDetector()
+{
+	if (AntidoteFactory == nullptr) return;
+
+	// 해독제 오브젝트를 찾는다.
+	TArray<AActor*> Antidotes;
+	UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("Antidote"), Antidotes);
+
+	// 해독제 오브젝트 위치에 감지 생성
+	if (Antidotes.Num() <= 0) return;
+
+	for (auto antidote : Antidotes)
+	{
+		GetWorld()->SpawnActor<AActor>(AntidoteFactory, antidote->GetActorLocation(), antidote->GetActorRotation());
 	}
 }
 
