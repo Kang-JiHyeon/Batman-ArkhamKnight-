@@ -27,7 +27,7 @@ public:
 	class UBossHP* BossHPWidget;
 
 	UPROPERTY(EditDefaultsOnly,meta=(BindWidget))
-	class UBossGameOverWidget* GameOverWidget  ;
+	class UBossGameOverWidget* GameOverWidget ;
 
 public:
 	void UpdatePlayerHPBar(const int32 Value, const int32 Max);
@@ -39,5 +39,15 @@ public:
 	void UpdateBossHPBar(int32 cur, int32 max);
 
 	void VisibleOverUI();
+	
+	UPROPERTY(BlueprintReadOnly,Transient,meta = (BindWidgetAnim))
+	class UWidgetAnimation* Red;
+
+	UPROPERTY(BlueprintReadOnly,Transient,meta = (BindWidgetAnim))
+	class UWidgetAnimation* RedAll;
+
+	UFUNCTION()
+	void BlinkRedUI();
+	void BlinkRedAllUI();
 
 };

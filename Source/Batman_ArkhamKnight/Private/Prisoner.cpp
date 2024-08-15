@@ -8,6 +8,9 @@
 #include "Animation/AnimInstance.h"
 #include "Kismet/GameplayStatics.h"
 #include "PlayerGameModeBase.h"
+#include "Components/WidgetComponent.h"
+#include "PrisonerAttackWidget.h"
+#include "TimerManager.h"
 
 // Sets default values
 APrisoner::APrisoner()
@@ -21,6 +24,15 @@ APrisoner::APrisoner()
 	if (animClass.Succeeded())
 	{
 		GetMesh()->SetAnimInstanceClass(animClass.Class);
+	}
+
+	AttackComp = CreateDefaultSubobject<UWidgetComponent>(TEXT("AttackComp"));
+	AttackComp->SetupAttachment(GetMesh());
+
+	ConstructorHelpers::FClassFinder<UPrisonerAttackWidget> TempAttackUI(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/SYH/UI/WBP_PrisonerAttack.WBP_PrisonerAttack_C'"));
+	if (TempAttackUI.Succeeded())
+	{
+		AttackComp->SetWidgetClass(TempAttackUI.Class);
 	}
 }
 
@@ -58,7 +70,7 @@ void APrisoner::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 bool APrisoner::IsAttackable()
 {
-	if (fsm->mState == EPrisonerState::Faint || fsm->mState == EPrisonerState::Die)
+	if (fsm->mState == EPrisonerState::Faint || fsm->mState == EPrisonerState::Die || fsm->mState == EPrisonerState::Damage)
 	{
 		return false;
 	}
@@ -67,6 +79,21 @@ bool APrisoner::IsAttackable()
 		return true;
 	}
 	
+}
+
+void APrisoner::Visible()
+{
+	if (fsm->mState == EPrisonerState::Die || fsm->mState == EPrisonerState::Die)
+	{
+		return;
+	}
+	AttackComp->SetVisibility(true);
+	GetWorld()->GetTimerManager().SetTimer(TimeHandle,this, &APrisoner::Hide, 2.0f, false);
+}
+
+void APrisoner::Hide()
+{
+	AttackComp->SetVisibility(false);
 }
 
 

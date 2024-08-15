@@ -10,6 +10,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "PlayerGameModeBase.h"
+#include "Components/WidgetComponent.h"
+#include "PrisonerAttackWidget.h"
 
 // Sets default values for this component's properties
 UPrisonerFSM::UPrisonerFSM()
@@ -36,7 +38,7 @@ void UPrisonerFSM::BeginPlay()
 
 	// HP
 	HP = MaxHp;
-	
+
 	me->GetMesh()->OnComponentBeginOverlap.AddDynamic(this, &UPrisonerFSM::OnMeshBeginOverlap);
 	SetCollision(false);
 
@@ -129,7 +131,9 @@ void UPrisonerFSM::IdleState(float& DeltaSeconds)
 	}
 }
 
-void UPrisonerFSM::MoveState(float& DeltaSeconds){
+void UPrisonerFSM::MoveState(float& DeltaSeconds) {
+	if (HP <= 0)
+		return;
 
 	// 타깃의 목적지
 	FVector destination = Ptarget->GetActorLocation();
@@ -139,22 +143,23 @@ void UPrisonerFSM::MoveState(float& DeltaSeconds){
 	currentTime += DeltaSeconds;
 	if (currentTime > moveDelayTime)
 	{
-		if (dir.Size() < 200 && MyGameModeBase->IsPlayingSequence() == true)
+		if (dir.Size() < 300 && MyGameModeBase->IsPlayingSequence() == true)
 		{
-			SetState(EPrisonerState::BackMove);
+			SetState(EPrisonerState::Move);
 			anim->PanimState = mState;
 		}
 		else
 		{
 			int value = FMath::RandRange(0, 100);
-			if (value < 40)
+			if (value < 95)
 			{
 				if (PrisonerScream)
 				{
 					UGameplayStatics::PlaySound2D(GetWorld(), PrisonerScream);
-					SetState(EPrisonerState::Run);
-					anim->PanimState = mState;
 				}
+				me->Visible();
+				SetState(EPrisonerState::Run);
+				anim->PanimState = mState;
 
 			}
 			else
@@ -179,27 +184,31 @@ void UPrisonerFSM::RunState(float& DeltaSeconds)
 	FVector destination = Ptarget->GetActorLocation();
 	FVector dir = destination - me->GetActorLocation();
 	float dist = me->GetDistanceTo(Ptarget);
-	me->AddMovementInput(dir.GetSafeNormal(), 0.5f);
+	me->AddMovementInput(dir.GetSafeNormal(), 0.7f);
 
 	currentTime += DeltaSeconds;
-	if (currentTime < 5 ) { // 최대 5초내에 player의 근처에 오기 때문에 5초로 설정
+	if (currentTime < 5) { // 최대 5초내에 player의 근처에 오기 때문에 5초로 설정
 		if (dist < 100) {
+			currentTime = 0;
 			if (PrisonerAttack)
 			{
 				UGameplayStatics::PlaySound2D(GetWorld(), PrisonerAttack);
 			}
-				// 오른쪽 공격과 왼쪽 공격을 랜덤하게 나오게 하고 싶다.
-				if (FMath::RandBool()) {
-					SetCollision(true);
-					SetState(EPrisonerState::RightAttack);
-					anim->attack = true;
-				}
-				else {
-					SetCollision(true);
-					SetState(EPrisonerState::LeftAttack);
-					anim->attack = false;
-				}
-			
+			// 오른쪽 공격과 왼쪽 공격을 랜덤하게 나오게 하고 싶다.
+
+			if (FMath::RandBool())
+			{
+				SetCollision(true);
+				SetState(EPrisonerState::RightAttack);
+				anim->attack = true;
+			}
+			else
+			{
+				SetCollision(true);
+				SetState(EPrisonerState::LeftAttack);
+				anim->attack = false;
+			}
+
 			anim->PanimState = mState;
 		}
 
@@ -225,7 +234,7 @@ void UPrisonerFSM::BackMoveState(float& DeltaSeconds)
 
 	// 플레이어의 반대 방향으로 이동
 	FVector backwardDir = -dir.GetSafeNormal();
-	me->AddMovementInput(backwardDir,0.05f);
+	me->AddMovementInput(backwardDir, 0.05f);
 	currentTime += DeltaSeconds;
 	if (currentTime > backmoveDelayTime)
 	{
@@ -249,6 +258,7 @@ void UPrisonerFSM::RightAttackState(float& DeltaSeconds)
 	currentTime += DeltaSeconds;
 	if (currentTime > attackDelayTime)
 	{
+
 		// 펀치를 하고 난 후 다시 이동으로 전이하고 싶다.
 		float dist = me->GetDistanceTo(Ptarget);
 		if (dist < attackDistance)
@@ -266,6 +276,7 @@ void UPrisonerFSM::LeftAttackState(float& DeltaSeconds)
 	currentTime += DeltaSeconds;
 	if (currentTime > attackDelayTime)
 	{
+
 		// 펀치를 하고 난 후 다시 이동으로 전이하고 싶다.
 		float dist = me->GetDistanceTo(Ptarget);
 		if (dist < attackDistance)
@@ -283,31 +294,16 @@ void UPrisonerFSM::DamageState(float& DeltaSeconds)
 	float dis = dir.Size();
 	dir.Normalize();
 
-
-	if (dis < 120) {
-		me->GetCharacterMovement()->Velocity = dir * 2000;
-	}
-
 	currentTime += DeltaSeconds;
-	if (currentTime > damageDelayTime)
+	if (currentTime > anim->damageDelayTime)
 	{
-		if (HP/MaxHp < 0.5f && HP/MaxHp >0)
+		if (HP / MaxHp < 0.5f && HP / MaxHp >0)
 		{
 			SetCollision(false);
 			SetState(EPrisonerState::Faint);
 			anim->PanimState = mState;
 		}
-		else if (HP <= 0)
-		{
-			// 죽음 상태 진입 처리
-			if (APrisoner* Prisoner = Cast<APrisoner>(GetOwner()))
-			{
-				Prisoner->OnDeathStateEntered();
-			}
-			SetCollision(false);
-			SetState(EPrisonerState::Die);
-			anim->PanimState = mState;
-		}
+
 		else
 		{
 			SetState(EPrisonerState::Move);
@@ -333,12 +329,14 @@ void UPrisonerFSM::FaintState(float& DeltaSeconds)
 
 void UPrisonerFSM::DieState(float& DeltaSeconds)
 {
+	SetCollision(false);
+	// capsule 끄고 mesh의 prsset 변경
 }
 
 void UPrisonerFSM::OnPlayerHit()
 {
 	float dist = me->GetDistanceTo(Ptarget);
-	
+
 	if (Ptarget != nullptr)
 	{
 		if (dist < attackDistance)
@@ -363,43 +361,92 @@ void UPrisonerFSM::OnMyTakeDamage(int32 damage)
 // 기절상태에 들어가고 나서 일정 시간이후에 다시 이동 상태로 전이하고 싶다.
 {
 
+
 	if (mState == EPrisonerState::Die || mState == EPrisonerState::Faint)
 	{
 		return;
 	}
-	if (IsAttack() == true)
-	{
-		HP -= 2*damage;
-	}
-	else {
-		HP -= damage;
-	}
+	if (HP <= 0) return;
+
+	HP = FMath::Max(0, HP - damage);
+
+	FVector dir = me->GetActorLocation() - Ptarget->GetActorLocation();
+	float dis = dir.Size();
+	dir.Normalize();
+	me->GetCharacterMovement()->Velocity = dir * 2000 * damage;
+
+	UE_LOG(LogTemp, Warning, TEXT("damage = %d "), damage);
+
+
 	int value = FMath::RandRange(0, 2);
 	UE_LOG(LogTemp, Warning, TEXT("Prisoner Damage!! : Hp = %f"), HP);
 	if (value == 0)
 	{
+		anim->damageInt = 0;
+		anim->damage = false;
 		if (PrisonerDamageSound1)
 		{
-			UGameplayStatics::PlaySound2D(GetWorld(), PrisonerDamageSound1);
+			UGameplayStatics::PlaySoundAtLocation(this, PrisonerDamageSound1, me->GetActorLocation(),1,1,0, PrisonerSA);
+		}
+		if (PrisonerDamageSound)
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, PrisonerDamageSound, me->GetActorLocation(), 1, 1, 0, PrisonerSA);
 		}
 	}
 	else if (value == 1)
 	{
+		anim->damageInt = 1;
+		anim->damage = true;
+
 		if (PrisonerDamageSound2)
 		{
-			UGameplayStatics::PlaySound2D(GetWorld(), PrisonerDamageSound2);
+			UGameplayStatics::PlaySoundAtLocation(this, PrisonerDamageSound2, me->GetActorLocation(), 1, 1, 0, PrisonerSA);
+		}
+		if (PrisonerDamageSound)
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, PrisonerDamageSound2, me->GetActorLocation(), 1, 1, 0, PrisonerSA);
 		}
 	}
 	else
 	{
+		anim->damageInt = 2;
+		anim->damage = false;
 		if (PrisonerDamageSound3)
 		{
-			UGameplayStatics::PlaySound2D(GetWorld(), PrisonerDamageSound3);
+			UGameplayStatics::PlaySoundAtLocation(this, PrisonerDamageSound3, me->GetActorLocation(), 1, 1, 0, PrisonerSA);
+		}
+		if (PrisonerDamageSound)
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, PrisonerDamageSound, me->GetActorLocation(), 1, 1, 0, PrisonerSA);
 		}
 	}
-	SetState(EPrisonerState::Damage);
-	anim->PanimState = mState;
+	if (damage >= 2)
+	{
+		anim->damageDelayTime = 5.0f;
+	}
+	else
+	{
+		anim->damageDelayTime = 1.0f;
+	}
+	if (HP <= 0)
+	{
+		// 죽음 상태 진입 처리
+		if (APrisoner* Prisoner = Cast<APrisoner>(GetOwner()))
+		{
+			Prisoner->OnDeathStateEntered();
+		}
+		SetCollision(false);
+		SetState(EPrisonerState::Die);
+		anim->PanimState = mState;
 
+		me->SetActorEnableCollision(false);
+		me->GetMesh()->SetCollisionProfileName(TEXT("PrisonerDie"));
+	}
+	else
+	{
+		SetState(EPrisonerState::Damage);
+		anim->PanimState = mState;
+	}
 }
 
 void UPrisonerFSM::SetCollision(bool bvalue)
@@ -436,7 +483,7 @@ void UPrisonerFSM::OnMeshBeginOverlap(UPrimitiveComponent* OverlappedComponent, 
 	//}
 }
 
-bool UPrisonerFSM::IsAttack()
+bool UPrisonerFSM::IsCounter()
 {
 	if (mState == EPrisonerState::LeftAttack || mState == EPrisonerState::RightAttack || mState == EPrisonerState::Run)
 	{

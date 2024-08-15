@@ -35,6 +35,26 @@ void UPlayerAnim::NativeUpdateAnimation(float DeltaTime)
     }
 }
 
+void UPlayerAnim::PlayPrisonerAttackMontage()
+{
+    int randIdx = FMath::RandRange(0, PrisonerAttackMotages.Num() - 1);
+    if (randIdx == AttackIndex) randIdx++;
+
+    AttackIndex = randIdx % PrisonerAttackMotages.Num();
+
+    Montage_Play(PrisonerAttackMotages[AttackIndex]);
+}
+
+void UPlayerAnim::PlayBossAttackMontage()
+{
+    int randIdx = FMath::RandRange(0, BossAttackMotages.Num() - 1);
+    if (randIdx == BossAttackIndex) randIdx++;
+
+    BossAttackIndex = randIdx % BossAttackMotages.Num();
+
+    Montage_Play(BossAttackMotages[BossAttackIndex]);
+}
+
 void UPlayerAnim::SetRun(bool bValue)
 {
     bRun = bValue;

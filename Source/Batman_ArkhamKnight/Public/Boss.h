@@ -14,7 +14,7 @@ class BATMAN_ARKHAMKNIGHT_API ABoss : public ACharacter
 public:
 	// Sets default values for this character's properties
 	ABoss();
-
+	FTimerHandle TimeHandle;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -44,4 +44,11 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	bool Damaged = true;
+
+		// 띠링 생성해서 머리위에 배치
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
+	class UWidgetComponent* AttackComp;
+
+	void Visible();
+	void Hide();
 };

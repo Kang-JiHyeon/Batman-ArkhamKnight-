@@ -20,7 +20,8 @@ public:
 
 	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite,Category=PrisonerFSM)
 	bool attack;
-
+	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite,Category=PrisonerFSM)
+	bool damage;
 	virtual void NativeUpdateAnimation(float DeltaSeconds);
 
 	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite,Category=PrisonerFSM)
@@ -38,4 +39,13 @@ public:
 
 	UPROPERTY()
 	class UPrisonerFSM* fsm;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = PrisonerFSM)
+	float damageDelayTime;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = PrisonerFSM)
+	int32 damageInt;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = PrisonerFSM)
+	bool IsCombo;
 };

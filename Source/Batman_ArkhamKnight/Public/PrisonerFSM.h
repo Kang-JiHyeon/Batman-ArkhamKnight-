@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Sound/SoundAttenuation.h"
 #include "PrisonerFSM.generated.h"
 
 UENUM(BlueprintType)
@@ -95,8 +96,7 @@ public:
 
 	// damage
 	void OnMyTakeDamage(int32 damage);
-	UPROPERTY(EditAnywhere,Category= PFSM)
-	float damageDelayTime = 0.5f;
+
 
 	// faint
 	UPROPERTY(EditAnywhere,Category= PFSM)
@@ -106,6 +106,7 @@ public:
 	
 	UPROPERTY(EditAnywhere,Category= PFSM)
 	float MaxHp = 4;
+	UPROPERTY(EditAnywhere,Category= PFSM)
 	float HP;
 
 	// Die
@@ -118,11 +119,13 @@ public:
 	void OnMeshBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	// player에게 attack을 하고 있는 상태를 알리기 위한 함수
-	bool IsAttack();
+	bool IsCounter();
 
 	class APlayerGameModeBase* MyGameModeBase;
 
 	//sound
+	UPROPERTY(EditDefaultsOnly)
+	class USoundBase* PrisonerDamageSound;
 
 	UPROPERTY(EditDefaultsOnly)
 	class USoundBase* PrisonerDamageSound1;
@@ -136,6 +139,9 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	class USoundBase* PrisonerScream;
 
-		UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly)
 	class USoundBase* PrisonerAttack;
+
+	UPROPERTY(EditDefaultsOnly)
+	class USoundAttenuation* PrisonerSA;
 };

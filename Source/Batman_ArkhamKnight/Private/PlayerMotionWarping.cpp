@@ -77,6 +77,21 @@ void UPlayerMotionWarping::AddAndUpdateMotionWarping(EAttackType AttackType)
 	Me->MotionWarpingComp->AddOrUpdateWarpTargetFromLocationAndRotation(GetEnumValue(AttackType), targetLoc, targetRot);
 }
 
+void UPlayerMotionWarping::PlayMotionWarpingToTarget(AActor* OtherActor, float Offset)
+{
+	// 이동할 위치 설정
+	FVector dir = UKismetMathLibrary::GetDirectionUnitVector(OtherActor->GetActorLocation(), Me->GetActorLocation());
+
+	FVector targetLoc = OtherActor->GetActorLocation() + dir * Offset;
+	FVector targetDir = UKismetMathLibrary::GetDirectionUnitVector(Me->GetActorLocation(), targetLoc);
+	// 회전 설정
+	FRotator targetRot = UKismetMathLibrary::MakeRotFromX(targetDir);
+
+	// 모션 워핑 실행
+	Me->MotionWarpingComp->AddOrUpdateWarpTargetFromLocationAndRotation(FName("Hit"), targetLoc, targetRot);
+}
+
+
 FName UPlayerMotionWarping::GetEnumValue(EAttackType AttackType)
 {
 	const UEnum* CharStateEnum = FindObject<UEnum>(ANY_PACKAGE, TEXT("EAttackType"), true);
