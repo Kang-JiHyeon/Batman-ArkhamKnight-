@@ -107,7 +107,7 @@ void ABoss::NotifyActorBeginOverlap(AActor* OtherActor)
 void ABoss::Visible()
 {
 	AttackComp->SetVisibility(true);
-	GetWorld()->GetTimerManager().SetTimer(TimeHandle, this, &ABoss::Hide, 2.0f, false);
+	GetWorld()->GetTimerManager().SetTimer(TimeHandle, this, &ABoss::Hide, 1.4f, false);
 }
 
 void ABoss::Hide()

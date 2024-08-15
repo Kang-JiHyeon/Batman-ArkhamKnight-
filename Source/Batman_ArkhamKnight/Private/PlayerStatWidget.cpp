@@ -4,7 +4,7 @@
 #include "PlayerStatWidget.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
-#include "Components/Image.h"
+#include "Components/CanvasPanel.h"
 
 void UPlayerStatWidget::SetHPBar(const int32 Value, const int32 Max)
 {
@@ -14,7 +14,7 @@ void UPlayerStatWidget::SetHPBar(const int32 Value, const int32 Max)
 
 void UPlayerStatWidget::SetAttackCombo(const int32 Value, const int32 Max)
 {
-    float percent = (float)Value / Max;
+    float percent = FMath::Clamp((float)Value / Max, 0, 1);
 
     ComboGazeBar->SetPercent(percent);
 
@@ -28,6 +28,11 @@ void UPlayerStatWidget::SetAttackCombo(const int32 Value, const int32 Max)
         ComboText->SetText(text);
         ComboText->SetVisibility(ESlateVisibility::Visible);
     }
+
+    FLinearColor color = percent < 1 ? DefaultGaugeColor : ComboGaugeColor;
+    ComboGazeBar->SetFillColorAndOpacity(color);
+    ComboText->SetShadowColorAndOpacity(color);
+
 }
 
 void UPlayerStatWidget::UpdateSkillGauge(const int32 Value, const int32 Max)
@@ -36,11 +41,11 @@ void UPlayerStatWidget::UpdateSkillGauge(const int32 Value, const int32 Max)
 
     if (persent >= 1)
     {
-        SkillActiveImage->SetVisibility(ESlateVisibility::Visible);
+        SkillCanvasPanel->SetVisibility(ESlateVisibility::Visible);
     }
     else
     {
-        SkillActiveImage->SetVisibility(ESlateVisibility::Hidden);
+        SkillCanvasPanel->SetVisibility(ESlateVisibility::Hidden);
     }
 
     UpdateCirculerProgressBar(persent);

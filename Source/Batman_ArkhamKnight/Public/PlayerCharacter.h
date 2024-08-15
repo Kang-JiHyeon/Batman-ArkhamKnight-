@@ -147,7 +147,6 @@ public:
 	// GameMode
 	class APlayerGameModeBase* MyGameModeBase;
 
-
 	// Actor Component
 	// ÁË¼ö °ø°Ý 
 	UPROPERTY()
@@ -168,6 +167,10 @@ public:
 	// Effect
 	UPROPERTY(EditDefaultsOnly)
 	class UPlayerEffectManager* EffectManager;
+
+	// Antidote Detector
+	UPROPERTY(EditDefaultsOnly)
+	class UPlayerAntidoteDetector* AntidoteDetector;
 
 private:
 	// Input

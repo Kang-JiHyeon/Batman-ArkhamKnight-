@@ -48,9 +48,18 @@ void UBossMapMainWidget::UpdateBossHPBar(int32 cur, int32 max)
 void UBossMapMainWidget::VisibleOverUI()
 {
     GameOverWidget->OnMyGameOverUI(true);
+
+    GetWorld()->GetFirstPlayerController()->SetShowMouseCursor(true);
+    
+    UGameplayStatics::SetGamePaused(GetWorld(), true);
 }
 
 void UBossMapMainWidget::BlinkRedUI()
 {
     PlayAnimation(Red);
+}
+
+void UBossMapMainWidget::BlinkRedAllUI()
+{
+    PlayAnimation(RedAll);
 }

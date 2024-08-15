@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Sound/SoundAttenuation.h"
 #include "PrisonerFSM.generated.h"
 
 UENUM(BlueprintType)
@@ -105,6 +106,7 @@ public:
 	
 	UPROPERTY(EditAnywhere,Category= PFSM)
 	float MaxHp = 4;
+	UPROPERTY(EditAnywhere,Category= PFSM)
 	float HP;
 
 	// Die
@@ -122,6 +124,8 @@ public:
 	class APlayerGameModeBase* MyGameModeBase;
 
 	//sound
+	UPROPERTY(EditDefaultsOnly)
+	class USoundBase* PrisonerDamageSound;
 
 	UPROPERTY(EditDefaultsOnly)
 	class USoundBase* PrisonerDamageSound1;
@@ -137,4 +141,7 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	class USoundBase* PrisonerAttack;
+
+	UPROPERTY(EditDefaultsOnly)
+	class USoundAttenuation* PrisonerSA;
 };
