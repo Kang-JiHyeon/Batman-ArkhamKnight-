@@ -13,17 +13,6 @@ enum class EPlayerEffectType
 	SpecialAttack,
 };
 
-USTRUCT()
-struct FEffectInfo
-{
-	GENERATED_USTRUCT_BODY()
-public:
-	UPROPERTY(EditDefaultsOnly)
-	class UNiagaraSystem* NiagaraSystem;
-	UPROPERTY(EditDefaultsOnly)
-	float Scale = 1;
-};
-
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class BATMAN_ARKHAMKNIGHT_API UPlayerEffectManager : public UActorComponent
 {
@@ -40,15 +29,15 @@ protected:
 private:
 
 	UPROPERTY(EditDefaultsOnly)
-	TArray<FEffectInfo> DefaultAttackEffect;
+	TArray<class UNiagaraSystem*> DefaultAttackEffect;
 
 	UPROPERTY(EditDefaultsOnly)
-	TArray<FEffectInfo> SpecialAttackEffect;
+	TArray<class UNiagaraSystem*> SpecialAttackEffect;
 
 public:
 	void SpawnEffectAtLocation(EPlayerEffectType EffectType, FVector SpawnLocation, FRotator SpawnRotation);
 
 private:
-	void SpawnEffect(TArray<FEffectInfo> Effects, FVector SpawnLocation, FRotator SpawnRotation);
+	void SpawnEffect(TArray<class UNiagaraSystem*> Effects, FVector SpawnLocation, FRotator SpawnRotation);
 
 };

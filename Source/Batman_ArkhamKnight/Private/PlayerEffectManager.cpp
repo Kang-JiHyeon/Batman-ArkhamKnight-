@@ -39,15 +39,15 @@ void UPlayerEffectManager::SpawnEffectAtLocation(EPlayerEffectType EffectType, F
 	}
 }
 
-void UPlayerEffectManager::SpawnEffect(TArray<FEffectInfo> Effects, FVector SpawnLocation, FRotator SpawnRotation)
+void UPlayerEffectManager::SpawnEffect(TArray<class UNiagaraSystem*> Effects, FVector SpawnLocation, FRotator SpawnRotation)
 {
 	if (Effects.Num() <= 0) return;
 
 	for (auto effect : Effects)
 	{
-		if (effect.NiagaraSystem == nullptr) continue;
+		if (effect == nullptr) continue;
 
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), effect.NiagaraSystem, SpawnLocation, SpawnRotation, FVector(effect.Scale));
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), effect, SpawnLocation, SpawnRotation);
 	}
 }
 
