@@ -415,7 +415,8 @@ void APlayerCharacter::OnTakeDamage(AActor* OtherActor, int32 Damage)
 		// 일정 시간 뒤 Damage 상태 해제
 		GetWorld()->GetTimerManager().SetTimer(DamageTimerHandler, this, &APlayerCharacter::OnEndDamage, DamageIdleTime, false);
 
-		UE_LOG(LogTemp, Warning, TEXT("Player Damage!! : Hp = %d"), HP);
+		// UI 애니메이션 재생
+		MyGameModeBase->MainWidget->BlinkRedAllUI();
 	}
 	// Die 처리
 	else

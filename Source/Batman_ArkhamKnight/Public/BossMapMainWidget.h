@@ -43,7 +43,11 @@ public:
 	UPROPERTY(BlueprintReadOnly,Transient,meta = (BindWidgetAnim))
 	class UWidgetAnimation* Red;
 
+	UPROPERTY(BlueprintReadOnly,Transient,meta = (BindWidgetAnim))
+	class UWidgetAnimation* RedAll;
+
 	UFUNCTION()
 	void BlinkRedUI();
-	void SetRedUI();
+	void BlinkRedAllUI();
+
 };
