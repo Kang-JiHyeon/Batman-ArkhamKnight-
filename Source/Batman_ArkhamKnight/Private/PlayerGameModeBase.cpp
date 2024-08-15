@@ -40,6 +40,23 @@ void APlayerGameModeBase::CreateLevelSequencePlayer()
 	}
 }
 
+void APlayerGameModeBase::CreateAntidoteDetector()
+{
+	if (AntidoteFactory == nullptr) return;
+
+	// 해독제 오브젝트를 찾는다.
+	TArray<AActor*> Antidotes;
+	UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("Antidote"), Antidotes);
+
+	// 해독제 오브젝트 위치에 감지 생성
+	if (Antidotes.Num() <= 0) return;
+
+	for (auto antidote : Antidotes)
+	{
+		GetWorld()->SpawnActor<AActor>(AntidoteFactory, antidote->GetActorLocation(), antidote->GetActorRotation());
+	}
+}
+
 void APlayerGameModeBase::PlaySequence(int32 Index)
 {
 	if (SkillLevelSequences.Num() <= 0 || SkillLevelSequences.Num() <= Index) return;
@@ -76,11 +93,16 @@ void APlayerGameModeBase::CheckAllEnemiesDead()
 	if (DeadEnemies >= TotalEnemies)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("All enemies are dead. Game Over!"));
-		GetWorld()->GetTimerManager().SetTimer(VisibleUITimeHandle, this, &APlayerGameModeBase::VisibleUI, 5.0f, false);
+
+		CreateAntidoteDetector();
+		//GetWorld()->GetTimerManager().SetTimer(VisibleUITimeHandle, this, &APlayerGameModeBase::VisibleUI, 5.0f, false);
 	}
 }
 
 void APlayerGameModeBase::VisibleUI()
 {
+
 	MainWidget->VisibleOverUI();
 }
+
+

@@ -36,18 +36,23 @@ public:
     FPlayerGameModeBaseOnStartedLevelSequence OnStartedLevelSequence;
 
 private:
-
     // Level Sequence
     FMovieSceneSequencePlaybackSettings Settings;
 
     UPROPERTY(EditDefaultsOnly)
     TArray<FSkillLevelSequence> SkillLevelSequences;
 
-
     // Main Widget
     UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<class UUserWidget> MainWidgetFactory;
 
+    //// Main Widget
+    //UPROPERTY(EditDefaultsOnly)
+    //TSubclassOf<class UUserWidget> MainWidgetFactory;
+
+    // Antidote
+    UPROPERTY(EditDefaultsOnly)
+    TSubclassOf<class AActor> AntidoteFactory;
 
 public:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
@@ -63,6 +68,7 @@ public:
 
 private:
     void CreateLevelSequencePlayer();
+    void CreateAntidoteDetector();
 
 public:
     void PlaySequence(int32 Index);
