@@ -7,6 +7,7 @@
 #include "BossHP.h"
 #include "BossGameOverWidget.h"
 #include "Kismet/GameplayStatics.h"
+#include "Animation/WidgetAnimation.h"
 
 void UBossMapMainWidget::NativeConstruct()
 {
@@ -49,7 +50,7 @@ void UBossMapMainWidget::VisibleOverUI()
     GameOverWidget->OnMyGameOverUI(true);
 }
 
-void UBossMapMainWidget::SetRedUI()
+void UBossMapMainWidget::BlinkRedUI()
 {
-    BossHPWidget->SetRedBossHPBar(FLinearColor::Red);
+    PlayAnimation(Red);
 }

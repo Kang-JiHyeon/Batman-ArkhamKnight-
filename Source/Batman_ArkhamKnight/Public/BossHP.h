@@ -14,11 +14,18 @@ class BATMAN_ARKHAMKNIGHT_API UBossHP : public UUserWidget
 {
 	GENERATED_BODY()
 private:
-	FTimerHandle HideBossHPTimerHandle;
-	FTimerHandle Timehandle;
+	FTimerHandle HPTimerHandle1;
+	FTimerHandle HPTimerHandle2;
+
+private:
+	int32 CurrentHP;
+	int32 MaxHP;
 public:
 	UPROPERTY(meta=(BIndWidget))
 	class UProgressBar* BossHPBar;
+
+	UPROPERTY(meta=(BIndWidget))
+	class UProgressBar* BossHpDelayBar;
 
 	UPROPERTY(meta = (BIndWidget))
 	class UCanvasPanel* BossHPCanvas;
@@ -28,12 +35,6 @@ public:
 
 	void HideBossHP();
 	float currentTime = 0;
-	
-	FLinearColor OriginalColor;
 
-	void SetRedBossHPBar(FLinearColor color);
-
-	void BackOriginalColor();
-
-
+	void HideRedBossHP();
 };

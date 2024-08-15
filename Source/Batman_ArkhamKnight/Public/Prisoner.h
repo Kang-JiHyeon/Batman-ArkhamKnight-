@@ -16,6 +16,8 @@ public:
 	APrisoner();
 	// FSM에서 죽음 상태로 전환될 때 호출되는 함수
 	void OnDeathStateEntered();
+
+	FTimerHandle TimeHandle;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -35,4 +37,11 @@ public:
 
 	bool IsAttackable();
 	
+	// 띠링 생성해서 머리위에 배치
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	class UWidgetComponent* AttackComp;
+
+	void Visible();
+	void Hide();
+
 };
