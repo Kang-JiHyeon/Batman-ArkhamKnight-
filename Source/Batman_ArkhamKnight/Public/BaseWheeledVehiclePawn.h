@@ -140,6 +140,8 @@ class BATMAN_ARKHAMKNIGHT_API ABaseWheeledVehiclePawn : public AWheeledVehiclePa
 	
 	FVector TargetLocation;
 	float TargetDistance;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "LockOn", meta = (AllowPrivateAccess = "true"))
 	bool bIsLockOn;
 	
 	//* Battle Mode Machine Gun Timer */
@@ -152,9 +154,9 @@ class BATMAN_ARKHAMKNIGHT_API ABaseWheeledVehiclePawn : public AWheeledVehiclePa
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="MachineGun", meta=(AllowPrivateAccess="true"))
 	float MachineGunFireRate = 0.15f;
 
-	//* Spawn Possess Character Class */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "PossessCharacter", meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<ACharacter> PossessCharacterClass;
+	//* Stat */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "HP", meta = (AllowPrivateAccess = "true"))
+	float HP = 100.f;
 
 public:
 	ABaseWheeledVehiclePawn();
@@ -195,8 +197,10 @@ public:
 
 	void FireMachineGun();										// * Fire Machine Gun */
 
-	UFUNCTION(BlueprintImplementableEvent)
-	void PossessBatman();										// * Posses Batman */
+	void OnDamage(float Amount);								// * Damage */
+
+	FORCEINLINE float GetHP() const { return HP; }
+	FORCEINLINE bool GetIsLockOn() const { return bIsLockOn; }
 	
 	UFUNCTION()
 	void OnComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);

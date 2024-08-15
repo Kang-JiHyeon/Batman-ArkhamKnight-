@@ -5,11 +5,11 @@
 
 #include "BaseWheeledVehiclePawn.h"
 #include "Missile.h"
-#include "PlayerCharacter.h"
 #include "Components/ArrowComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/SplineComponent.h"
 #include "Components/TimelineComponent.h"
+#include "Components/WidgetComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "PhysicsEngine/RadialForceComponent.h"
@@ -33,6 +33,9 @@ AVehicleEnemy::AVehicleEnemy()
 	Collision->SetRelativeLocation(FVector(10.f, 0.f, 60.f));
 	Collision->SetBoxExtent(FVector(230.f,110.f,54.f));
 
+	LockOnWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("LockOnWidgetComponent"));
+	LockOnWidgetComponent->SetupAttachment(RootComponent);
+
 	VehicleMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("VehicleMesh"));
 	VehicleMesh->SetupAttachment(Collision);
 
@@ -55,6 +58,8 @@ void AVehicleEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 
+	BatMobile = Cast<ABaseWheeledVehiclePawn>(GetWorld() -> GetFirstPlayerController());
+	LockOnWidget = LockOnWidgetComponent -> GetWidget();
 	TrackSpline = TrackActor -> GetComponentByClass<USplineComponent>();
 	OnSplineTimeline -> AddInterpFloat(TrackCurveFloat, MoveOnSpline);
 	OnSplineTimeline -> SetLooping(true);
@@ -76,7 +81,7 @@ void AVehicleEnemy::BeginPlay()
 void AVehicleEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	WidgetBilboard();
 }
 
 void AVehicleEnemy::Move()
@@ -118,9 +123,15 @@ void AVehicleEnemy::OnDamage(int Amount)
 				UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.f);
 			}),
 			.1f,false, 1.f);
-		/*GetWorld() -> GetTimerManager().ClearTimer(TimeSleepHandle);
-		GetWorld() -> GetTimerManager().SetTimer(TimeSleepHandle, this, &AVehicleEnemy::PossessBatman, .1f, false, 1.f);*/
 	}
 }
 
+void AVehicleEnemy::WidgetBilboard()
+{
+	FVector camLoc = GetWorld() -> GetFirstPlayerController() -> PlayerCameraManager -> GetCameraLocation();
+	FVector dir = camLoc - LockOnWidgetComponent -> GetComponentLocation();
+	dir.Normalize();
+	FRotator rot = dir.ToOrientationRotator();
+	LockOnWidgetComponent -> SetWorldRotation(rot);
+}
 

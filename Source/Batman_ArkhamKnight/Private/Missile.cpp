@@ -116,6 +116,7 @@ void AMissile::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 	else if(ABaseWheeledVehiclePawn* BatMobile = Cast<ABaseWheeledVehiclePawn>(OtherActor))
 	{
 		UKismetSystemLibrary::PrintString(GetWorld(), TEXT("BatMobile Hit"));
+		BatMobile -> OnDamage(10);
 		UGameplayStatics::GetPlayerController(GetWorld(), 0) -> PlayerCameraManager -> PlayWorldCameraShake(GetWorld(), DamageCameraShake, GetActorLocation(), 10.f, 1000.f, 1.f, false);
 		Destroy();
 	}
