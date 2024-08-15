@@ -83,6 +83,10 @@ bool APrisoner::IsAttackable()
 
 void APrisoner::Visible()
 {
+	if (fsm->mState == EPrisonerState::Die || fsm->mState == EPrisonerState::Die)
+	{
+		return;
+	}
 	AttackComp->SetVisibility(true);
 	GetWorld()->GetTimerManager().SetTimer(TimeHandle,this, &APrisoner::Hide, 2.0f, false);
 }

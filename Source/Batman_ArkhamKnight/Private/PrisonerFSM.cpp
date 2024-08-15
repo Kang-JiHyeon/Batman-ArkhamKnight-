@@ -38,7 +38,7 @@ void UPrisonerFSM::BeginPlay()
 
 	// HP
 	HP = MaxHp;
-	
+
 	me->GetMesh()->OnComponentBeginOverlap.AddDynamic(this, &UPrisonerFSM::OnMeshBeginOverlap);
 	SetCollision(false);
 
@@ -131,7 +131,9 @@ void UPrisonerFSM::IdleState(float& DeltaSeconds)
 	}
 }
 
-void UPrisonerFSM::MoveState(float& DeltaSeconds){
+void UPrisonerFSM::MoveState(float& DeltaSeconds) {
+	if (HP <= 0)
+		return;
 
 	// 타깃의 목적지
 	FVector destination = Ptarget->GetActorLocation();
@@ -149,7 +151,7 @@ void UPrisonerFSM::MoveState(float& DeltaSeconds){
 		else
 		{
 			int value = FMath::RandRange(0, 100);
-			if (value < 60)
+			if (value < 95)
 			{
 				if (PrisonerScream)
 				{
@@ -185,7 +187,7 @@ void UPrisonerFSM::RunState(float& DeltaSeconds)
 	me->AddMovementInput(dir.GetSafeNormal(), 0.7f);
 
 	currentTime += DeltaSeconds;
-	if (currentTime < 5 ) { // 최대 5초내에 player의 근처에 오기 때문에 5초로 설정
+	if (currentTime < 5) { // 최대 5초내에 player의 근처에 오기 때문에 5초로 설정
 		if (dist < 100) {
 			currentTime = 0;
 			if (PrisonerAttack)
@@ -193,8 +195,8 @@ void UPrisonerFSM::RunState(float& DeltaSeconds)
 				UGameplayStatics::PlaySound2D(GetWorld(), PrisonerAttack);
 			}
 			// 오른쪽 공격과 왼쪽 공격을 랜덤하게 나오게 하고 싶다.
-			
-			if (FMath::RandBool()) 
+
+			if (FMath::RandBool())
 			{
 				SetCollision(true);
 				SetState(EPrisonerState::RightAttack);
@@ -206,7 +208,7 @@ void UPrisonerFSM::RunState(float& DeltaSeconds)
 				SetState(EPrisonerState::LeftAttack);
 				anim->attack = false;
 			}
-			
+
 			anim->PanimState = mState;
 		}
 
@@ -232,7 +234,7 @@ void UPrisonerFSM::BackMoveState(float& DeltaSeconds)
 
 	// 플레이어의 반대 방향으로 이동
 	FVector backwardDir = -dir.GetSafeNormal();
-	me->AddMovementInput(backwardDir,0.05f);
+	me->AddMovementInput(backwardDir, 0.05f);
 	currentTime += DeltaSeconds;
 	if (currentTime > backmoveDelayTime)
 	{
@@ -295,7 +297,7 @@ void UPrisonerFSM::DamageState(float& DeltaSeconds)
 	currentTime += DeltaSeconds;
 	if (currentTime > anim->damageDelayTime)
 	{
-		if (HP/MaxHp < 0.5f && HP/MaxHp >0)
+		if (HP / MaxHp < 0.5f && HP / MaxHp >0)
 		{
 			SetCollision(false);
 			SetState(EPrisonerState::Faint);
@@ -328,12 +330,13 @@ void UPrisonerFSM::FaintState(float& DeltaSeconds)
 void UPrisonerFSM::DieState(float& DeltaSeconds)
 {
 	SetCollision(false);
+	// capsule 끄고 mesh의 prsset 변경
 }
 
 void UPrisonerFSM::OnPlayerHit()
 {
 	float dist = me->GetDistanceTo(Ptarget);
-	
+
 	if (Ptarget != nullptr)
 	{
 		if (dist < attackDistance)
@@ -383,7 +386,11 @@ void UPrisonerFSM::OnMyTakeDamage(int32 damage)
 		anim->damage = false;
 		if (PrisonerDamageSound1)
 		{
-			UGameplayStatics::PlaySound2D(GetWorld(), PrisonerDamageSound1);
+			UGameplayStatics::PlaySoundAtLocation(this, PrisonerDamageSound1, me->GetActorLocation(),1,1,0, PrisonerSA);
+		}
+		if (PrisonerDamageSound)
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, PrisonerDamageSound, me->GetActorLocation(), 1, 1, 0, PrisonerSA);
 		}
 	}
 	else if (value == 1)
@@ -393,7 +400,11 @@ void UPrisonerFSM::OnMyTakeDamage(int32 damage)
 
 		if (PrisonerDamageSound2)
 		{
-			UGameplayStatics::PlaySound2D(GetWorld(), PrisonerDamageSound2);
+			UGameplayStatics::PlaySoundAtLocation(this, PrisonerDamageSound2, me->GetActorLocation(), 1, 1, 0, PrisonerSA);
+		}
+		if (PrisonerDamageSound)
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, PrisonerDamageSound2, me->GetActorLocation(), 1, 1, 0, PrisonerSA);
 		}
 	}
 	else
@@ -402,10 +413,14 @@ void UPrisonerFSM::OnMyTakeDamage(int32 damage)
 		anim->damage = false;
 		if (PrisonerDamageSound3)
 		{
-			UGameplayStatics::PlaySound2D(GetWorld(), PrisonerDamageSound3);
+			UGameplayStatics::PlaySoundAtLocation(this, PrisonerDamageSound3, me->GetActorLocation(), 1, 1, 0, PrisonerSA);
+		}
+		if (PrisonerDamageSound)
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, PrisonerDamageSound, me->GetActorLocation(), 1, 1, 0, PrisonerSA);
 		}
 	}
-	if (damage >= 3) 
+	if (damage >= 2)
 	{
 		anim->damageDelayTime = 5.0f;
 	}
@@ -423,6 +438,9 @@ void UPrisonerFSM::OnMyTakeDamage(int32 damage)
 		SetCollision(false);
 		SetState(EPrisonerState::Die);
 		anim->PanimState = mState;
+
+		me->SetActorEnableCollision(false);
+		me->GetMesh()->SetCollisionProfileName(TEXT("PrisonerDie"));
 	}
 	else
 	{
