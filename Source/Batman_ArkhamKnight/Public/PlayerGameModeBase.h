@@ -76,5 +76,4 @@ public:
 
     void VisibleUI();
 
-
 };
