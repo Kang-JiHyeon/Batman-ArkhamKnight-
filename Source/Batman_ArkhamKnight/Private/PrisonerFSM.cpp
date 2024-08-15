@@ -51,8 +51,8 @@ void UPrisonerFSM::BeginPlay()
 void UPrisonerFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	//FString myState = UEnum::GetValueAsString(mState);
-	//DrawDebugString(GetWorld(), GetOwner()->GetActorLocation(), myState, nullptr, FColor::Yellow, 0);
+	FString myState = UEnum::GetValueAsString(mState);
+	DrawDebugString(GetWorld(), GetOwner()->GetActorLocation(), myState, nullptr, FColor::Yellow, 0);
 	switch (mState)
 	{
 	case EPrisonerState::Idle:
@@ -83,8 +83,6 @@ void UPrisonerFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 		DieState(DeltaTime);
 		break;
 	}
-	//FString logMsg = UEnum::GetValueAsString(mState);
-	//GEngine->AddOnScreenDebugMessage(0, 1, FColor::Cyan, logMsg);
 }
 
 void UPrisonerFSM::SetState(EPrisonerState NextState)
@@ -303,7 +301,12 @@ void UPrisonerFSM::DamageState(float& DeltaSeconds)
 			SetState(EPrisonerState::Faint);
 			anim->PanimState = mState;
 		}
-
+		else if (HP <= 0)
+		{
+			SetCollision(false);
+			SetState(EPrisonerState::Die);
+			anim->PanimState = mState;
+		}
 		else
 		{
 			SetState(EPrisonerState::Move);
