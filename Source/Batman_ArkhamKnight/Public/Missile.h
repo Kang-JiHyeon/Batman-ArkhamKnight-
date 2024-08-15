@@ -13,7 +13,7 @@
 
 class USkeletalMeshComponent;
 class UCameraShakeBase;
-class UCapsuleComponent;
+class UBoxComponent;
 class UParticleSystem;
 
 struct FTimerHandle;
@@ -24,7 +24,7 @@ class BATMAN_ARKHAMKNIGHT_API AMissile : public AActor
 	GENERATED_BODY()
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Collision", meta = (AllowPrivateAccess = "true"))
-	UCapsuleComponent* MissileCollision;
+	UBoxComponent* MissileCollision;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "MissileMesh", meta = (AllowPrivateAccess = "true"))
 	USkeletalMeshComponent* MissileMesh;

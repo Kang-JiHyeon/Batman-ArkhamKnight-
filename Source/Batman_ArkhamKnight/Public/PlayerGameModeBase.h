@@ -25,7 +25,7 @@ DECLARE_MULTICAST_DELEGATE(FPlayerGameModeBaseOnStartedLevelSequence);
 UCLASS()
 class BATMAN_ARKHAMKNIGHT_API APlayerGameModeBase : public AGameModeBase
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 private:
     FTimerHandle VisibleUITimeHandle;
 	
@@ -44,7 +44,7 @@ private:
 
     // Main Widget
     UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<class UUserWidget> MainWidgetFactory;
+    TSubclassOf<class UUserWidget> MainWidgetFactory;
 
     //// Main Widget
     //UPROPERTY(EditDefaultsOnly)

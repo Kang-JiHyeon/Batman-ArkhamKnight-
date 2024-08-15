@@ -17,7 +17,9 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "NiagaraComponent.h"
 #include "NiagaraSystem.h"
+#include "VehicleEnemy.h"
 #include "Components/AudioComponent.h"
+#include "Components/WidgetComponent.h"
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -112,18 +114,45 @@ void ABaseWheeledVehiclePawn::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	GetMesh() -> SetAngularDamping(UKismetMathLibrary::SelectFloat(0, 3, ChaosVehicleMovementComponent -> IsMovingOnGround()));
+
+	FHitResult HitResult;
+
+	FVector start = BackCamera -> GetComponentLocation();
+	FVector end = start + BackCamera -> GetForwardVector() * 10000;
+	
+	GetWorld() -> LineTraceSingleByChannel(HitResult, start, end, ECollisionChannel::ECC_Visibility);
+
+	if(HitResult.bBlockingHit)
+	{
+		TargetPoint = HitResult.Location;
+	}
+	else
+	{
+		TargetPoint = end;
+	}
+	\
+	FRotator rot = UKismetMathLibrary::FindLookAtRotation(MachineGun -> GetComponentLocation(), TargetPoint);
+	MachineGun -> SetWorldRotation(rot);
 	
 	if(TargetActor)
 	{
-		TargetLocation = TargetActor -> GetActorLocation();
-		TargetDistance = UKismetMathLibrary::Vector_Distance(TargetLocation, GetActorLocation());
-	}
+		AVehicleEnemy* Enemy = Cast<AVehicleEnemy>(TargetActor);
 
-	if(TargetDistance >= 20000.f)
-	{
-		bIsLockOn = false;
-		TargetActor = nullptr;
+		if(Enemy)
+		{
+			TargetLocation = TargetActor -> GetActorLocation();
+			TargetDistance = UKismetMathLibrary::Vector_Distance(TargetLocation, GetActorLocation());
+			Enemy -> GetLockOnWidgetComponent() -> SetVisibility(true);
+		}
+
+		if(TargetDistance >= 10000.f)
+		{
+			Enemy -> GetLockOnWidgetComponent() -> SetVisibility(false);
+			bIsLockOn = false;
+			TargetActor = nullptr;
+		}
 	}
+	
 }
 
 void ABaseWheeledVehiclePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -255,7 +284,7 @@ void ABaseWheeledVehiclePawn::LockOn(const FInputActionValue& Value)
 	FHitResult HitResult;
 	FVector Start = GetActorLocation() + FVector(700.f, 0.f, 200.f);
 	FVector End = Start + GetActorForwardVector() * 10000;
-	bool bHit = UKismetSystemLibrary::SphereTraceSingleForObjects(GetWorld(), Start, End, 800.f, TArray<TEnumAsByte<EObjectTypeQuery>>{UEngineTypes::ConvertToObjectType(ECC_Pawn)}, false, TArray<AActor*>{this}, EDrawDebugTrace::None, HitResult, true, FLinearColor::Red, FLinearColor::Green, 1.f);
+	bool bHit = UKismetSystemLibrary::SphereTraceSingleForObjects(GetWorld(), Start, End, 1600.f, TArray<TEnumAsByte<EObjectTypeQuery>>{UEngineTypes::ConvertToObjectType(ECC_Pawn)}, false, TArray<AActor*>{this}, EDrawDebugTrace::None, HitResult, true, FLinearColor::Red, FLinearColor::Green, 1.f);
 
 	if(bHit)
 	{
@@ -287,6 +316,8 @@ void ABaseWheeledVehiclePawn::Shot(const FInputActionValue& Value)
 	if(bIsLockOn)
 	{
 		FireMissile();
+		AVehicleEnemy* Enemy = Cast<AVehicleEnemy>(TargetActor);
+		Enemy -> GetLockOnWidgetComponent() -> SetVisibility(false);
 		TargetActor = nullptr;
 		bIsLockOn = false;
 	}
@@ -305,6 +336,14 @@ void ABaseWheeledVehiclePawn::FireMachineGun()
 
 void ABaseWheeledVehiclePawn::OnComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
 {
-	UKismetSystemLibrary::PrintString(GetWorld(), TEXT("Hit"));
 	GetWorld() -> GetFirstPlayerController() -> PlayerCameraManager -> PlayWorldCameraShake(GetWorld(), CrackCameraShake, GetActorLocation(), 10.f, 1000.f, 1.f, false);
+}
+
+void ABaseWheeledVehiclePawn::OnDamage(float Amount)
+{
+	HP -= Amount;
+	if(HP <= 0)
+	{
+		UKismetSystemLibrary::PrintString(GetWorld(), TEXT("Dead"));
+	}
 }

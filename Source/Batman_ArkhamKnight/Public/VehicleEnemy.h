@@ -12,6 +12,8 @@
  *	Last Modified : 2024-08-08
  */
 
+class ABaseWheeledVehiclePawn;
+class UWidgetComponent;
 class URadialForceComponent;
 class UArrowComponent;
 class USplineComponent;
@@ -37,6 +39,12 @@ class BATMAN_ARKHAMKNIGHT_API AVehicleEnemy : public AActor
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VehicleMesh", meta = (AllowPrivateAccess = "true"))
 	USkeletalMeshComponent* VehicleMesh;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LockOnWidget", meta = (AllowPrivateAccess = "true"))
+	UUserWidget* LockOnWidget;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LockOnWidget", meta = (AllowPrivateAccess = "true"))
+	UWidgetComponent* LockOnWidgetComponent;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "MissileSpawnLocation", meta = (AllowPrivateAccess = "true"))
 	UArrowComponent* MissileSpawnLocation;
@@ -71,13 +79,6 @@ class BATMAN_ARKHAMKNIGHT_API AVehicleEnemy : public AActor
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Speed", meta = (AllowPrivateAccess = "true"))
 	float TimeToCompleteTrack = 30.f;
 
-	//* Possess Character */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "PossessCharacter", meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<APlayerCharacter> PossessCharacterClass;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "PossessCharacter", meta = (AllowPrivateAccess = "true"))
-	APlayerCharacter* PossessCharacter;
-
 	// * Stat */
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Health", meta = (AllowPrivateAccess = "true"))
@@ -88,6 +89,9 @@ class BATMAN_ARKHAMKNIGHT_API AVehicleEnemy : public AActor
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attackable", meta = (AllowPrivateAccess = "true"))
 	bool bIsAttackAble = true;
+
+	UPROPERTY()
+	ABaseWheeledVehiclePawn* BatMobile;
 	
 public:	
 	// Sets default values for this actor's properties
@@ -106,9 +110,11 @@ public:
 
 	void FireMissile();
 	void OnDamage(int Amount);
+	void WidgetBilboard();
 	
 	//void PossessBatman();
 	
 	FORCEINLINE void SetHealth(int NewHealth) { Health = NewHealth; }
 	FORCEINLINE int GetHealth() const { return Health; }
+	FORCEINLINE UWidgetComponent* GetLockOnWidgetComponent() const { return LockOnWidgetComponent; }
 };
