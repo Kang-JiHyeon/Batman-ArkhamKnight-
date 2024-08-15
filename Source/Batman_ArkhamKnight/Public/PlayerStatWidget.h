@@ -24,8 +24,15 @@ public:
 	UPROPERTY(meta=(BindWidget))
 	class UTextBlock* ComboText;
 
+	UPROPERTY(EditDefaultsOnly)
+	FLinearColor DefaultGaugeColor;
+	UPROPERTY(EditDefaultsOnly)
+	FLinearColor ComboGaugeColor;
+
+
+
 	UPROPERTY(meta=(BindWidget))
-	class UImage* SkillActiveImage;
+	class UCanvasPanel* SkillCanvasPanel;
 
 	void SetHPBar(const int32 Value, const int32 Max);
 	void SetAttackCombo(const int32 Value, const int32 Max);
