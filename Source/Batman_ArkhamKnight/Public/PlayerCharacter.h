@@ -187,7 +187,7 @@ private:
 	void OnActionBossAttack(const FInputActionValue& Value);
 
 	// Move
-	bool IsLockedMove() const;
+	bool IsLockedAction() const;
 
 	// Find Target
 	APrisoner* FindTargetPrisoner();

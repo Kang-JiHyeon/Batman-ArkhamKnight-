@@ -143,7 +143,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 void APlayerCharacter::OnActionMove(const FInputActionValue& Value)
 {
-	if (IsLockedMove())	return;
+	if (IsLockedAction())	return;
 
 	FVector2D v = Value.Get<FVector2D>();
 
@@ -174,7 +174,7 @@ void APlayerCharacter::OnActionLook(const FInputActionValue& Value)
 /// <param name="Value"></param>
 void APlayerCharacter::OnActionDodge(const FInputActionValue& Value)
 {
-	if(bMoveInputPressed == false || IsLockedMove()) return;
+	if(bMoveInputPressed == false || IsLockedAction()) return;
 
 	float currtime = GetWorld()->GetTimeSeconds();
 
@@ -200,7 +200,7 @@ void APlayerCharacter::OnActionDodge(const FInputActionValue& Value)
 /// <param name="Value"></param>
 void APlayerCharacter::OnActionAttack(const FInputActionValue& Value)
 {
-	if (IsLockedMove())
+	if (IsLockedAction())
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("이미 이동 중이여서 공격 대상으로 이동할 수 없습니다."));
 		return;
@@ -236,7 +236,7 @@ void APlayerCharacter::OnActionBossAttack(const FInputActionValue& Value)
 {
 	if (TargetBoss == nullptr) return;
 	if (TargetBoss->fsm->mState == EBossState::Die) return;
-	if(IsLockedMove()) return;
+	if(IsLockedAction()) return;
 	//if(SkillCombo < MaxSkillCombo) return;
 
 	// 몽타주 재생
@@ -252,12 +252,12 @@ void APlayerCharacter::OnActionBossAttack(const FInputActionValue& Value)
 	PlayerAnim->SetIgnoreAttack(false);
 }
 
-bool APlayerCharacter::IsLockedMove() const
+bool APlayerCharacter::IsLockedAction() const
 {
+	if (MyGameModeBase == nullptr || PlayerAnim == nullptr) return false;
+	
 	bool bIsMontagePlaying = PlayerAnim->IsAnyMontagePlaying();
-
 	return bDamageState || PlayerAnim->bDodge || bIsMontagePlaying || MyGameModeBase->IsPlayingSequence();
-
 }
 
 APrisoner* APlayerCharacter::FindTargetPrisoner()
@@ -383,8 +383,7 @@ void APlayerCharacter::OnPlayMotionWarping(EAttackType AttackType)
 void APlayerCharacter::OnTakeDamage(AActor* OtherActor, int32 Damage)
 {
 	if(HP <= 0) return;
-	if(bDamageState) return;
-	if(MyGameModeBase->IsPlayingSequence()) return;
+	if(IsLockedAction()) return;
 
 	SetHP(HP-Damage);
 	
