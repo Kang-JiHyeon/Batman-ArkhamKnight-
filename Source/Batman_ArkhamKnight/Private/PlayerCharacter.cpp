@@ -23,6 +23,7 @@
 #include "Components/AudioComponent.h"
 #include "PlayerEffectManager.h"
 #include "PlayerAntidoteDetector.h"
+#include "PlayerCameraShake.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -65,6 +66,9 @@ APlayerCharacter::APlayerCharacter()
 
 	// 해독제 감지
 	AntidoteDetector = CreateDefaultSubobject<UPlayerAntidoteDetector>(TEXT("AntidoteDetector"));
+
+	// 카메라 쉐이크
+	CameraShake = CreateDefaultSubobject<UPlayerCameraShake>(TEXT("CameraShake"));
 }
 
 // Called when the game starts or when spawned
@@ -139,7 +143,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 void APlayerCharacter::OnActionMove(const FInputActionValue& Value)
 {
-	if (IsLockedMove())	return;
+	if (IsLockedAction())	return;
 
 	FVector2D v = Value.Get<FVector2D>();
 
@@ -170,7 +174,7 @@ void APlayerCharacter::OnActionLook(const FInputActionValue& Value)
 /// <param name="Value"></param>
 void APlayerCharacter::OnActionDodge(const FInputActionValue& Value)
 {
-	if(bMoveInputPressed == false || IsLockedMove()) return;
+	if(bMoveInputPressed == false || IsLockedAction()) return;
 
 	float currtime = GetWorld()->GetTimeSeconds();
 
@@ -196,7 +200,7 @@ void APlayerCharacter::OnActionDodge(const FInputActionValue& Value)
 /// <param name="Value"></param>
 void APlayerCharacter::OnActionAttack(const FInputActionValue& Value)
 {
-	if (IsLockedMove())
+	if (IsLockedAction())
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("이미 이동 중이여서 공격 대상으로 이동할 수 없습니다."));
 		return;
@@ -232,7 +236,7 @@ void APlayerCharacter::OnActionBossAttack(const FInputActionValue& Value)
 {
 	if (TargetBoss == nullptr) return;
 	if (TargetBoss->fsm->mState == EBossState::Die) return;
-	if(IsLockedMove()) return;
+	if(IsLockedAction()) return;
 	//if(SkillCombo < MaxSkillCombo) return;
 
 	// 몽타주 재생
@@ -248,12 +252,12 @@ void APlayerCharacter::OnActionBossAttack(const FInputActionValue& Value)
 	PlayerAnim->SetIgnoreAttack(false);
 }
 
-bool APlayerCharacter::IsLockedMove() const
+bool APlayerCharacter::IsLockedAction() const
 {
+	if (MyGameModeBase == nullptr || PlayerAnim == nullptr) return false;
+	
 	bool bIsMontagePlaying = PlayerAnim->IsAnyMontagePlaying();
-
 	return bDamageState || PlayerAnim->bDodge || bIsMontagePlaying || MyGameModeBase->IsPlayingSequence();
-
 }
 
 APrisoner* APlayerCharacter::FindTargetPrisoner()
@@ -323,6 +327,8 @@ void APlayerCharacter::PlayAttackAnimation()
 	PlayerMotionWarpingComp->PlayMotionWarpingToTarget(TargetPrisoner, 75);
 	// 사운드 재생
 	SoundManager->PlaySound(EPlayerSoundType::VaildAttack);
+
+	
 }
 
 void APlayerCharacter::OnHitPrisoner()
@@ -350,6 +356,9 @@ void APlayerCharacter::OnHitPrisoner()
 		// Effect
 		EPlayerEffectType effectType = HitCombo < MaxHitCombo ? EPlayerEffectType::DefaultAttack : EPlayerEffectType::SpecialAttack;
 		EffectManager->SpawnEffectAtLocation(effectType, TargetPrisoner->GetActorLocation(), TargetPrisoner->GetActorRotation());
+
+		// 카메라 쉐이크
+		CameraShake->PlayCameraShake(ECameraShakeType::Attack);
 	}
 }
 
@@ -374,8 +383,7 @@ void APlayerCharacter::OnPlayMotionWarping(EAttackType AttackType)
 void APlayerCharacter::OnTakeDamage(AActor* OtherActor, int32 Damage)
 {
 	if(HP <= 0) return;
-	if(bDamageState) return;
-	if(MyGameModeBase->IsPlayingSequence()) return;
+	if(IsLockedAction()) return;
 
 	SetHP(HP-Damage);
 	
@@ -417,6 +425,9 @@ void APlayerCharacter::OnTakeDamage(AActor* OtherActor, int32 Damage)
 
 		// UI 애니메이션 재생
 		MyGameModeBase->MainWidget->BlinkRedAllUI();
+
+		// 카메라 쉐이크
+		CameraShake->PlayCameraShake(ECameraShakeType::Damage);
 	}
 	// Die 처리
 	else

@@ -172,6 +172,11 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	class UPlayerAntidoteDetector* AntidoteDetector;
 
+	// Camera Shake
+	UPROPERTY(EditDefaultsOnly)
+	class UPlayerCameraShake* CameraShake;
+
+
 private:
 	// Input
 	void OnActionMove(const FInputActionValue& Value);
@@ -182,7 +187,7 @@ private:
 	void OnActionBossAttack(const FInputActionValue& Value);
 
 	// Move
-	bool IsLockedMove() const;
+	bool IsLockedAction() const;
 
 	// Find Target
 	APrisoner* FindTargetPrisoner();
