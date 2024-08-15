@@ -18,6 +18,8 @@
 #include "PlayerAttackPointComponent.h"
 #include "BossMapMainWidget.h"
 #include "Components/CapsuleComponent.h"
+#include "SYHSoundManager.h"
+#include "EngineUtils.h"
 
 // Sets default values for this component's properties
 UBossFSM::UBossFSM()
@@ -61,6 +63,11 @@ void UBossFSM::BeginPlay()
 	MyGameModeBase->MainWidget->UpdateBossHPBar(1, 1);
 
 
+	if (soundmanager)
+	{
+		soundmanager->PlayBossFirstSound();
+		MyGameModeBase->MainWidget->ShowSubtitle1();
+	}
 
 }
 
@@ -103,7 +110,31 @@ void UBossFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 		YellState();
 		break;
 	}
-	
+	if (mState == EBossState::Move)
+	{
+		// 이때 보스 나레이션
+		int32 nar = FMath::RandRange(0,5000);
+		if (nar == 0)
+		{
+			if (soundmanager)
+			{
+				soundmanager->PlayBossSecondSound();
+				MyGameModeBase->MainWidget->ShowSubtitle2();
+				UE_LOG(LogTemp, Warning, TEXT("second"));
+			}
+		}
+		else if (nar == 1)
+		{
+			if (soundmanager)
+			{
+				soundmanager->PlayBossThirdSound();
+				MyGameModeBase->MainWidget->ShowSubtitle3();
+				UE_LOG(LogTemp, Warning, TEXT("third"));
+			}
+		}
+	}
+	//else if(mState == EBossState::LeftAttack || )
+
 	FString logMsg = UEnum::GetValueAsString(mState);
 	GEngine->AddOnScreenDebugMessage(0, 1, FColor::Cyan,logMsg);
 }
@@ -123,6 +154,7 @@ void UBossFSM::IdleState()
 
 void UBossFSM::MoveState() // boss move to player or idle
 {
+
 	//타깃의 목적지
 	FVector destination = Ptarget->GetActorLocation();
 	//방향

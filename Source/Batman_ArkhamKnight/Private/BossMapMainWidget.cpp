@@ -8,6 +8,10 @@
 #include "BossGameOverWidget.h"
 #include "Kismet/GameplayStatics.h"
 #include "Animation/WidgetAnimation.h"
+#include "Blueprint/UserWidget.h"
+#include "SubtitleWidget1.h"
+#include "SubtitleWidget2.h"
+#include "SubtitleWidget3.h"
 
 void UBossMapMainWidget::NativeConstruct()
 {
@@ -62,4 +66,17 @@ void UBossMapMainWidget::BlinkRedUI()
 void UBossMapMainWidget::BlinkRedAllUI()
 {
     PlayAnimation(RedAll);
+}
+
+void UBossMapMainWidget::ShowSubtitle1()
+{
+    BossSubtitleWidget1->Show();
+}
+void UBossMapMainWidget::ShowSubtitle2()
+{
+    BossSubtitleWidget2->Show(); 
+}
+void UBossMapMainWidget::ShowSubtitle3()
+{
+    BossSubtitleWidget3->Show();
 }

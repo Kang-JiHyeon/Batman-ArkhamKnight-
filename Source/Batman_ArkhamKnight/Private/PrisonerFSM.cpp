@@ -149,7 +149,7 @@ void UPrisonerFSM::MoveState(float& DeltaSeconds) {
 		else
 		{
 			int value = FMath::RandRange(0, 100);
-			if (value < 95)
+			if (value < 50)
 			{
 				if (PrisonerScream)
 				{
@@ -318,7 +318,12 @@ void UPrisonerFSM::DamageState(float& DeltaSeconds)
 
 void UPrisonerFSM::FaintState(float& DeltaSeconds)
 {
-
+	if (anim->damageDelayTime >= 3.0f)
+	{
+		SetCollision(false);
+		SetState(EPrisonerState::Move);
+		anim->PanimState = mState;
+	}
 	SetCollision(false);
 	currentTime += DeltaSeconds;
 	if (currentTime > FaintDelayTime)
@@ -425,7 +430,7 @@ void UPrisonerFSM::OnMyTakeDamage(int32 damage)
 	}
 	if (damage >= 2)
 	{
-		anim->damageDelayTime = 5.0f;
+		anim->damageDelayTime = 4.5f;
 	}
 	else
 	{

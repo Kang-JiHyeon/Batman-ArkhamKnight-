@@ -156,4 +156,7 @@ public:
 	UPROPERTY(EditAnywhere)
 	class APrisoner* prisoner;
 
+	// 나레이션
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
+	class ASYHSoundManager* soundmanager;
 };

@@ -29,6 +29,15 @@ public:
 	UPROPERTY(EditDefaultsOnly,meta=(BindWidget))
 	class UBossGameOverWidget* GameOverWidget ;
 
+	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
+	class USubtitleWidget1* BossSubtitleWidget1;
+
+	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
+	class USubtitleWidget2* BossSubtitleWidget2;
+
+	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
+	class USubtitleWidget3* BossSubtitleWidget3;
+
 public:
 	void UpdatePlayerHPBar(const int32 Value, const int32 Max);
 	void UpdatePlayerHitCombo(const int32 Value, const int32 Max);
@@ -46,8 +55,11 @@ public:
 	UPROPERTY(BlueprintReadOnly,Transient,meta = (BindWidgetAnim))
 	class UWidgetAnimation* RedAll;
 
-	UFUNCTION()
 	void BlinkRedUI();
 	void BlinkRedAllUI();
+
+	void ShowSubtitle1();
+	void ShowSubtitle2();
+	void ShowSubtitle3();
 
 };
