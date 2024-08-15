@@ -172,6 +172,11 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	class UPlayerAntidoteDetector* AntidoteDetector;
 
+	// Camera Shake
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<class UCameraShakeBase> CameraShake;
+
+
 private:
 	// Input
 	void OnActionMove(const FInputActionValue& Value);
@@ -194,6 +199,8 @@ private:
 	void SetHitCombo(float Value);
 	void SetSkillCombo(float Value);
 	void OnHitSucceeded(float Value);
+
+	void PlayCameraShake();
 
 public:
 	bool bIsSlow;

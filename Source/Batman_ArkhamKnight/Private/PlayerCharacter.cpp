@@ -23,6 +23,8 @@
 #include "Components/AudioComponent.h"
 #include "PlayerEffectManager.h"
 #include "PlayerAntidoteDetector.h"
+#include "Camera/PlayerCameraManager.h"
+#include "Camera/CameraShakeBase.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -350,6 +352,9 @@ void APlayerCharacter::OnHitPrisoner()
 		// Effect
 		EPlayerEffectType effectType = HitCombo < MaxHitCombo ? EPlayerEffectType::DefaultAttack : EPlayerEffectType::SpecialAttack;
 		EffectManager->SpawnEffectAtLocation(effectType, TargetPrisoner->GetActorLocation(), TargetPrisoner->GetActorRotation());
+
+		// 카메라
+		PlayCameraShake();
 	}
 }
 
@@ -417,6 +422,9 @@ void APlayerCharacter::OnTakeDamage(AActor* OtherActor, int32 Damage)
 
 		// UI 애니메이션 재생
 		MyGameModeBase->MainWidget->BlinkRedAllUI();
+
+		// 카메라 쉐이크
+		PlayCameraShake();
 	}
 	// Die 처리
 	else
@@ -473,5 +481,13 @@ void APlayerCharacter::OnHitSucceeded(float Value)
 {
 	SetHitCombo(HitCombo + Value);
 	SetSkillCombo(SkillCombo + Value);
+
+}
+
+void APlayerCharacter::PlayCameraShake()
+{
+	GetWorld()->GetFirstPlayerController()->PlayerCameraManager->StartCameraShake(CameraShake);
+
+
 
 }
