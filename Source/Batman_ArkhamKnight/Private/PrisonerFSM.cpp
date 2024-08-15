@@ -131,8 +131,12 @@ void UPrisonerFSM::IdleState(float& DeltaSeconds)
 
 void UPrisonerFSM::MoveState(float& DeltaSeconds) {
 	if (HP <= 0)
-		return;
+	{
 
+		SetCollision(false);
+		SetState(EPrisonerState::Die);
+		anim->PanimState = mState;
+	}
 	// 鸥标狼 格利瘤
 	FVector destination = Ptarget->GetActorLocation();
 	FVector dir = destination - me->GetActorLocation();
@@ -173,6 +177,13 @@ void UPrisonerFSM::MoveState(float& DeltaSeconds) {
 
 void UPrisonerFSM::RunState(float& DeltaSeconds)
 {
+	if (HP <= 0)
+	{
+
+		SetCollision(false);
+		SetState(EPrisonerState::Die);
+		anim->PanimState = mState;
+	}
 	if (MyGameModeBase->IsPlayingSequence() == true)
 	{
 		SetState(EPrisonerState::BackMove);
@@ -220,6 +231,13 @@ void UPrisonerFSM::RunState(float& DeltaSeconds)
 
 void UPrisonerFSM::BackMoveState(float& DeltaSeconds)
 {
+	if (HP <= 0)
+	{
+
+		SetCollision(false);
+		SetState(EPrisonerState::Die);
+		anim->PanimState = mState;
+	}
 	// 鸥标狼 格利瘤
 	FVector destination = Ptarget->GetActorLocation();
 	FVector dir = destination - me->GetActorLocation();

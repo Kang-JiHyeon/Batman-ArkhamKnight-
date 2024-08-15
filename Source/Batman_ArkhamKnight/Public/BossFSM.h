@@ -15,7 +15,6 @@ enum class EBossState :uint8
 	RightAttack,
 	LeftAttack,
 	DoubleRightAttack,
-	DoubleLeftAttack,
 	Damage,
 	Die,
 	Crawl,
@@ -54,8 +53,6 @@ public:
 	void LeftAttackState();
 	// 공격상태(연타)
 	void DoubleRightAttackState();
-	// 공격상태(연타)
-	void DoubleLeftAttackState();
 	// 피격상태
 	void DamageState();
 	// 죽음상태
@@ -159,4 +156,7 @@ public:
 	// 나레이션
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
 	class ASYHSoundManager* soundmanager;
+
+	int nara = 1;
+
 };
