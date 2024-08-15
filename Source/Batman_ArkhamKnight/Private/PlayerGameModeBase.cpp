@@ -26,9 +26,6 @@ void APlayerGameModeBase::BeginPlay()
 	Settings.bDisableMovementInput = true;
 	Settings.bHideHud = true;
 	CreateLevelSequencePlayer();
-
-
-	CreateAntidoteDetector();
 }
 
 void APlayerGameModeBase::CreateLevelSequencePlayer()
@@ -96,11 +93,16 @@ void APlayerGameModeBase::CheckAllEnemiesDead()
 	if (DeadEnemies >= TotalEnemies)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("All enemies are dead. Game Over!"));
-		GetWorld()->GetTimerManager().SetTimer(VisibleUITimeHandle, this, &APlayerGameModeBase::VisibleUI, 5.0f, false);
+
+		CreateAntidoteDetector();
+		//GetWorld()->GetTimerManager().SetTimer(VisibleUITimeHandle, this, &APlayerGameModeBase::VisibleUI, 5.0f, false);
 	}
 }
 
 void APlayerGameModeBase::VisibleUI()
 {
+
 	MainWidget->VisibleOverUI();
 }
+
+

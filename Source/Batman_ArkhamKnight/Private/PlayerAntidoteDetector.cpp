@@ -31,28 +31,13 @@ void UPlayerAntidoteDetector::SetupPlayerInputComponent(UInputComponent* PlayerI
 
 void UPlayerAntidoteDetector::OnActionInteraction()
 {
-	UE_LOG(LogTemp, Warning, TEXT("OnActionInteraction!!"));
-
-	if (Target == nullptr)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Target Null!!"));
-		return;
-	}
-
-	if (MyGameModeBase == nullptr)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("MyGameModeBase Null!!"));
-		return;
-	}
+	if (Target == nullptr)	return;
+	if (MyGameModeBase == nullptr)	return;
 
 	MyGameModeBase->VisibleUI();
-
-	UE_LOG(LogTemp, Warning, TEXT("VisibleUI!!"));
-
 }
 
 void UPlayerAntidoteDetector::SetTargetAntidote(AActor* TargetAntidote)
 {
 	Target = TargetAntidote;
 }
-

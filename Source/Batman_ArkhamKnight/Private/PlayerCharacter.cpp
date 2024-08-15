@@ -202,12 +202,6 @@ void APlayerCharacter::OnActionAttack(const FInputActionValue& Value)
 		return;
 	}
 
-	//if (PlayerAnim->bIgnoreInputAttack)
-	//{
-	//	UE_LOG(LogTemp, Warning, TEXT("Attack을 할 수 없는 상태입니다."));
-	//	return;
-	//}
-
 	bIsSlow = false;
 
 	TargetPrisoner = FindTargetPrisoner();
@@ -239,7 +233,7 @@ void APlayerCharacter::OnActionBossAttack(const FInputActionValue& Value)
 	if (TargetBoss == nullptr) return;
 	if (TargetBoss->fsm->mState == EBossState::Die) return;
 	if(IsLockedMove()) return;
-	if(SkillCombo < MaxSkillCombo) return;
+	//if(SkillCombo < MaxSkillCombo) return;
 
 	// 몽타주 재생
 	PlayAnimMontage(BossAttackMotages[bossAttackIndex]);
