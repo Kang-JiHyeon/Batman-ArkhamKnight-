@@ -23,8 +23,7 @@
 #include "Components/AudioComponent.h"
 #include "PlayerEffectManager.h"
 #include "PlayerAntidoteDetector.h"
-#include "Camera/PlayerCameraManager.h"
-#include "Camera/CameraShakeBase.h"
+#include "PlayerCameraShake.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -67,6 +66,9 @@ APlayerCharacter::APlayerCharacter()
 
 	// 해독제 감지
 	AntidoteDetector = CreateDefaultSubobject<UPlayerAntidoteDetector>(TEXT("AntidoteDetector"));
+
+	// 카메라 쉐이크
+	CameraShake = CreateDefaultSubobject<UPlayerCameraShake>(TEXT("CameraShake"));
 }
 
 // Called when the game starts or when spawned
@@ -325,6 +327,8 @@ void APlayerCharacter::PlayAttackAnimation()
 	PlayerMotionWarpingComp->PlayMotionWarpingToTarget(TargetPrisoner, 75);
 	// 사운드 재생
 	SoundManager->PlaySound(EPlayerSoundType::VaildAttack);
+
+	
 }
 
 void APlayerCharacter::OnHitPrisoner()
@@ -353,8 +357,8 @@ void APlayerCharacter::OnHitPrisoner()
 		EPlayerEffectType effectType = HitCombo < MaxHitCombo ? EPlayerEffectType::DefaultAttack : EPlayerEffectType::SpecialAttack;
 		EffectManager->SpawnEffectAtLocation(effectType, TargetPrisoner->GetActorLocation(), TargetPrisoner->GetActorRotation());
 
-		// 카메라
-		PlayCameraShake();
+		// 카메라 쉐이크
+		CameraShake->PlayCameraShake(ECameraShakeType::Attack);
 	}
 }
 
@@ -424,7 +428,7 @@ void APlayerCharacter::OnTakeDamage(AActor* OtherActor, int32 Damage)
 		MyGameModeBase->MainWidget->BlinkRedAllUI();
 
 		// 카메라 쉐이크
-		PlayCameraShake();
+		CameraShake->PlayCameraShake(ECameraShakeType::Damage);
 	}
 	// Die 처리
 	else
@@ -481,13 +485,5 @@ void APlayerCharacter::OnHitSucceeded(float Value)
 {
 	SetHitCombo(HitCombo + Value);
 	SetSkillCombo(SkillCombo + Value);
-
-}
-
-void APlayerCharacter::PlayCameraShake()
-{
-	GetWorld()->GetFirstPlayerController()->PlayerCameraManager->StartCameraShake(CameraShake);
-
-
 
 }

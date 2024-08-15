@@ -174,7 +174,7 @@ public:
 
 	// Camera Shake
 	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<class UCameraShakeBase> CameraShake;
+	class UPlayerCameraShake* CameraShake;
 
 
 private:
@@ -199,8 +199,6 @@ private:
 	void SetHitCombo(float Value);
 	void SetSkillCombo(float Value);
 	void OnHitSucceeded(float Value);
-
-	void PlayCameraShake();
 
 public:
 	bool bIsSlow;
