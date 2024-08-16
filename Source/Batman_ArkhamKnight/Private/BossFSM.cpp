@@ -110,10 +110,10 @@ void UBossFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 		YellState();
 		break;
 	}
-	if (mState == EBossState::Move )
+	if (mState == EBossState::Move)
 	{
 		// 이때 보스 나레이션
-		int32 nar = FMath::RandRange(0,2000);
+		int32 nar = FMath::RandRange(0, 500);
 		if (nar == 0 && nara == 1)
 		{
 			if (soundmanager)
@@ -124,14 +124,17 @@ void UBossFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 				nara = 2;
 			}
 		}
-		else if (nar == 1 && nara==2)
+	}
+	else if (mState == EBossState::Crawl) {
+		int32 nar = FMath::RandRange(0, 10);
+		if (nar == 1 && nara == 2)
 		{
 			if (soundmanager)
 			{
 				soundmanager->PlayBossThirdSound();
 				MyGameModeBase->MainWidget->ShowSubtitle3();
 				UE_LOG(LogTemp, Warning, TEXT("third"));
-				nara = 4;
+				nara = 3;
 			}
 		}
 	}
