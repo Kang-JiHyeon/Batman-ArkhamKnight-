@@ -157,6 +157,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
 	class ASYHSoundManager* soundmanager;
 
-	int nara = 1;
+	int32 nara = 1;
 
 };
