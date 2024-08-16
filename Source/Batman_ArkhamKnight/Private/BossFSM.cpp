@@ -113,7 +113,7 @@ void UBossFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	if (mState == EBossState::Move )
 	{
 		// 이때 보스 나레이션
-		int32 nar = FMath::RandRange(0,2500);
+		int32 nar = FMath::RandRange(0,2000);
 		if (nar == 0 && nara == 1)
 		{
 			if (soundmanager)
@@ -132,31 +132,6 @@ void UBossFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 				MyGameModeBase->MainWidget->ShowSubtitle3();
 				UE_LOG(LogTemp, Warning, TEXT("third"));
 				nara = 4;
-			}
-		}
-	}
-	else if (mState == EBossState::LeftAttack || mState == EBossState::RightAttack || mState == EBossState::DoubleRightAttack || mState == EBossState::Crawl)
-	{
-		// 이때 죄수 나레이션
-		int32 nar = FMath::RandRange(0, 2000);
-		if (nar == 1)
-		{
-			if (soundmanager && nara == 4)
-			{
-				soundmanager->PlayPrisonerSecondSound();
-				MyGameModeBase->MainWidget->ShowSubtitle5();
-				nara = 5;
-				UE_LOG(LogTemp, Warning, TEXT("fifth"));
-			}
-		}
-		else if (nar == 2)
-		{
-			if (soundmanager && nara == 5)
-			{
-				soundmanager->PlayPrisonerThirdSound();
-				MyGameModeBase->MainWidget->ShowSubtitle6();
-				nara = 6;
-				UE_LOG(LogTemp, Warning, TEXT("six"));
 			}
 		}
 	}
