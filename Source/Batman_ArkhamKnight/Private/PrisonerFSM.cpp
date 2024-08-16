@@ -51,8 +51,10 @@ void UPrisonerFSM::BeginPlay()
 void UPrisonerFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	FString myState = UEnum::GetValueAsString(mState);
-	DrawDebugString(GetWorld(), GetOwner()->GetActorLocation(), myState, nullptr, FColor::Yellow, 0);
+
+	//FString myState = UEnum::GetValueAsString(mState);
+	//DrawDebugString(GetWorld(), GetOwner()->GetActorLocation(), myState, nullptr, FColor::Yellow, 0);
+	
 	switch (mState)
 	{
 	case EPrisonerState::Idle:

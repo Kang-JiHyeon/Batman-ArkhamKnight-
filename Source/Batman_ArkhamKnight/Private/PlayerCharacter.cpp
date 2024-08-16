@@ -237,7 +237,7 @@ void APlayerCharacter::OnActionBossAttack(const FInputActionValue& Value)
 	if (TargetBoss == nullptr) return;
 	if (TargetBoss->fsm->mState == EBossState::Die) return;
 	if(IsLockedAction()) return;
-	//if(SkillCombo < MaxSkillCombo) return;
+	if(SkillCombo < MaxSkillCombo) return;
 
 	// 몽타주 재생
 	PlayAnimMontage(BossAttackMotages[bossAttackIndex]);
