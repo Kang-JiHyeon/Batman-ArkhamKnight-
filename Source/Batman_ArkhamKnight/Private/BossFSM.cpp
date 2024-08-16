@@ -67,6 +67,7 @@ void UBossFSM::BeginPlay()
 	{
 		soundmanager->PlayBossFirstSound();
 		MyGameModeBase->MainWidget->ShowSubtitle1();
+		UE_LOG(LogTemp, Warning, TEXT("first"));
 	}
 
 }
@@ -76,7 +77,8 @@ void UBossFSM::BeginPlay()
 void UBossFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
+	FString logMsg = UEnum::GetValueAsString(mState);
+	GEngine->AddOnScreenDebugMessage(0, 1, FColor::Cyan, logMsg);
 	switch (mState)
 	{
 	case EBossState::Idle:
@@ -94,9 +96,6 @@ void UBossFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	case EBossState::DoubleRightAttack:
 		DoubleRightAttackState();
 		break;
-	case EBossState::DoubleLeftAttack:
-		DoubleLeftAttackState();
-		break;
 	case EBossState::Damage:
 		DamageState();
 		break;
@@ -110,33 +109,67 @@ void UBossFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 		YellState();
 		break;
 	}
-	if (mState == EBossState::Move)
+	if (mState == EBossState::Move )
 	{
 		// 이때 보스 나레이션
-		int32 nar = FMath::RandRange(0,5000);
-		if (nar == 0)
+		int32 nar = FMath::RandRange(0,100);
+		if (nar == 0 && nara == 1)
 		{
 			if (soundmanager)
 			{
 				soundmanager->PlayBossSecondSound();
 				MyGameModeBase->MainWidget->ShowSubtitle2();
 				UE_LOG(LogTemp, Warning, TEXT("second"));
+				nara = 2;
 			}
 		}
-		else if (nar == 1)
+		else if (nar == 1 && nara==2)
 		{
 			if (soundmanager)
 			{
 				soundmanager->PlayBossThirdSound();
 				MyGameModeBase->MainWidget->ShowSubtitle3();
 				UE_LOG(LogTemp, Warning, TEXT("third"));
+				nara = 3;
 			}
 		}
 	}
-	//else if(mState == EBossState::LeftAttack || )
+	else if (mState == EBossState::LeftAttack || mState == EBossState::RightAttack || mState == EBossState::DoubleRightAttack || mState == EBossState::Crawl)
+	{
+		// 이때 죄수 나레이션
+		int32 nar = FMath::RandRange(0, 100);
+		if (nar == 0)
+		{
+			if (soundmanager && nara ==3)
+			{
+				soundmanager->PlayPrisonerFirstSound();
+				MyGameModeBase->MainWidget->ShowSubtitle4();
+				nara = 4;
+				UE_LOG(LogTemp, Warning, TEXT("fourth"));
+			}
+		}
+		else if (nar == 1)
+		{
+			if (soundmanager && nara == 4)
+			{
+				soundmanager->PlayPrisonerSecondSound();
+				MyGameModeBase->MainWidget->ShowSubtitle5();
+				nara = 5;
+				UE_LOG(LogTemp, Warning, TEXT("fifth"));
+			}
+		}
+		else if (nar == 2 && nara == 5)
+		{
+			if (soundmanager)
+			{
+				soundmanager->PlayPrisonerThirdSound();
+				MyGameModeBase->MainWidget->ShowSubtitle6();
+				nara = 6;
+				UE_LOG(LogTemp, Warning, TEXT("six"));
+			}
+		}
+	}
 
-	FString logMsg = UEnum::GetValueAsString(mState);
-	GEngine->AddOnScreenDebugMessage(0, 1, FColor::Cyan,logMsg);
 }
 
 void UBossFSM::IdleState()
@@ -275,22 +308,7 @@ void UBossFSM::DoubleRightAttackState() // double smash
 	}
 }
 
-void UBossFSM::DoubleLeftAttackState() // double smash
-{
-	UE_LOG(LogTemp, Warning, TEXT("DoubleleftAttack"));
-	currentTime += GetWorld()->DeltaTimeSeconds;
 
-	float distance = FVector::Distance(Ptarget->GetActorLocation(), me->GetActorLocation());
-
-	// double attack 2 type
-	if (currentTime > 2.3)
-	{
-		SetCollision(false);
-		currentTime = 0;
-		mState = EBossState::Move;
-		anim->BanimState = mState;
-	}
-}
 
 void UBossFSM::DamageState()
 {

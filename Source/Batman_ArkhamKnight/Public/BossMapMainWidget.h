@@ -38,6 +38,15 @@ public:
 	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
 	class USubtitleWidget3* BossSubtitleWidget3;
 
+	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
+	class USubtitleWidget4* BossSubtitleWidget4;
+
+	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
+	class USubtitleWidget5* BossSubtitleWidget5;
+
+	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
+	class USubtitleWidget6* BossSubtitleWidget6;
+
 public:
 	void UpdatePlayerHPBar(const int32 Value, const int32 Max);
 	void UpdatePlayerHitCombo(const int32 Value, const int32 Max);
@@ -61,5 +70,8 @@ public:
 	void ShowSubtitle1();
 	void ShowSubtitle2();
 	void ShowSubtitle3();
+	void ShowSubtitle4();
+	void ShowSubtitle5();
+	void ShowSubtitle6();
 
 };

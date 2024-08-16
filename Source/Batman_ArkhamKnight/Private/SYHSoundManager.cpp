@@ -30,9 +30,9 @@ void ASYHSoundManager::PlayBossFirstSound()
 	if (BossFirstSound && Play1 == true)
 	{
 		UGameplayStatics::PlaySound2D(GetWorld(),BossFirstSound);
+		Play1 = false;
 	}
 
-	Play1 = false;
 }
 
 void ASYHSoundManager::PlayBossSecondSound()
@@ -41,6 +41,8 @@ void ASYHSoundManager::PlayBossSecondSound()
 	{
 		UGameplayStatics::PlaySound2D(GetWorld(), BossSecondSound);
 	}
+	Play2 = false;
+
 }
 
 void ASYHSoundManager::PlayBossThirdSound()
@@ -49,6 +51,8 @@ void ASYHSoundManager::PlayBossThirdSound()
 	{
 		UGameplayStatics::PlaySound2D(GetWorld(), BossThirdSound);
 	}
+	Play3 = false;
+
 }
 
 void ASYHSoundManager::PlayPrisonerFirstSound()

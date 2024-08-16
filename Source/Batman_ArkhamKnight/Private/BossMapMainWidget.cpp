@@ -12,6 +12,9 @@
 #include "SubtitleWidget1.h"
 #include "SubtitleWidget2.h"
 #include "SubtitleWidget3.h"
+#include "SubtitleWidget4.h"
+#include "SubtitleWidget5.h"
+#include "SubtitleWidget6.h"
 
 void UBossMapMainWidget::NativeConstruct()
 {
@@ -79,4 +82,16 @@ void UBossMapMainWidget::ShowSubtitle2()
 void UBossMapMainWidget::ShowSubtitle3()
 {
     BossSubtitleWidget3->Show();
+}
+void UBossMapMainWidget::ShowSubtitle4()
+{
+    BossSubtitleWidget4->Show();
+}
+void UBossMapMainWidget::ShowSubtitle5()
+{
+    BossSubtitleWidget5->Show();
+}
+void UBossMapMainWidget::ShowSubtitle6()
+{
+    BossSubtitleWidget6->Show();
 }
