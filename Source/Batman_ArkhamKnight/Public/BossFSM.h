@@ -155,6 +155,9 @@ public:
 
 	// 나레이션
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
+	TSubclassOf<class ASYHSoundManager> soundManagerFactory;
+
+	UPROPERTY()
 	class ASYHSoundManager* soundmanager;
 
 	int32 nara = 1;

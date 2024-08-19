@@ -62,9 +62,11 @@ void UBossFSM::BeginPlay()
 	HP = BossHp;
 	MyGameModeBase->MainWidget->UpdateBossHPBar(1, 1);
 
+	soundmanager = GetWorld()->SpawnActor<ASYHSoundManager>(soundManagerFactory, FVector::ZeroVector, FRotator::ZeroRotator);
 
 	if (soundmanager)
 	{
+
 		soundmanager->PlayBossFirstSound();
 		MyGameModeBase->MainWidget->ShowSubtitle1();
 		UE_LOG(LogTemp, Warning, TEXT("first"));
