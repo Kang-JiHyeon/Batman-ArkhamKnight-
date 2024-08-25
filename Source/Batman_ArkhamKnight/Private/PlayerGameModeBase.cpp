@@ -95,6 +95,8 @@ void APlayerGameModeBase::CheckAllEnemiesDead()
 		UE_LOG(LogTemp, Warning, TEXT("All enemies are dead. Game Over!"));
 
 		CreateAntidoteDetector();
+
+		MainWidget->ShowPlayerStatWidget(false);
 		//GetWorld()->GetTimerManager().SetTimer(VisibleUITimeHandle, this, &APlayerGameModeBase::VisibleUI, 5.0f, false);
 	}
 }

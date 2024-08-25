@@ -53,6 +53,7 @@ public:
 	void UpdatePlayerSkillGauge(const int32 Value, const int32 Max);
 
 	void ShowGameOverWidget(bool bValue);
+	void ShowPlayerStatWidget(bool bValue);
 
 	void UpdateBossHPBar(int32 cur, int32 max);
 

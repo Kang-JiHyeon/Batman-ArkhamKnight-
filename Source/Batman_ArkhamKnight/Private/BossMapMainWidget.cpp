@@ -41,10 +41,14 @@ void UBossMapMainWidget::UpdatePlayerSkillGauge(const int32 Value, const int32 M
 void UBossMapMainWidget::ShowGameOverWidget(bool bValue)
 {
     PlayerGameOverWidget->ShowWidget(bValue);
-    PlayerStatWidget->ShowWidget(!bValue);
-
+    ShowPlayerStatWidget(!bValue);
     GetWorld()->GetFirstPlayerController()->SetShowMouseCursor(bValue);
     UGameplayStatics::SetGamePaused(GetWorld(), bValue);
+}
+
+void UBossMapMainWidget::ShowPlayerStatWidget(bool bValue)
+{
+    PlayerStatWidget->ShowWidget(bValue);
 }
 
 void UBossMapMainWidget::UpdateBossHPBar(int32 cur, int32 max)
